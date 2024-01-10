@@ -1,0 +1,45 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { css } from "../../styled-system/css";
+---
+
+<Layout title="XState by Example">
+  <header>
+    <div
+      class={css({
+        ml: "auto",
+        mr: "auto",
+        maxW: "7xl",
+        pl: "4",
+        pr: "4",
+        sm: { pl: "6", pr: "6" },
+        lg: { pl: "8", pr: "8" },
+      })}
+    >
+      <h1
+        class={css({
+          fontSize: "3xl",
+          lineHeight: "tight",
+          fontWeight: "bold",
+          letterSpacing: "tight",
+          color: "gray.900",
+        })}
+      >
+        Debouncing
+      </h1>
+    </div>
+  </header>
+  <main class={css({ mt: "8" })}>
+    <div
+      class={css({
+        ml: "auto",
+        mr: "auto",
+        maxW: "7xl",
+        sm: { pl: "6", pr: "6" },
+        lg: { pl: "8", pr: "8" },
+      })}
+    >
+      <p>Lol</p>
+    </div>
+  </main>
+</Layout>

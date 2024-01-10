@@ -1,51 +1,74 @@
 ---
+import "../index.css";
+import { css } from "../../styled-system/css";
+import { grid } from "../../styled-system/patterns";
+
 interface Props {
-	title: string;
+  title: string;
 }
 
 const { title } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="description" content="Astro description" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+<html lang="en" class={css({ height: "full" })}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Astro description" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body class={css({ height: "full" })}>
+    <div class={grid({ minH: "full", gridTemplateRows: 'auto 1fr', gap: 0 })}>
+      <nav
+        class={css({
+          borderBottomWidth: "1px",
+          borderColor: "gray.200",
+          bgColor: "white",
+        })}
+      >
+        <div
+          class={css({
+            ml: "auto",
+            mr: "auto",
+            maxW: "7xl",
+            pl: "4",
+            pr: "4",
+            sm: { pl: "6", pr: "6" },
+            lg: { pl: "8", pr: "8" },
+          })}
+        >
+          <div
+            class={css({
+              display: "flex",
+              h: "16",
+              justifyContent: "space-between",
+            })}
+          >
+            <div class={css({ display: "flex" })}>
+              <div
+                class={css({
+                  display: "flex",
+                  flexShrink: "0",
+                  alignItems: "center",
+                })}
+              >
+                <a
+                  href="/"
+                  class={css({ fontWeight: "medium", fontSize: "lg" })}
+                  >XState by Example</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class={css({ pt: "10", pb: "10", bg: "gray.50" })}>
+        <slot />
+      </div>
+    </div>
+  </body>
 </html>
-<style is:global>
-	:root {
-		--accent: 136, 58, 234;
-		--accent-light: 224, 204, 250;
-		--accent-dark: 49, 10, 101;
-		--accent-gradient: linear-gradient(
-			45deg,
-			rgb(var(--accent)),
-			rgb(var(--accent-light)) 30%,
-			white 60%
-		);
-	}
-	html {
-		font-family: system-ui, sans-serif;
-		background: #13151a;
-		background-size: 224px;
-	}
-	code {
-		font-family:
-			Menlo,
-			Monaco,
-			Lucida Console,
-			Liberation Mono,
-			DejaVu Sans Mono,
-			Bitstream Vera Sans Mono,
-			Courier New,
-			monospace;
-	}
-</style>
