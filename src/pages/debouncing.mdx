@@ -1,0 +1,19 @@
+---
+layout: "../layouts/ExampleLayout.astro"
+title: "Debouncing"
+---
+
+import { ButtonDemo } from '../components/debouncing/ButtonDemo.tsx';
+
+The debouncing pattern is crucial to UI development.
+Debouncing – and [throttling](/throttling) – is used to moderate
+how much a function is called by a time basis.
+
+When we *debounce* a function by 200ms, the function will actually be called only 200ms
+after the function has been called for the last time.
+If the function is called again before the timer ends,
+the timer is aborted and another one is started; the function is not called.
+
+Let's make it visual:
+
+<ButtonDemo client:idle />

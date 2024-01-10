@@ -1,4 +1,6 @@
 import { defineConfig } from "@pandacss/dev";
+import typographyPreset from "pandacss-preset-typography";
+import pandaPreset from '@pandacss/preset-panda'
 
 export default defineConfig({
   // Whether to use css reset
@@ -17,4 +19,9 @@ export default defineConfig({
 
   // The output directory for your css system
   outdir: "styled-system",
+
+  presets: [
+    typographyPreset(),
+    pandaPreset,
+  ]
 });

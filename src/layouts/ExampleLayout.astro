@@ -1,0 +1,50 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { css, cx } from "../../styled-system/css";
+import { prose } from "../../styled-system/recipes";
+
+const { title } = Astro.props.frontmatter as { title: string };
+---
+
+<Layout title={title}>
+  <div
+    class={css({
+      ml: "auto",
+      mr: "auto",
+      maxW: "5xl",
+      bg: "white",
+      rounded: "lg",
+      shadow: "md",
+    })}
+  >
+    <div
+      class={css({
+        maxW: "4xl",
+        mx: "auto",
+        px: "4",
+        py: "8",
+        sm: { px: "6", py: "10" },
+        lg: { px: "8", py: "12" },
+      })}
+    >
+      <header>
+        <div>
+          <h1
+            class={css({
+              fontSize: "3xl",
+              lineHeight: "tight",
+              fontWeight: "bold",
+              letterSpacing: "tight",
+              color: "gray.900",
+            })}
+          >
+            {title}
+          </h1>
+        </div>
+      </header>
+      <main class={cx(prose({ size: "lg" }), css({ mt: "8", maxWidth: "none" }))}>
+        <slot />
+      </main>
+    </div>
+  </div>
+</Layout>
