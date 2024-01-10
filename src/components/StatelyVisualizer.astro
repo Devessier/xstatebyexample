@@ -1,0 +1,11 @@
+---
+import { css } from "../../styled-system/css";
+
+interface Props {
+  url: string;
+}
+
+const { url } = Astro.props;
+---
+
+<iframe src={url} class={css({ aspectRatio: "wide", w: "full" })}></iframe>
