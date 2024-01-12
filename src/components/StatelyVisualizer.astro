@@ -2,10 +2,10 @@
 import { css } from "../../styled-system/css";
 
 interface Props {
-  url: string;
+  src: string;
 }
 
-const { url } = Astro.props;
+const { src } = Astro.props;
 ---
 
-<iframe src={url} class={css({ aspectRatio: "wide", w: "full" })}></iframe>
+<iframe {src} class={css({ aspectRatio: "wide", w: "full" })}></iframe>

@@ -7,7 +7,18 @@ import expressiveCode from "astro-expressive-code";
 // https://astro.build/config
 export default defineConfig({
   image: {
-    domains: ["stately.ai"]
+    domains: ["stately.ai"],
   },
-  integrations: [expressiveCode(), mdx(), react()]
+  integrations: [
+    expressiveCode({
+      // themes: ["min-light"],
+      styleOverrides: {
+        frames: {
+          editorActiveTabIndicatorTopColor: "#f87171",
+        },
+      },
+    }),
+    mdx(),
+    react(),
+  ],
 });

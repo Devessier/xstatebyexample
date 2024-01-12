@@ -21,7 +21,11 @@ export default defineConfig({
   outdir: "styled-system",
 
   presets: [
-    typographyPreset(),
+    typographyPreset({
+      recipe: {
+        notProse: true,
+      }
+    }),
     pandaPreset,
   ]
 });

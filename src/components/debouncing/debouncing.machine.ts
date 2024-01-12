@@ -1,12 +1,11 @@
-import { createMachine, fromPromise } from "xstate";
-
-const fetcher = fromPromise(
-  () => new Promise((resolve) => setTimeout(resolve, 2_000))
-);
+import { assign, createMachine } from "xstate";
 
 export const debouncingMachine = createMachine(
   {
     id: "Debouncing",
+    context: {
+      counter: 0,
+    },
     initial: "Idle",
     states: {
       Idle: {
@@ -14,13 +13,16 @@ export const debouncingMachine = createMachine(
           click: {
             target: "Debouncing",
           },
+          reset: {
+            actions: "Reset counter",
+          },
         },
       },
       Debouncing: {
         after: {
           "1000": {
-            target: "#Debouncing.Fetching",
-            actions: [],
+            target: "Idle",
+            actions: "Increment counter",
           },
         },
         on: {
@@ -32,26 +34,21 @@ export const debouncingMachine = createMachine(
           },
         },
       },
-      Fetching: {
-        invoke: {
-          input: {},
-          src: "Fetch data",
-          id: "fetch",
-          onDone: [
-            {
-              target: "Idle",
-            },
-          ],
-        },
-      },
     },
     types: {
-      events: {} as { type: "click" },
+      events: {} as { type: "click" } | { type: "reset" },
+      context: {} as { counter: number },
+      actions: {} as { type: "Increment counter" } | { type: "Reset counter" },
     },
   },
   {
-    actors: {
-      "Fetch data": fetcher,
+    actions: {
+      "Increment counter": assign({
+        counter: ({ context }) => context.counter + 1,
+      }),
+      "Reset counter": assign({
+        counter: 0,
+      }),
     },
   }
 );

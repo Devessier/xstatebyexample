@@ -3,6 +3,7 @@ layout: "../layouts/ExampleLayout.astro"
 title: "Debouncing"
 ---
 
+import Tabs from '../components/Tabs.tsx';
 import { ButtonDemo } from '../components/debouncing/ButtonDemo.tsx';
 import StatelyVisualizer from '../components/StatelyVisualizer.astro';
 import { css } from '../../styled-system/css';
@@ -17,35 +18,68 @@ after the function has been called for the last time.
 If the function is called again before the timer ends,
 the timer is aborted and another one is started; the function is not called.
 
-```ts
-const machine = createMachine({
-  a: {
-    on: {
-      click: {
-        target: "b"
-      }
-    }
-  },
-  b: {}
-})
-```
+## Example
 
-Let's make it visual:
+Try to increment the counter by click on the `Increment` button bellow.
+The counter will be incremented one second after you stopped clicking on the button.
 
-<iframe id="inspector" class={css({ aspectRatio: "wide", w: "full" })}></iframe>
+If you spam the button, the operation will be *rate-limited*; this is the purpose of the debouncing pattern.
 
-<div
-  className={css({
-    my: "12",
-    w: "full",
-    minH: 200,
-    h: "full",
-    maxWidth: "lg",
-    mx: "auto",
-    borderWidth: 2,
-    borderColor: "gray.300",
-    rounded: "md",
-  })}
->
-  <ButtonDemo client:only />
-</div>
+<ButtonDemo client:load />
+
+## Reference
+
+<Tabs labels={['Code', 'Visualizer']} client:load>
+  <Fragment slot="1">
+    ```ts
+    // machine.ts
+    import { createMachine } from "xstate";
+
+    export const machine = createMachine(
+      {
+        id: "Debouncing",
+        initial: "Idle",
+        states: {
+          Idle: {
+            on: {
+              click: {
+                target: "Debouncing",
+              },
+            },
+          },
+          Debouncing: {
+            after: {
+              "500": {
+                target: "Idle",
+                actions: [
+                  {
+                    type: "Execute function",
+                  },
+                ],
+              },
+            },
+            on: {
+              click: {
+                target: "Debouncing",
+                description:
+                  "Re-enter `Debouncing` state and reinitialize the delayed transition.",
+                reenter: true,
+              },
+            },
+          },
+        },
+        types: { events: {} as { type: "click" } },
+      },
+      {
+        actions: {
+          "Execute function": ({ context, event }) => {},
+        },
+      },
+    );
+    ```
+  </Fragment>
+
+  <Fragment slot="2">
+    <StatelyVisualizer src="https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=9a7bf006-8e4f-48f0-87c5-0412e7328f2e" />
+  </Fragment>
+</Tabs>
