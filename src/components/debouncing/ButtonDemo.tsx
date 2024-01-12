@@ -1,25 +1,33 @@
 import { css } from "../../../styled-system/css";
-import { grid } from "../../../styled-system/patterns";
 import { useActor } from "@xstate/react";
 import { debouncingMachine } from "./debouncing.machine";
+import { createBrowserInspector } from "@statelyai/inspect";
+import { useEffect, useMemo, useState } from "react";
+import { grid } from "../../../styled-system/patterns";
 
 export function ButtonDemo() {
-  const [state, send] = useActor(debouncingMachine);
+  const inspector = useMemo(() => {
+    console.log('create browser')
+    
+    return createBrowserInspector({
+      // url: 'https://stately.ai/registry/inspect',
+      iframe: document.querySelector('iframe#inspector') as HTMLIFrameElement,
+      autoStart: true,
+    })
+  }, []);
+  const [state, send] = useActor(debouncingMachine, {
+    inspect: inspector.inspect,
+  });
+
+  useEffect(() => {
+    inspector.start();
+  }, [])
 
   return (
-    <div
-      className={grid({
-        columns: 2,
-        my: "12",
-        w: "full",
-        minH: 200,
-        maxWidth: "lg",
-        mx: "auto",
-        borderWidth: 2,
-        borderColor: "gray.300",
-        rounded: "md",
-      })}
-    >
+    <div className={grid({
+      columns: 2,
+      h: "full",
+    })}>
       <button
         type="button"
         className={css({

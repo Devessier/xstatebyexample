@@ -47,87 +47,98 @@ const examples: Array<{
 ---
 
 <Layout title="XState by Example">
-  <header>
-    <div
-      class={css({
-        ml: "auto",
-        mr: "auto",
-        maxW: "7xl",
-        pl: "4",
-        pr: "4",
-        sm: { pl: "6", pr: "6" },
-        lg: { pl: "8", pr: "8" },
-      })}
-    >
-      <h1
+  <section>
+    <header>
+      <div
         class={css({
-          fontSize: "3xl",
-          lineHeight: "tight",
-          fontWeight: "bold",
-          letterSpacing: "tight",
-          color: "gray.900",
+          ml: "auto",
+          mr: "auto",
+          maxW: "7xl",
+          pl: "4",
+          pr: "4",
+          sm: { pl: "6", pr: "6" },
+          lg: { pl: "8", pr: "8" },
         })}
       >
-        Examples
-      </h1>
-    </div>
-  </header>
-  <main class={css({ mt: "8" })}>
-    <div
-      class={css({
-        ml: "auto",
-        mr: "auto",
-        maxW: "7xl",
-        pl: "4",
-        pr: "4",
-        sm: { pl: "6", pr: "6" },
-        lg: { pl: "8", pr: "8" },
-      })}
-    >
-      <div class={grid({ columns: [1, 2, null, 3], gap: "4" })}>
-        {
-          examples.map(({ href, name, imageUrl, width, height }) => (
-            <div
-              class={css({
-                pos: "relative",
-                shadow: "md",
-                bg: "white",
-                rounded: "xl",
-                p: "4",
-                translate: "auto",
-                transition: "all",
-                transitionTimingFunction: "ease-in-out",
-                transitionDuration: "fast",
-                _hover: { translateY: "-2",  }
-              })}
-            >
-              <Image
-                src={imageUrl}
-                alt=""
-                {width}
-                {height}
+        <h1
+          class={css({
+            fontSize: "3xl",
+            lineHeight: "tight",
+            fontWeight: "bold",
+            letterSpacing: "tight",
+            color: "gray.900",
+          })}
+        >
+          Examples
+        </h1>
+      </div>
+    </header>
+    <div class={css({ mt: "8" })}>
+      <div
+        class={css({
+          ml: "auto",
+          mr: "auto",
+          maxW: "7xl",
+          pl: "4",
+          pr: "4",
+          sm: { pl: "6", pr: "6" },
+          lg: { pl: "8", pr: "8" },
+        })}
+      >
+        <article class={grid({ columns: [1, 2, null, 3], gap: "4" })}>
+          {
+            examples.map(({ href, name, imageUrl, width, height }) => (
+              <article
                 class={css({
-                  aspectRatio: "wide",
-                  objectFit: "cover",
-                  bg: "#f5f7f7",
-                  rounded: "md",
-                  borderStyle: "solid",
-                  borderWidth: "2px",
-                  borderColor: "gray.300",
+                  pos: "relative",
+                  shadow: "md",
+                  bg: "white",
+                  rounded: "xl",
+                  p: "4",
+                  translate: "auto",
+                  transition: "all",
+                  transitionTimingFunction: "ease-in-out",
+                  transitionDuration: "fast",
+                  _hover: { translateY: "-2" },
                 })}
-              />
-
-              <p
-                class={css({ mt: "3", fontSize: "xl", fontWeight: "semibold" })}
               >
-                {name}
-              </p>
+                <Image
+                  src={imageUrl}
+                  alt=""
+                  {width}
+                  {height}
+                  class={css({
+                    aspectRatio: "wide",
+                    objectFit: "cover",
+                    bg: "#f5f7f7",
+                    rounded: "md",
+                    borderStyle: "solid",
+                    borderWidth: "2px",
+                    borderColor: "gray.300",
+                  })}
+                />
 
-              <a href={href} class={css({ pos: "absolute", inset: "0" })} />
-            </div>
-          ))
-        }
+                <h2
+                  class={css({
+                    mt: "3",
+                    fontSize: "xl",
+                    fontWeight: "semibold",
+                  })}
+                >
+                  <a
+                    href={href}
+                    class={css({
+                      _after: { content: '""', pos: "absolute", inset: 0 },
+                    })}
+                  >
+                    {name}
+                  </a>
+                </h2>
+              </article>
+            ))
+          }
+        </article>
       </div>
     </div>
-  </main>
+  </section>
 </Layout>

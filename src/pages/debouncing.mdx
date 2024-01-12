@@ -5,6 +5,8 @@ title: "Debouncing"
 
 import { ButtonDemo } from '../components/debouncing/ButtonDemo.tsx';
 import StatelyVisualizer from '../components/StatelyVisualizer.astro';
+import { css } from '../../styled-system/css';
+import { grid } from "../../styled-system/patterns";
 
 The debouncing pattern is crucial to UI development.
 Debouncing – and [throttling](/throttling) – is used to moderate
@@ -15,8 +17,35 @@ after the function has been called for the last time.
 If the function is called again before the timer ends,
 the timer is aborted and another one is started; the function is not called.
 
+```ts
+const machine = createMachine({
+  a: {
+    on: {
+      click: {
+        target: "b"
+      }
+    }
+  },
+  b: {}
+})
+```
+
 Let's make it visual:
 
-<ButtonDemo client:idle />
+<iframe id="inspector" class={css({ aspectRatio: "wide", w: "full" })}></iframe>
 
-<StatelyVisualizer url="https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=ece52c49-b3d6-43f9-9598-b04000ccf376" />
+<div
+  className={css({
+    my: "12",
+    w: "full",
+    minH: 200,
+    h: "full",
+    maxWidth: "lg",
+    mx: "auto",
+    borderWidth: 2,
+    borderColor: "gray.300",
+    rounded: "md",
+  })}
+>
+  <ButtonDemo client:only />
+</div>
