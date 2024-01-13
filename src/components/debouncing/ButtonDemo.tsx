@@ -1,8 +1,9 @@
 import { css, cx } from "../../../styled-system/css";
+import { Tooltip } from "@ark-ui/react";
 import { useActor } from "@xstate/react";
 import { debouncingMachine } from "./debouncing.machine";
 import { createBrowserInspector } from "@statelyai/inspect";
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import { flex } from "../../../styled-system/patterns";
 
 function WithMachine({
@@ -147,26 +148,53 @@ function WithMachine({
         })}
       >
         {isInspectorEnabled === false ? (
-          <button
-            type="button"
-            className={css({
-              rounded: "full",
-              bgColor: "white",
-              px: "2",
-              py: "0.5",
-              fontSize: "xs",
-              fontWeight: "semibold",
-              color: "gray.900",
-              shadow: "1",
-              borderWidth: "1",
-              borderColor: "gray.300",
-              cursor: "pointer",
-              _hover: { bgColor: "gray.50" },
-            })}
-            onClick={onInspectorEnable}
-          >
-            Visualize
-          </button>
+          <Tooltip.Root openDelay={0}>
+            <Tooltip.Trigger>
+              <button
+                type="button"
+                className={css({
+                  rounded: "full",
+                  bgColor: "white",
+                  px: "2",
+                  py: "0.5",
+                  fontSize: "xs",
+                  fontWeight: "semibold",
+                  color: "gray.900",
+                  shadow: "1",
+                  borderWidth: "1",
+                  borderColor: "gray.300",
+                  cursor: "pointer",
+                  _hover: { bgColor: "gray.50" },
+                })}
+                onClick={onInspectorEnable}
+              >
+                Visualize
+              </button>
+            </Tooltip.Trigger>
+
+            <Tooltip.Positioner>
+              <Tooltip.Content
+                className={css({
+                  background: "gray.950",
+                  borderRadius: "sm",
+                  boxShadow: "sm",
+                  color: "white",
+                  fontWeight: "semibold",
+                  px: "3",
+                  py: "2",
+                  textStyle: "xs",
+                  _open: {
+                    animation: "fadeIn 0.25s ease-out",
+                  },
+                  _closed: {
+                    animation: "fadeOut 0.2s ease-out",
+                  },
+                })}
+              >
+                Visualize the demo in Stately Inspector
+              </Tooltip.Content>
+            </Tooltip.Positioner>
+          </Tooltip.Root>
         ) : (
           <span
             className={css({
