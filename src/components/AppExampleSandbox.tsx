@@ -1,28 +1,106 @@
-import { useState } from "react";
 import { css, cx } from "../../styled-system/css";
 import { flex } from "../../styled-system/patterns";
 import { Tooltip } from "@ark-ui/react";
 import { createBrowserInspector } from "@statelyai/inspect";
-import type { ActorOptions, AnyActorLogic } from "xstate";
+import {
+  type ActorOptions,
+  type AnyActorLogic,
+  setup,
+  fromCallback,
+  assign,
+} from "xstate";
+import { useActor } from "@xstate/react";
+
+type BrowserInspector = ReturnType<typeof createBrowserInspector>;
 
 type ExampleComponent = React.FunctionComponent<{
   actorOptions: ActorOptions<AnyActorLogic> | undefined;
 }>;
 
+const inspectorLauncherMachine = setup({
+  types: {
+    context: {} as {
+      updateId: number;
+      inspector: BrowserInspector | undefined;
+    },
+    events: {} as { type: "inspector.open" } | { type: "inspector.closed" },
+  },
+  actors: {
+    "Wait for inspector window to be closed": fromCallback<
+      any,
+      { inspector: BrowserInspector }
+    >(({ input, sendBack }) => {
+      const timerId = setInterval(() => {
+        const isInspectorClosed =
+          input.inspector.adapter.targetWindow!.closed === true;
+
+        if (isInspectorClosed === true) {
+          sendBack({
+            type: "inspector.closed",
+          });
+        }
+      }, 1_000);
+
+      return () => {
+        clearInterval(timerId);
+      };
+    }),
+  },
+  actions: {
+    "Create inspector and assign to context": assign({
+      inspector: () => createBrowserInspector(),
+    }),
+    "Increment update id in context": assign({
+      updateId: ({ context }) => context.updateId + 1,
+    }),
+  },
+}).createMachine({
+  context: {
+    updateId: 0,
+    inspector: undefined,
+  },
+  initial: "closed",
+  states: {
+    closed: {
+      on: {
+        "inspector.open": {
+          target: "open",
+          actions: [
+            "Create inspector and assign to context",
+            "Increment update id in context",
+          ],
+        },
+      },
+    },
+    open: {
+      invoke: {
+        src: "Wait for inspector window to be closed",
+        input: ({ context }) => {
+          if (context.inspector === undefined) {
+            throw new Error("Inspector must be defined in context");
+          }
+
+          return {
+            inspector: context.inspector!,
+          };
+        },
+      },
+      on: {
+        "inspector.closed": {
+          target: "closed",
+        },
+      },
+    },
+  },
+});
+
 function InspectorSetter({
-  isInspectorEnabled,
+  inspector,
   Example,
 }: {
-  isInspectorEnabled: boolean;
+  inspector: BrowserInspector | undefined;
   Example: ExampleComponent;
 }) {
-  const [inspector] = useState(() => {
-    if (isInspectorEnabled === false) {
-      return undefined;
-    }
-
-    return createBrowserInspector();
-  });
   const actorOptions: ActorOptions<AnyActorLogic> | undefined =
     inspector === undefined
       ? undefined
@@ -33,13 +111,8 @@ function InspectorSetter({
   return <Example actorOptions={actorOptions} />;
 }
 
-export function AppExampleSandbox({
-  Example,
-}: {
-  Example: ExampleComponent;
-}) {
-  const [key, setKey] = useState(0);
-  const [isInspectorEnabled, setIsInspectorEnabled] = useState(false);
+export function AppExampleSandbox({ Example }: { Example: ExampleComponent }) {
+  const [state, send] = useActor(inspectorLauncherMachine);
 
   return (
     <div
@@ -56,9 +129,9 @@ export function AppExampleSandbox({
       )}
     >
       <InspectorSetter
-        key={key}
+        key={state.context.updateId}
         Example={Example}
-        isInspectorEnabled={isInspectorEnabled}
+        inspector={state.context.inspector}
       />
 
       <div
@@ -70,7 +143,7 @@ export function AppExampleSandbox({
           mr: "4",
         })}
       >
-        {isInspectorEnabled === false ? (
+        {state.matches("closed") === true ? (
           <Tooltip.Root openDelay={0}>
             <Tooltip.Trigger>
               <button
@@ -90,8 +163,9 @@ export function AppExampleSandbox({
                   _hover: { bgColor: "gray.50" },
                 })}
                 onClick={() => {
-                  setIsInspectorEnabled(true);
-                  setKey(key + 1);
+                  send({
+                    type: "inspector.open",
+                  });
                 }}
               >
                 Visualize
