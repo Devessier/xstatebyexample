@@ -1,0 +1,44 @@
+---
+layout: "../layouts/ExampleLayout.astro"
+title: "Throttling"
+---
+
+import Tabs from '../components/Tabs.tsx';
+import DemoEntrypoint from '../components/throttling/index.tsx';
+import StatelyVisualizer from '../components/StatelyVisualizer.astro';
+import { Content as DemoMachineCode } from '../components/throttling/machine.md';
+import { Content as DemoReactCode } from '../components/throttling/demo.md';
+
+The debouncing pattern is crucial to UI development.
+Debouncing – and [throttling](/throttling) – is used to moderate
+how much a function is called by a time basis.
+
+When we *debounce* a function by 200ms, the function will actually be called only 200ms
+after the function has been called for the last time.
+If the function is called again before the timer ends,
+the timer is aborted and another one is started; the function is not called.
+
+## Example
+
+Try to increment the counter by click on the `Increment` button bellow.
+The counter will be incremented one second after you stopped clicking on the button.
+
+If you spam the button, the operation will be *rate-limited*; this is the purpose of the debouncing pattern.
+
+<DemoEntrypoint client:load />
+
+## Code
+
+<Tabs labels={['Machine', 'React', 'Visualizer']} client:load>
+  <Fragment slot="1">
+    <DemoMachineCode />
+  </Fragment>
+
+  <Fragment slot="2">
+    <DemoReactCode />
+  </Fragment>
+
+  <Fragment slot="3">
+    <StatelyVisualizer src="https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?mode=design&machineId=610df47a-3ecd-4f55-9dea-6f97edf05ea0" />
+  </Fragment>
+</Tabs>
