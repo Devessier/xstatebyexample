@@ -145,31 +145,28 @@ export function AppExampleSandbox({ Example }: { Example: ExampleComponent }) {
       >
         {state.matches("closed") === true ? (
           <Tooltip.Root openDelay={0}>
-            <Tooltip.Trigger>
-              <button
-                type="button"
-                className={css({
-                  rounded: "full",
-                  bgColor: "white",
-                  px: "2",
-                  py: "0.5",
-                  fontSize: "xs",
-                  fontWeight: "semibold",
-                  color: "gray.900",
-                  shadow: "1",
-                  borderWidth: "1",
-                  borderColor: "gray.300",
-                  cursor: "pointer",
-                  _hover: { bgColor: "gray.50" },
-                })}
-                onClick={() => {
-                  send({
-                    type: "inspector.open",
-                  });
-                }}
-              >
-                Visualize
-              </button>
+            <Tooltip.Trigger
+              onClick={() => {
+                send({
+                  type: "inspector.open",
+                });
+              }}
+              className={css({
+                rounded: "full",
+                bgColor: "white",
+                px: "2",
+                py: "0.5",
+                fontSize: "xs",
+                fontWeight: "semibold",
+                color: "gray.900",
+                shadow: "1",
+                borderWidth: "1",
+                borderColor: "gray.300",
+                cursor: "pointer",
+                _hover: { bgColor: "gray.50" },
+              })}
+            >
+              Visualize
             </Tooltip.Trigger>
 
             <Tooltip.Positioner>
