@@ -9,19 +9,14 @@ import StatelyVisualizer from '../components/StatelyVisualizer.astro';
 import { Content as DemoMachineCode } from '../components/throttling/machine.md';
 import { Content as DemoReactCode } from '../components/throttling/demo.md';
 
-The debouncing pattern is crucial to UI development.
-Debouncing – and [throttling](/throttling) – is used to moderate
-how much a function is called by a time basis.
+The throttling pattern looks like the [debouncing](/debouncing) one, but instead of restarting a timer when the machine receives an event, it stops listening to events temporarily.
 
-When we *debounce* a function by 200ms, the function will actually be called only 200ms
-after the function has been called for the last time.
-If the function is called again before the timer ends,
-the timer is aborted and another one is started; the function is not called.
+In the following example, when the machine receives the first `click` event it goes in `Throttling` state. The `click` event is not listened by the machine in this state. The `Throttling` state starts a timer of one second which targets the `Idle` state back.
 
 ## Example
 
 Try to increment the counter by click on the `Increment` button bellow.
-The counter will be incremented one second after you stopped clicking on the button.
+The counter will be incremented at most most once every second.
 
 If you spam the button, the operation will be *rate-limited*; this is the purpose of the debouncing pattern.
 
