@@ -20,12 +20,10 @@ export const machine = createMachine(
             target: "Debouncing",
             reenter: true
           },
-
-          "Event 2": "Idle"
         }
       }
     },
-    types: { events: {} as { type: "next" } },
+    types: { events: {} as { type: "click" } },
   },
   {
     actions: {},
