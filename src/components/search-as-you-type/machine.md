@@ -64,13 +64,6 @@ export const searchAsYouTypeMachine = setup({
       searchInput: ({ context, event }) => {
         assertEvent(event, "item.click");
 
-        console.log(
-          "clicked",
-          context.availableItems[event.itemId],
-          event.itemId,
-          context.availableItems
-        );
-
         return context.availableItems[event.itemId];
       },
     }),
@@ -102,25 +95,11 @@ export const searchAsYouTypeMachine = setup({
       entry: "Reset active item index into context",
       initial: "Idle",
       states: {
-        Idle: {
-          on: {
-            "input.change": {
-              target: "Debouncing",
-              actions: "Assign search input to context",
-            },
-          },
-        },
+        Idle: {},
         Debouncing: {
           after: {
             500: {
               target: "Fetching",
-            },
-          },
-          on: {
-            "input.change": {
-              target: "Debouncing",
-              actions: "Assign search input to context",
-              reenter: true,
             },
           },
         },
@@ -141,15 +120,14 @@ export const searchAsYouTypeMachine = setup({
               ],
             },
           },
-          on: {
-            "input.change": {
-              target: "Debouncing",
-              actions: "Assign search input to context",
-            },
-          },
         },
       },
       on: {
+        "input.change": {
+          target: ".Debouncing",
+          reenter: true,
+          actions: "Assign search input to context",
+        },
         "combobox.click-outside": {
           target: "Inactive",
         },
