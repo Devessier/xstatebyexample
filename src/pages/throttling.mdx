@@ -18,7 +18,7 @@ In the following example, when the machine receives the first `click` event it g
 Try to increment the counter by click on the `Increment` button bellow.
 The counter will be incremented at most most once every second.
 
-If you spam the button, the operation will be *rate-limited*; this is the purpose of the debouncing pattern.
+The state machine is resilient to spamming. It controls how it should behave if the user abuses the button.
 
 <DemoEntrypoint client:load />
 

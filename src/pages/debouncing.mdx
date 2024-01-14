@@ -23,7 +23,7 @@ the timer is aborted and another one is started; the function is not called.
 Try to increment the counter by click on the `Increment` button bellow.
 The counter will be incremented one second after you stopped clicking on the button.
 
-If you spam the button, the operation will be *rate-limited*; this is the purpose of the debouncing pattern.
+The state machine is resilient to spamming. It controls how it should behave if the user abuses the button.
 
 <DemoEntrypoint client:load />
 
