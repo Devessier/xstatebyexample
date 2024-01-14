@@ -1,54 +1,26 @@
-# Astro Starter Kit: Basics
+# XState by Example
 
-```sh
-npm create astro@latest -- --template basics
+Welcome to the repository of XState by Example, a collection of state machines to help people think in state machines.
+
+## Development
+
+To start the website locally, run the following:
+
+```bash
+npm install
+npm run dev
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
+## Generate Markdown files from demo source files
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+I want to display the content of `machine.ts` and `Demo.tsx` files for each machine. Though it's easy to get the raw content of any file – thanks to Vite – but it's harder to render them as proper code blocks. I use [Expressive [Code](https://expressive-code.com/) to generate amazing code blocks, but it can't easily render an arbitrary string as a code block.
 
-![just-the-basics](https://github.com/withastro/astro/assets/2244813/a0a5533c-a856-4198-8470-2d67b1d7c554)
+As a consequence, I had to generate the Markdown blocks with an automatic tool.
 
-## 🚀 Project Structure
+To run it:
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── components/
-│   │   └── Card.astro
-│   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
+```bash
+npm run generate:code-markdown
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+For now, the files should be committed. There is no automatic system to build them or check them on a CI.

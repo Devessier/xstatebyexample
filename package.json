@@ -8,7 +8,8 @@
     "start": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "generate:code-markdown": "node ./helper-cli.js"
   },
   "dependencies": {
     "@ark-ui/react": "^1.2.1",
