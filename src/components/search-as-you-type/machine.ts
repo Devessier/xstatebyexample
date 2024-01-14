@@ -81,7 +81,7 @@ export const searchAsYouTypeMachine = setup({
     "Autocomplete search": fetchAutocompleteItems,
   },
 }).createMachine({
-  id: "Debouncing",
+  id: "Search as you type",
   context: {
     searchInput: "",
     activeItemIndex: -1,
