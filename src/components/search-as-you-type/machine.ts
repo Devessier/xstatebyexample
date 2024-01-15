@@ -1,14 +1,8 @@
 import { assign, setup, assertEvent, fromPromise } from "xstate";
-
-const itemsCollection: Array<string> = [
-  "Panda CSS",
-  "Tailwind CSS",
-  "Tailwind Labs",
-  "TypeScript",
-  "CSS",
-  "HTML",
-  "JavaScript",
-];
+/**
+ * Thanks ChatGPT 4 for this list of words!
+ */
+import itemsCollection from './database.json';
 
 const fetchAutocompleteItems = fromPromise<string[], { search: string }>(
   async ({ input }) => {
