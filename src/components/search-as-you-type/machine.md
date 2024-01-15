@@ -3,7 +3,7 @@ import { assign, setup, assertEvent, fromPromise } from "xstate";
 /**
  * Thanks ChatGPT 4 for this list of words!
  */
-import itemsCollection from './database.json';
+import itemsCollection from "./database.json";
 
 const fetchAutocompleteItems = fromPromise<string[], { search: string }>(
   async ({ input }) => {
@@ -64,6 +64,13 @@ export const searchAsYouTypeMachine = setup({
     "Assign last fetched search into context": assign({
       lastFetchedSearch: ({ context }) => context.searchInput,
     }),
+    "Reset available items in context": assign({
+      availableItems: [],
+    }),
+  },
+  guards: {
+    "Has search query been fetched": ({ context }) =>
+      context.searchInput === context.lastFetchedSearch,
   },
   actors: {
     "Autocomplete search": fetchAutocompleteItems,
@@ -87,8 +94,20 @@ export const searchAsYouTypeMachine = setup({
     },
     Active: {
       entry: "Reset active item index into context",
-      initial: "Idle",
+      initial: "Checking if initial fetching is required",
       states: {
+        "Checking if initial fetching is required": {
+          description: `After an item has been clicked and used as the new search query, we want to fetch its related results but only if they have not already been fetched.`,
+          always: [
+            {
+              guard: "Has search query been fetched",
+              target: "Idle",
+            },
+            {
+              target: "Fetching",
+            },
+          ],
+        },
         Idle: {},
         Debouncing: {
           after: {
@@ -133,7 +152,15 @@ export const searchAsYouTypeMachine = setup({
         },
         "item.click": {
           target: "Inactive",
-          actions: "Assign selected item as current search input into context",
+          actions: [
+            "Assign selected item as current search input into context",
+            /**
+             * We reset the available items when an item has been clicked because this is
+             * as if we were starting a new interaction session. An item has been selected
+             * and we don't want to see the previous and stale results when focus the input.
+             */
+            "Reset available items in context",
+          ],
         },
       },
     },

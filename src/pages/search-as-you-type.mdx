@@ -3,27 +3,47 @@ layout: "../layouts/ExampleLayout.astro"
 title: "Search as you type"
 ---
 
+import { Image } from "astro:assets";
 import Tabs from '../components/Tabs.tsx';
+import { css } from '../../styled-system/css';
 import DemoEntrypoint from '../components/search-as-you-type/index.tsx';
 import StatelyVisualizer from '../components/StatelyVisualizer.astro';
 import { Content as DemoMachineCode } from '../components/search-as-you-type/machine.md';
 import { Content as DemoReactCode } from '../components/search-as-you-type/Demo.md';
+import GoogleSearchAsYouTypeDemo from '../assets/search-as-you-type/google-demo.gif';
 
-The debouncing pattern is crucial to UI development.
-Debouncing – and [throttling](/throttling) – is used to moderate
-how much a function is called by a time basis.
+Many websites implement search as you type for their search engine.
+Search as you type is an UX pattern that makes suggestions to the user
+while she's typing a search query and before she clicks on the submit button.
 
-When we *debounce* a function by 200ms, the function will actually be called only 200ms
-after the function has been called for the last time.
-If the function is called again before the timer ends,
-the timer is aborted and another one is started; the function is not called.
+The first example that comes to my mind is Google's search bar:
+
+<Image
+  src={GoogleSearchAsYouTypeDemo}
+  alt="Google search bar suggests results while typing 'search as you type' query"
+  class={css({ mx: "auto", aspectRatio: "wide", objectFit: "contain", borderStyle: "solid", borderWidth: 1, borderColor: "gray.300", rounded: "2xl" })}
+/>
+
+From Google's examples, there are a few things to note:
+
+- While the user types on the input, it computes suggestions based on the query
+  and display them below the input (often called a [combobox](https://tailwindui.com/components/application-ui/forms/comboboxes)).
+- When the user clicks outside of the input, the suggestions disappear and reappear when the user focuses the input again.
+
+Google's search bar works well because results are computed and returned really fast.
+It will make an HTTP request for each key stroke, even if the user corrects a typo in-between.
+The response for these requests could take some time to come back due to network latency.
+
+Implementing a robust system against latencies shouldn't be an afterthought and the example below takes it seriously. The consequences are the following:
+
+- We'll debounce the request. The request will be started only 500ms after the user stops typing to reduce the number of requests being made.
+- If the user types in the input while a request is pending, the response of the request will be ignored and a new request will be made 500ms later.
 
 ## Example
 
-Try to increment the counter by click on the `Increment` button bellow.
-The counter will be incremented one second after you stopped clicking on the button.
+Try to type any character in the input. It will autocomplete based on its tiny database.
 
-The state machine is resilient to spamming. It controls how it should behave if the user abuses the button.
+Type more characters while debouncing or fetching happen. Try to break the machine! _I you find a bug there, please tell me! State machines are indestructible but their authors can make errors._
 
 <DemoEntrypoint client:load />
 

@@ -144,7 +144,7 @@ export function AppExampleSandbox({ Example }: { Example: ExampleComponent }) {
         })}
       >
         {state.matches("closed") === true ? (
-          <Tooltip.Root openDelay={0}>
+          <Tooltip.Root openDelay={0} positioning={{ strategy: "fixed" }}>
             <Tooltip.Trigger
               onClick={() => {
                 send({
