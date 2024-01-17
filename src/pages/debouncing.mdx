@@ -10,18 +10,18 @@ import { Content as DemoMachineCode } from '../components/debouncing/machine.md'
 import { Content as DemoReactCode } from '../components/debouncing/Demo.md';
 
 The debouncing pattern is crucial to UI development.
-Debouncing – and [throttling](/throttling) – is used to moderate
-how much a function is called by a time basis.
+Debouncing – and [throttling](/throttling) – are used to moderate
+how much a function is called on a time basis.
 
-When we *debounce* a function by 200ms, the function will actually be called only 200ms
+When we *debounce* a function by 200ms, the function will be called only 200ms
 after the function has been called for the last time.
 If the function is called again before the timer ends,
-the timer is aborted and another one is started; the function is not called.
+the timer is aborted, and another one is started; the function is not called.
 
 ## Example
 
-Try to increment the counter by clicking on the `Increment` button bellow.
-The counter will be incremented one second after you stopped clicking on the button.
+Try incrementing the counter by clicking the `Increment` button below.
+The counter will be incremented one second after you stop clicking the button.
 
 The state machine is resilient to spamming. It controls how it should behave if the user abuses the button.
 
