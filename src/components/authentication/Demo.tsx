@@ -52,6 +52,7 @@ function LoadingUserState() {
         justifyContent: "center",
         alignItems: "center",
         my: "-12",
+        px: "4",
       })}
     >
       <div
@@ -165,6 +166,7 @@ function SignOnForm({
         w: "full",
         maxW: { base: "full", sm: "sm" },
         mx: "auto",
+        px: "4",
       })}
     >
       <h2
