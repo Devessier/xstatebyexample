@@ -182,6 +182,7 @@ export const authenticationMachine = setup({
               actions: "Clear user data in context",
             },
             onError: {
+              target: "Idle",
               /**
                * You may display a toast to indicate that we couldn't sign out the user.
                */

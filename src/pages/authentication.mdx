@@ -9,11 +9,60 @@ import StatelyVisualizer from '../components/StatelyVisualizer.astro';
 import { Content as DemoMachineCode } from '../components/authentication/machine.md';
 import { Content as DemoReactCode } from '../components/authentication/Demo.md';
 
-AAA
+One of my favorite uses of XState is for global state management.
+It excels in an environment fully controlled by JavaScript, like a SPA (Single Page Application) or React Native.
+
+There is no concept of links in React Native. When using React Navigation, you must
+[declare the routes available based on the authentication state](https://reactnavigation.org/docs/auth-flow#how-it-will-work).
+It will automatically redirect the user to the first authenticated/not-authenticated route:
+
+```tsx
+function Navigation() {
+  if (isCheckingInitialAuth === true) {
+    return <SplashScreen />
+  }
+
+  return (
+    <Stack.Navigator>
+      {isSignedIn === true ? (
+        <>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="Settings" component={SettingsScreen} />
+        </>
+      ) : (
+        <>
+          <Stack.Screen name="SignIn" component={SignInScreen} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+        </>
+      )}
+    </Stack.Navigator>
+  )
+}
+```
+
+This state machine is better suitable for this use case where you must control everything happening,
+including the HTTP requests made to your authentication API.
 
 ## Example
 
-AAA
+The state machine first checks if the user is initially authenticated.
+In a real-world application, you would request a `/me` endpoint or authentication third-party service here.
+The machine redirects the user to the screen matching her authentication state.
+The machine stores the user's data in the context of the machine after having retrieved them from the external API.
+
+If the user is not initially authenticated, the machine redirects her to the sign-in screen,
+where she can go to the sign-up screen.
+
+When the user submits the sign-in or the sign-up form, the machine requests the auth API and expects it
+to return whether the operation succeeded and, optionally, an error code or the user's data. These data are stored
+in the context of the machine to be used in the UI part.
+
+An authenticated user can sign out from the website. The machine will make another request to the auth API to invalidate
+the authentication token, and it will clear the user's data. The machine will also redirect the user back to the sign-in screen.
+
+Error handling is crucial in this scenario. In case of an error during signing-in or signing-up, an alert is displayed
+with the error in a human-readable format. Promise actors can throw errors; the machine handles them thanks to the `onError` transitions.
 
 <DemoEntrypoint client:load />
 
@@ -29,6 +78,6 @@ AAA
   </Fragment>
 
   <Fragment slot="3">
-    <StatelyVisualizer src="https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?mode=Design&machineId=a5823380-73ed-475b-ba67-73c09f421074" />
+    <StatelyVisualizer src="https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=85c8201b-62c9-4a35-9544-a313d8cadf49&mode=design" />
   </Fragment>
 </Tabs>
