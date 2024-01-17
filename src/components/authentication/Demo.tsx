@@ -1,22 +1,44 @@
 import { css } from "../../../styled-system/css";
-import { useActor } from "@xstate/react";
+import { useActorRef, useSelector } from "@xstate/react";
 import { authenticationMachine } from "./machine";
-import { flex } from "../../../styled-system/patterns";
-import type { ActorOptions, AnyActorLogic } from "xstate";
+import type { ActorOptions, ActorRefFrom, AnyActorLogic } from "xstate";
 import { input } from "./recipes";
 import { useState } from "react";
+import { grid } from "../../../styled-system/patterns";
 
 interface Props {
   actorOptions: ActorOptions<AnyActorLogic> | undefined;
 }
 
 export function Demo({ actorOptions }: Props) {
-  const [state, send] = useActor(authenticationMachine, actorOptions);
+  const actorRef = useActorRef(authenticationMachine, actorOptions);
+  const screenToRender = useSelector(actorRef, (state) => {
+    if (state.matches("Checking if user is initially authenticated")) {
+      return "loading" as const;
+    }
+
+    if (state.matches("Authenticated")) {
+      return "authenticated" as const;
+    }
+
+    if (state.matches("Not authenticated")) {
+      return "not authenticated" as const;
+    }
+
+    throw new Error(
+      `Reached an unreachable state: ${JSON.stringify(state.value)}`
+    );
+  });
 
   return (
     <div className={css({ minH: "96", display: "grid" })}>
-      {/* <LoadingUserState /> */}
-      <SignOnForm />
+      {screenToRender === "loading" ? (
+        <LoadingUserState />
+      ) : screenToRender === "not authenticated" ? (
+        <SignOnForm actorRef={actorRef} />
+      ) : (
+        <Dashboard actorRef={actorRef} />
+      )}
     </div>
   );
 }
@@ -30,7 +52,6 @@ function LoadingUserState() {
         justifyContent: "center",
         alignItems: "center",
         my: "-12",
-        rounded: "md",
       })}
     >
       <div
@@ -80,7 +101,14 @@ function LoadingUserState() {
   );
 }
 
-function SignOnForm() {
+function SignOnForm({
+  actorRef,
+}: {
+  actorRef: ActorRefFrom<typeof authenticationMachine>;
+}) {
+  /**
+   * Usually you would use a JS router but we don't have one here!
+   */
   const [form, setForm] = useState<"sign in" | "sign up">("sign in");
 
   return (
@@ -108,6 +136,30 @@ function SignOnForm() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
+
+          const formData = new FormData(e.currentTarget);
+          const username = formData.get("username");
+          const password = formData.get("password");
+
+          if (typeof username !== "string" || typeof password !== "string") {
+            console.warn("Expected username and password to be defined");
+
+            return;
+          }
+
+          if (form === "sign in") {
+            actorRef.send({
+              type: "sign-in",
+              username,
+              password,
+            });
+          } else if (form === "sign up") {
+            actorRef.send({
+              type: "sign-up",
+              username,
+              password,
+            });
+          }
         }}
         className={css({
           mt: "8",
@@ -128,7 +180,12 @@ function SignOnForm() {
           </label>
 
           <div className={css({ mt: "2" })}>
-            <input id="username" className={input()} />
+            <input
+              id="username"
+              name="username"
+              type="text"
+              className={input()}
+            />
           </div>
         </div>
 
@@ -146,7 +203,12 @@ function SignOnForm() {
           </label>
 
           <div className={css({ mt: "2" })}>
-            <input id="password" className={input()} />
+            <input
+              id="password"
+              name="password"
+              type="password"
+              className={input()}
+            />
           </div>
         </div>
 
@@ -197,6 +259,120 @@ function SignOnForm() {
           {form === "sign in" ? "Sign up now!" : "Sign in now!"}
         </button>
       </p>
+    </div>
+  );
+}
+
+function Dashboard({
+  actorRef,
+}: {
+  actorRef: ActorRefFrom<typeof authenticationMachine>;
+}) {
+  const userData = useSelector(actorRef, (state) => {
+    const ud = state.context.userData;
+
+    if (ud === null) {
+      throw new Error(
+        "User data must be defined when rendering the authenticated dashboard"
+      );
+    }
+
+    return ud;
+  });
+
+  return (
+    <div
+      className={grid({
+        minH: "full",
+        gridTemplateRows: "auto 1fr",
+        gap: 0,
+        my: "-12",
+      })}
+    >
+      <nav
+        className={css({
+          borderBottomWidth: "1px",
+          borderColor: "gray.200",
+          bgColor: "white",
+        })}
+      >
+        <div
+          className={css({
+            ml: "auto",
+            mr: "auto",
+            maxW: "7xl",
+            pl: "4",
+            pr: "4",
+            sm: { pl: "6", pr: "6" },
+            lg: { pl: "8", pr: "8" },
+          })}
+        >
+          <div
+            className={css({
+              display: "flex",
+              h: "16",
+              justifyContent: "center",
+            })}
+          >
+            <div className={css({ display: "flex" })}>
+              <div
+                className={css({
+                  display: "flex",
+                  flexShrink: "0",
+                  alignItems: "center",
+                })}
+              >
+                <span className={css({ fontWeight: "medium", fontSize: "lg" })}>
+                  Example with{" "}
+                  <span className={css({ color: "red.700" })}>XState</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div
+        className={css({
+          pt: "10",
+          pb: "10",
+          bg: "gray.50",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+        })}
+      >
+        <h2 className={css({ fontSize: "xl", fontWeight: "bold" })}>
+          Welcome, {userData.username}!
+        </h2>
+
+        <button
+          type="button"
+          className={css({
+            mt: "4",
+            display: "flex",
+            justifyContent: "center",
+            rounded: "md",
+            bg: "red.600",
+            color: "white",
+            px: "2",
+            py: "1",
+            fontSize: "sm",
+            fontWeight: "semibold",
+            shadow: "sm",
+            cursor: "pointer",
+            _hover: { bg: "red.500" },
+          })}
+          onClick={() => {
+            actorRef.send({
+              type: "sign-out",
+            });
+          }}
+        >
+          Sign out
+        </button>
+      </div>
     </div>
   );
 }

@@ -6,11 +6,8 @@ interface UserData {
 }
 
 const USER_DATA_STORAGE_KEY = "user";
-const DEFAULT_USER_DATA: UserData = {
-  username: "XState fanboy",
-};
 
-type SignOnErrorCode = "unknown error" | "invalid credentials";
+type SignOnErrorCode = "unknown error" | "invalid credentials" | "duplication";
 
 /**
  * Make an HTTP request to your API or third-party service handling authentication
@@ -21,7 +18,7 @@ type SignOnErrorCode = "unknown error" | "invalid credentials";
  * Otherwise, return `null` or throw an error.
  */
 const fetchUserData = fromPromise(async () => {
-  await wait(500);
+  await wait(1_000);
 
   const rawUserData = localStorage.getItem(USER_DATA_STORAGE_KEY);
   if (rawUserData === null) {
@@ -66,9 +63,15 @@ const signIn = fromPromise<
     };
   }
 
+  const userData: UserData = {
+    username: input.username,
+  };
+
+  localStorage.setItem(USER_DATA_STORAGE_KEY, JSON.stringify(userData));
+
   return {
     success: true,
-    userData: DEFAULT_USER_DATA,
+    userData,
   };
 });
 
@@ -76,10 +79,32 @@ const signIn = fromPromise<
  * Make an HTTP request to your API or third-party service handling authentication.
  */
 const signUp = fromPromise<
-  { success: true } | { success: false; error: "invalid credentials" },
+  | { success: true; userData: UserData }
+  | { success: false; error: SignOnErrorCode },
   { username: string; password: string }
 >(async ({ input }) => {
   await wait(500);
+
+  /**
+   * Simulate that the username is already taken by another user.
+   */
+  if (input.username.toLowerCase() === "xstate") {
+    return {
+      success: false,
+      error: "duplication",
+    };
+  }
+
+  const userData: UserData = {
+    username: input.username,
+  };
+
+  localStorage.setItem(USER_DATA_STORAGE_KEY, JSON.stringify(userData));
+
+  return {
+    success: true,
+    userData,
+  };
 });
 
 export const authenticationMachine = setup({
@@ -97,6 +122,7 @@ export const authenticationMachine = setup({
     "Fetch user data": fetchUserData,
     "Sign out": signOut,
     "Sign in": signIn,
+    "Sign up": signUp,
   },
   actions: {
     "Clear user data in context": assign({
@@ -121,6 +147,9 @@ export const authenticationMachine = setup({
           {
             guard: ({ event }) => event.output !== null,
             target: "Authenticated",
+            actions: assign({
+              userData: ({ event }) => event.output,
+            }),
           },
           {
             target: "Not authenticated",
@@ -169,6 +198,9 @@ export const authenticationMachine = setup({
             "sign-in": {
               target: "Signing in",
             },
+            "sign-up": {
+              target: "Signing up",
+            },
           },
         },
         "Signing in": {
@@ -176,6 +208,56 @@ export const authenticationMachine = setup({
             src: "Sign in",
             input: ({ event }) => {
               assertEvent(event, "sign-in");
+
+              return {
+                username: event.username,
+                password: event.password,
+              };
+            },
+            onDone: [
+              {
+                guard: ({ event }) => event.output.success === true,
+                target: "Successfully signed on",
+                actions: assign({
+                  userData: ({ event }) => {
+                    if (event.output.success !== true) {
+                      throw new Error(
+                        "Expect to reach this action when output.success equals true"
+                      );
+                    }
+
+                    return event.output.userData;
+                  },
+                }),
+              },
+              {
+                target: "Idle",
+                actions: assign({
+                  authenticationErrorToast: ({ event }) => {
+                    if (event.output.success !== false) {
+                      throw new Error(
+                        "Expect to reach this action when output.success equals false"
+                      );
+                    }
+
+                    return event.output.error;
+                  },
+                }),
+              },
+            ],
+            onError: {
+              target: "Idle",
+              actions: assign({
+                authenticationErrorToast: "unknown error",
+              }),
+            },
+          },
+        },
+        "Signing up": {
+          invoke: {
+            src: "Sign up",
+            input: ({ event }) => {
+              assertEvent(event, "sign-up");
 
               return {
                 username: event.username,

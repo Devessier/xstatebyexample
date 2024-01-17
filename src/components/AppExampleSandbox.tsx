@@ -124,6 +124,7 @@ export function AppExampleSandbox({ Example }: { Example: ExampleComponent }) {
           borderColor: "gray.300",
           rounded: "md",
           pos: "relative",
+          overflow: "hidden",
         }),
         "not-prose"
       )}
