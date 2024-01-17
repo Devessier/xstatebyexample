@@ -1,0 +1,34 @@
+---
+layout: "../layouts/ExampleLayout.astro"
+title: "Authentication"
+---
+
+import Tabs from '../components/Tabs.tsx';
+import DemoEntrypoint from '../components/authentication/index.tsx';
+import StatelyVisualizer from '../components/StatelyVisualizer.astro';
+import { Content as DemoMachineCode } from '../components/authentication/machine.md';
+import { Content as DemoReactCode } from '../components/authentication/Demo.md';
+
+AAA
+
+## Example
+
+AAA
+
+<DemoEntrypoint client:load />
+
+## Code
+
+<Tabs labels={['Machine', 'React', 'Visualizer']} client:load>
+  <Fragment slot="1">
+    <DemoMachineCode />
+  </Fragment>
+
+  <Fragment slot="2">
+    <DemoReactCode />
+  </Fragment>
+
+  <Fragment slot="3">
+    <StatelyVisualizer src="https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?mode=Design&machineId=a5823380-73ed-475b-ba67-73c09f421074" />
+  </Fragment>
+</Tabs>
