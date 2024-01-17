@@ -111,6 +111,8 @@ function SignOnForm({
    */
   const [form, setForm] = useState<"sign in" | "sign up">("sign in");
 
+  const isSubmitting = useSelector(actorRef, (state) => state.hasTag('Submitting sign-on form'))
+
   const [validationError, setValidationError] = useState<string | undefined>(
     undefined
   );
@@ -341,6 +343,8 @@ function SignOnForm({
             shadow: "sm",
             cursor: "pointer",
             _hover: { bg: "gray.800" },
+            animation: isSubmitting === true ? "pulse" : undefined,
+            animationDuration: "500ms"
           })}
         >
           Submit

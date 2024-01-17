@@ -37,7 +37,7 @@ const fetchUserData = fromPromise(async () => {
  * Delete the user's authentication cookie or clear the token from the localStorage.
  */
 const signOut = fromPromise(async () => {
-  await wait(500);
+  await wait(1_000);
 
   localStorage.removeItem(USER_DATA_STORAGE_KEY);
 });
@@ -54,7 +54,7 @@ const signIn = fromPromise<
   | { success: false; error: SignOnErrorCode },
   { username: string; password: string }
 >(async ({ input }) => {
-  await wait(500);
+  await wait(1_000);
 
   if (input.password.length < 2) {
     return {
@@ -83,7 +83,7 @@ const signUp = fromPromise<
   | { success: false; error: SignOnErrorCode },
   { username: string; password: string }
 >(async ({ input }) => {
-  await wait(500);
+  await wait(1_000);
 
   /**
    * Simulate that the username is already taken by another user.
@@ -181,6 +181,12 @@ export const authenticationMachine = setup({
               target: "Signed out",
               actions: "Clear user data in context",
             },
+            onError: {
+              /**
+               * You may display a toast to indicate that we couldn't sign out the user.
+               */
+              actions: []
+            }
           },
         },
         "Signed out": {
