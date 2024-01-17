@@ -1,9 +1,9 @@
 import { css } from "../../../styled-system/css";
 import { useActorRef, useSelector } from "@xstate/react";
-import { authenticationMachine } from "./machine";
+import { authenticationMachine, type SignOnErrorCode } from "./machine";
 import type { ActorOptions, ActorRefFrom, AnyActorLogic } from "xstate";
 import { input } from "./recipes";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { grid } from "../../../styled-system/patterns";
 
 interface Props {
@@ -111,6 +111,49 @@ function SignOnForm({
    */
   const [form, setForm] = useState<"sign in" | "sign up">("sign in");
 
+  const [validationError, setValidationError] = useState<string | undefined>(
+    undefined
+  );
+  const serverError = useSelector(
+    actorRef,
+    (state) => state.context.authenticationErrorToast
+  );
+
+  useEffect(() => {
+    /**
+     * Clear the toast when switching to the other authentication page.
+     *
+     * In our case, listening to changes on form state is an easy way
+     * to clear the toast.
+     */
+    return () => {
+      actorRef.send({
+        type: "switching sign-on page",
+      });
+
+      setValidationError(undefined);
+    };
+  }, [form]);
+
+  function formatServerError(error: SignOnErrorCode) {
+    switch (error) {
+      case "unknown error": {
+        return "An unknown error occured, please try again later.";
+      }
+      case "duplication": {
+        return "The username you selected is already attributed to a user.";
+      }
+      case "invalid credentials": {
+        return "The credentials you submitted are not valid.";
+      }
+      default: {
+        throw new Error(
+          `Unknown error: ${error}. Please provide a pretty message for it.`
+        );
+      }
+    }
+  }
+
   return (
     <div
       className={css({
@@ -133,7 +176,59 @@ function SignOnForm({
         {form === "sign in" ? "Sign in" : "Sign up"}
       </h2>
 
+      {validationError !== undefined || serverError !== undefined ? (
+        <div
+          className={css({ rounded: "md", bgColor: "red.50", p: "4", mt: "8" })}
+        >
+          <div className={css({ display: "flex" })}>
+            <div className={css({ flexShrink: "0" })}>
+              <svg
+                className={css({ h: "5", w: "5", color: "red.400" })}
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+            <div className={css({ ml: "3" })}>
+              <h3
+                className={css({
+                  fontSize: "sm",
+                  lineHeight: "sm",
+                  fontWeight: "medium",
+                  color: "red.800",
+                })}
+              >
+                There was an error with your submission
+              </h3>
+              <div
+                className={css({
+                  mt: "2",
+                  fontSize: "sm",
+                  lineHeight: "sm",
+                  color: "red.700",
+                })}
+              >
+                <p>
+                  {validationError !== undefined
+                    ? validationError
+                    : serverError !== undefined
+                      ? formatServerError(serverError)
+                      : null}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <form
+        key={form}
         onSubmit={(e) => {
           e.preventDefault();
 
@@ -141,8 +236,13 @@ function SignOnForm({
           const username = formData.get("username");
           const password = formData.get("password");
 
-          if (typeof username !== "string" || typeof password !== "string") {
-            console.warn("Expected username and password to be defined");
+          if (
+            typeof username !== "string" ||
+            typeof password !== "string" ||
+            username.length === 0 ||
+            password.length === 0
+          ) {
+            setValidationError("Username and password must be defined");
 
             return;
           }
@@ -187,6 +287,12 @@ function SignOnForm({
               className={input()}
             />
           </div>
+
+          {form === "sign up" ? (
+            <p className={css({ mt: "2", fontSize: "sm", color: "gray.500" })}>
+              Any username is valid unless it's "XState".
+            </p>
+          ) : null}
         </div>
 
         <div>
@@ -210,6 +316,13 @@ function SignOnForm({
               className={input()}
             />
           </div>
+
+          {form === "sign in" ? (
+            <p className={css({ mt: "2", fontSize: "sm", color: "gray.500" })}>
+              Any password is valid if it contains 2 characters or more, e.g.
+              "Test".
+            </p>
+          ) : null}
         </div>
 
         <button

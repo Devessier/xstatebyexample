@@ -7,7 +7,7 @@ interface UserData {
 
 const USER_DATA_STORAGE_KEY = "user";
 
-type SignOnErrorCode = "unknown error" | "invalid credentials" | "duplication";
+export type SignOnErrorCode = "unknown error" | "invalid credentials" | "duplication";
 
 /**
  * Make an HTTP request to your API or third-party service handling authentication
@@ -112,11 +112,13 @@ export const authenticationMachine = setup({
     events: {} as
       | { type: "sign-out" }
       | { type: "sign-in"; username: string; password: string }
-      | { type: "sign-up"; username: string; password: string },
+      | { type: "sign-up"; username: string; password: string }
+      | { type: "switching sign-on page" },
     context: {} as {
       userData: UserData | null;
       authenticationErrorToast: SignOnErrorCode | undefined;
     },
+    tags: "Submitting sign-on form",
   },
   actors: {
     "Fetch user data": fetchUserData,
@@ -201,9 +203,13 @@ export const authenticationMachine = setup({
             "sign-up": {
               target: "Signing up",
             },
+            "switching sign-on page": {
+              actions: "Clear authentication error toast in context",
+            },
           },
         },
         "Signing in": {
+          tags: "Submitting sign-on form",
           invoke: {
             src: "Sign in",
             input: ({ event }) => {
@@ -254,6 +260,7 @@ export const authenticationMachine = setup({
           },
         },
         "Signing up": {
+          tags: "Submitting sign-on form",
           invoke: {
             src: "Sign up",
             input: ({ event }) => {
