@@ -72,6 +72,68 @@ const { title } = Astro.props;
 
       <main class={css({ pt: "10", pb: "10", bg: "gray.50" })}>
         <slot />
+
+        <div
+          class={css({
+            maxW: "3xl",
+            mx: "auto",
+            mt: { base: "20", sm: "24", lg: "32" },
+            px: { base: "4", sm: "6", lg: "8" },
+          })}
+        >
+          <div
+            class={css({
+              bg: "white",
+              shadow: "lg",
+              py: "4",
+              px: "6",
+              rounded: "lg",
+            })}
+          >
+            <h2 class={css({ fontSize: "xl", fontWeight: "semibold" })}>
+              Get news from XState by Example
+            </h2>
+
+            <p class={css({ mt: "4" })}>
+              Sign up for the newsletter to be notified when more machines or an
+              interactive tutorial are released. I respect your privacy and will
+              only send emails once in a while.
+            </p>
+
+            <iframe
+              scrolling="no"
+              title="Subscribe to newsletter form"
+              style="width: 100% !important; height:220px; border:1px #ccc solid !important"
+              src="https://buttondown.email/xstate-by-example?as_embed=true"
+              class={css({ mt: "4" })}></iframe>
+          </div>
+        </div>
+
+        <footer
+          class={css({
+            mx: "auto",
+            mt: { base: "20", sm: "24", lg: "32" },
+            px: { base: "4", sm: "6", lg: "8" },
+          })}
+        >
+          <p
+            class={css({
+              textAlign: "center",
+              color: "gray.700",
+              "& > a": {
+                fontWeight: "semibold",
+                textDecoration: "underline",
+              },
+            })}
+          >
+            © {new Date().getFullYear()} Baptiste Devessier — Made with <a
+              href="https://stately.ai/docs/quick-start">XState</a
+            >, <a href="https://astro.build/">Astro</a>,
+            <a href="https://panda-css.com/">Panda CSS</a> and <a
+              href="https://react.dev/">React</a
+            >
+          </p>
+        </footer>
       </main>
     </div>
   </body>
