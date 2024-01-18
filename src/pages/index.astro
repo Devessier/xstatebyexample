@@ -97,8 +97,9 @@ const examples: Array<{
         maxW: "7xl",
         mx: "auto",
         mt: "24",
+        display: "grid",
+        gridTemplateColumns: 1,
         lg: {
-          display: "grid",
           gridTemplateColumns: 12,
           gap: "8",
           alignItems: "center",
@@ -107,10 +108,12 @@ const examples: Array<{
     >
       <div
         class={css({
-          gridColumnStart: 7,
-          gridColumnEnd: 13,
-          gridRowStart: 1,
           pos: "relative",
+          lg: {
+            gridColumnStart: 7,
+            gridColumnEnd: 13,
+            gridRowStart: 1,
+          }
         })}
       >
         <SearchAsYouTypeCode />
@@ -153,10 +156,12 @@ const examples: Array<{
       </div>
       <div
         class={css({
-          gridColumnStart: 1,
-          gridColumnEnd: 7,
-          gridRowStart: 1,
           mt: { base: "12", lg: "0" },
+          lg: {
+            gridColumnStart: 1,
+            gridColumnEnd: 7,
+            gridRowStart: 1,
+          }
         })}
       >
         <div
