@@ -166,7 +166,7 @@ export function AppExampleSandbox({ Example }: { Example: ExampleComponent }) {
                 _hover: { bgColor: "gray.50" },
               })}
             >
-              Visualize
+              Inspect
             </Tooltip.Trigger>
 
             <Tooltip.Positioner>
@@ -188,7 +188,7 @@ export function AppExampleSandbox({ Example }: { Example: ExampleComponent }) {
                   },
                 })}
               >
-                Visualize the demo in Stately Inspector
+                Inspect the demo in Stately Inspector
               </Tooltip.Content>
             </Tooltip.Positioner>
           </Tooltip.Root>
