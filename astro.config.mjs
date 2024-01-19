@@ -6,6 +6,7 @@ import expressiveCode from "astro-expressive-code";
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://www.xstatebyexample.com",
   image: {
     domains: ["stately.ai"],
   },

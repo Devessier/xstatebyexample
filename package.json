@@ -25,6 +25,7 @@
     "astro-expressive-code": "^0.31.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "sharp-ico": "^0.1.5",
     "typescript": "^5.3.3",
     "xstate": "^5.5.1"
   },

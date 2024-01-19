@@ -7,7 +7,7 @@ import { prose } from "../../styled-system/recipes";
 const { title } = Astro.props.frontmatter as { title: string };
 ---
 
-<Layout title={title}>
+<Layout title={title + " | XState by Example"}>
   <div
     class={css({
       ml: "auto",

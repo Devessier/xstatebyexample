@@ -9,7 +9,7 @@ import StatelyVisualizer from '../components/StatelyVisualizer.astro';
 import { Content as DemoMachineCode } from '../components/throttling/machine.md';
 import { Content as DemoReactCode } from '../components/throttling/Demo.md';
 
-The throttling pattern looks like the [debouncing](/debouncing) one, but instead of restarting a timer when the machine receives an event, it stops listening to events temporarily.
+The throttling pattern looks like the [debouncing](/debouncing/) one, but instead of restarting a timer when the machine receives an event, it stops listening to events temporarily.
 
 In the following example, when the machine receives the first `click` event, it goes into the `Throttling` state. The `click` event is not listened by the machine in this state. The `Throttling` state starts a timer of one second, which targets the `Idle` state.
 
