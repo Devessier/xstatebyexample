@@ -126,8 +126,8 @@ const examples: Array<{
             display: "flex",
             justifyContent: "center",
             bgGradient: "to-t",
-            gradientFrom: "#24292e",
-            gradientTo: "#24292e00",
+            gradientFrom: { base: "#fff", _osDark: "#24292e" },
+            gradientTo: { base: "#fff0", _osDark: "#24292e00" },
             pb: "12",
             pt: "32",
             // These values are injected by Expressive Code.
@@ -138,16 +138,19 @@ const examples: Array<{
             href="/search-as-you-type/"
             class={css({
               rounded: "md",
-              bgColor: "gray.50",
               px: "2.5",
               py: "1.5",
               fontSize: "sm",
               lineHeight: "sm",
               fontWeight: "semibold",
-              color: "gray.800",
               shadow: "sm",
               cursor: "pointer",
-              _hover: { bgColor: "gray.100" },
+              color: "gray.50",
+              bgColor: { base: "gray.800", _hover: "gray.700" },
+              _osDark: {
+                color: "gray.800",
+                bgColor: { base: "gray.50", _hover: "gray.100" },
+              },
             })}
           >
             Show more
@@ -238,7 +241,7 @@ const examples: Array<{
           lg: { pl: "8", pr: "8" },
         })}
       >
-        <article class={grid({ columns: [1, 2, null, 3], gap: "4" })}>
+        <div class={grid({ columns: { base: 1, sm: 2, lg: 3 }, gap: "4" })}>
           {
             examples.map(({ href, name, imageUrl, width, height }) => (
               <article
@@ -290,7 +293,7 @@ const examples: Array<{
               </article>
             ))
           }
-        </article>
+        </div>
       </div>
     </div>
   </section>
