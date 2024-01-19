@@ -77,7 +77,10 @@ const ogImageAlt =
 
     <ViewTransitions />
 
-    <script defer data-domain="xstatebyexample.com" src="https://plausible.io/js/script.js"></script>
+    <script
+      defer
+      data-domain="xstatebyexample.com"
+      src="https://plausible.io/js/script.js"></script>
   </head>
   <body class={css({ height: "full" })}>
     <div class={grid({ minH: "full", gridTemplateRows: "auto 1fr", gap: 0 })}>
@@ -182,27 +185,37 @@ const ogImageAlt =
 
         <footer
           class={css({
+            maxW: "2xl",
             mx: "auto",
             mt: { base: "20", sm: "24", lg: "32" },
             px: { base: "4", sm: "6", lg: "8" },
+            textAlign: "center",
+            color: "gray.700",
+            "& > p > a": {
+              fontWeight: "semibold",
+              textDecoration: "underline",
+            },
           })}
         >
-          <p
-            class={css({
-              textAlign: "center",
-              color: "gray.700",
-              "& > a": {
-                fontWeight: "semibold",
-                textDecoration: "underline",
-              },
-            })}
-          >
+          <p>
             © {new Date().getFullYear()} Baptiste Devessier — Made with <a
               href="https://stately.ai/docs/quick-start">XState</a
             >, <a href="https://astro.build/">Astro</a>,
             <a href="https://panda-css.com/">Panda CSS</a> and <a
               href="https://react.dev/">React</a
-            >
+            >.
+          </p>
+
+          <p
+            class={css({
+              mt: "4",
+            })}
+          >
+            <a href="https://xstate-catalogue.com/">XState Catalogue</a> is a significant
+            source of inspiration and made me the XState developer I am today. I
+            want to help XState newcomers, in turn. Shout-out to <a
+              href="https://gobyexample.com/">Go by Example</a
+            > for coining the expression.
           </p>
         </footer>
       </main>
