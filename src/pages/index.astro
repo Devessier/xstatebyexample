@@ -5,47 +5,11 @@ import { css } from "../../styled-system/css";
 import { grid } from "../../styled-system/patterns";
 import { StandaloneDemo as SearchAsYouTypeDemo } from "../components/search-as-you-type/StandaloneDemo.tsx";
 import { Content as SearchAsYouTypeCode } from "../assets/home/code.md";
+import { getCollection } from "astro:content";
 
-const examples: Array<{
-  href: string;
-  name: string;
-  imageUrl: string;
-  width: number;
-  height: number;
-}> = [
-  {
-    href: "/debouncing/",
-    name: "Debouncing",
-    imageUrl:
-      "https://stately.ai/registry/machines/a5823380-73ed-475b-ba67-73c09f421074.light.png",
-    width: 709,
-    height: 600,
-  },
-  {
-    href: "/throttling/",
-    name: "Throttling",
-    imageUrl:
-      "https://stately.ai/registry/machines/610df47a-3ecd-4f55-9dea-6f97edf05ea0.light.png",
-    width: 1377,
-    height: 600,
-  },
-  {
-    href: "/search-as-you-type/",
-    name: "Search as you type",
-    imageUrl:
-      "https://stately.ai/registry/machines/46d48d1d-ce1e-4286-8cd9-226f852a37f0.light.png",
-    width: 1187,
-    height: 600,
-  },
-  {
-    href: "/authentication/",
-    name: "Authentication",
-    imageUrl:
-      "https://stately.ai/registry/machines/85c8201b-62c9-4a35-9544-a313d8cadf49.light.png",
-    width: 692,
-    height: 600,
-  },
-];
+const machineEntries = await getCollection('machines')
+
+const orderedMachineEntries = machineEntries.sort((a, b) => a.data.id - b.data.id);
 ---
 
 <Layout title="XState by Example" ogType="website">
@@ -243,7 +207,7 @@ const examples: Array<{
       >
         <div class={grid({ columns: { base: 1, sm: 2, lg: 3 }, gap: "4" })}>
           {
-            examples.map(({ href, name, imageUrl, width, height }) => (
+            orderedMachineEntries.map(({ slug, data: { title, image, complexity } }) => (
               <article
                 class={css({
                   pos: "relative",
@@ -259,10 +223,10 @@ const examples: Array<{
                 })}
               >
                 <Image
-                  src={imageUrl}
+                  src={image.url}
                   alt=""
-                  {width}
-                  {height}
+                  width={image.width}
+                  height={image.height}
                   class={css({
                     aspectRatio: "wide",
                     objectFit: "cover",
@@ -282,12 +246,12 @@ const examples: Array<{
                   })}
                 >
                   <a
-                    href={href}
+                    href={`/${slug}/`}
                     class={css({
                       _after: { content: '""', pos: "absolute", inset: 0 },
                     })}
                   >
-                    {name}
+                    {title}
                   </a>
                 </h3>
               </article>

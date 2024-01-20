@@ -1,13 +1,18 @@
 ---
-layout: "../layouts/ExampleLayout.astro"
+id: 2
 title: "Throttling"
+image:
+  url: "https://stately.ai/registry/machines/610df47a-3ecd-4f55-9dea-6f97edf05ea0.light.png"
+  width: 1377
+  height: 600
+complexity: "beginner"
 ---
 
-import Tabs from '../components/Tabs.tsx';
-import DemoEntrypoint from '../components/throttling/index.tsx';
-import StatelyVisualizer from '../components/StatelyVisualizer.astro';
-import { Content as DemoMachineCode } from '../components/throttling/machine.md';
-import { Content as DemoReactCode } from '../components/throttling/Demo.md';
+import Tabs from '../../components/Tabs.tsx';
+import DemoEntrypoint from '../../components/throttling/index.tsx';
+import StatelyVisualizer from '../../components/StatelyVisualizer.astro';
+import { Content as DemoMachineCode } from '../../components/throttling/machine.md';
+import { Content as DemoReactCode } from '../../components/throttling/Demo.md';
 
 The throttling pattern looks like the [debouncing](/debouncing/) one, but instead of restarting a timer when the machine receives an event, it stops listening to events temporarily.
 

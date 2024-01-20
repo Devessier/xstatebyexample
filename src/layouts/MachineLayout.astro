@@ -1,10 +1,14 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import Layout from "./Layout.astro";
 import { css, cx } from "../../styled-system/css";
 import { grid } from "../../styled-system/patterns";
 import { prose } from "../../styled-system/recipes";
 
-const { title } = Astro.props.frontmatter as { title: string };
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
 ---
 
 <Layout title={title + " | XState by Example"}>
@@ -45,7 +49,12 @@ const { title } = Astro.props.frontmatter as { title: string };
           </h1>
         </div>
       </header>
-      <div class={cx(prose({ size: "lg" }), css({ mt: "8", maxWidth: "full", "& em": { fontStyle: "italic" } }))}>
+      <div
+        class={cx(
+          prose({ size: "lg" }),
+          css({ mt: "8", maxWidth: "full", "& em": { fontStyle: "italic" } })
+        )}
+      >
         <slot />
       </div>
     </div>

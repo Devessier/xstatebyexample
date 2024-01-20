@@ -1,16 +1,21 @@
 ---
-layout: "../layouts/ExampleLayout.astro"
+id: 3
 title: "Search as you type"
+image:
+  url: "https://stately.ai/registry/machines/46d48d1d-ce1e-4286-8cd9-226f852a37f0.light.png"
+  width: 1187
+  height: 600
+complexity: "intermediate"
 ---
 
 import { Image } from "astro:assets";
-import Tabs from '../components/Tabs.tsx';
-import { css } from '../../styled-system/css';
-import DemoEntrypoint from '../components/search-as-you-type/index.tsx';
-import StatelyVisualizer from '../components/StatelyVisualizer.astro';
-import { Content as DemoMachineCode } from '../components/search-as-you-type/machine.md';
-import { Content as DemoReactCode } from '../components/search-as-you-type/Demo.md';
-import GoogleSearchAsYouTypeDemo from '../assets/search-as-you-type/google-demo.gif';
+import Tabs from '../../components/Tabs.tsx';
+import { css } from '../../../styled-system/css';
+import DemoEntrypoint from '../../components/search-as-you-type/index.tsx';
+import StatelyVisualizer from '../../components/StatelyVisualizer.astro';
+import { Content as DemoMachineCode } from '../../components/search-as-you-type/machine.md';
+import { Content as DemoReactCode } from '../../components/search-as-you-type/Demo.md';
+import GoogleSearchAsYouTypeDemo from '../../assets/search-as-you-type/google-demo.gif';
 
 Many websites implement search as you type for their search engine.
 Search as you type is a UX pattern that makes suggestions to the user

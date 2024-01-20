@@ -1,13 +1,18 @@
 ---
-layout: "../layouts/ExampleLayout.astro"
+id: 4
 title: "Authentication"
+image:
+  url: "https://stately.ai/registry/machines/85c8201b-62c9-4a35-9544-a313d8cadf49.light.png"
+  width: 692
+  height: 600
+complexity: "expert"
 ---
 
-import Tabs from '../components/Tabs.tsx';
-import DemoEntrypoint from '../components/authentication/index.tsx';
-import StatelyVisualizer from '../components/StatelyVisualizer.astro';
-import { Content as DemoMachineCode } from '../components/authentication/machine.md';
-import { Content as DemoReactCode } from '../components/authentication/Demo.md';
+import Tabs from '../../components/Tabs.tsx';
+import DemoEntrypoint from '../../components/authentication/index.tsx';
+import StatelyVisualizer from '../../components/StatelyVisualizer.astro';
+import { Content as DemoMachineCode } from '../../components/authentication/machine.md';
+import { Content as DemoReactCode } from '../../components/authentication/Demo.md';
 
 One of my favorite uses of XState is for global state management.
 It excels in an environment fully controlled by JavaScript, like a SPA (Single Page Application) or React Native.

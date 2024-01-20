@@ -1,13 +1,18 @@
 ---
-layout: "../layouts/ExampleLayout.astro"
+id: 1
 title: "Debouncing"
+image:
+  url: "https://stately.ai/registry/machines/a5823380-73ed-475b-ba67-73c09f421074.light.png"
+  width: 709
+  height: 600
+complexity: "beginner"
 ---
 
-import Tabs from '../components/Tabs.tsx';
-import DemoEntrypoint from '../components/debouncing/index.tsx';
-import StatelyVisualizer from '../components/StatelyVisualizer.astro';
-import { Content as DemoMachineCode } from '../components/debouncing/machine.md';
-import { Content as DemoReactCode } from '../components/debouncing/Demo.md';
+import Tabs from '../../components/Tabs.tsx';
+import DemoEntrypoint from '../../components/debouncing/index.tsx';
+import StatelyVisualizer from '../../components/StatelyVisualizer.astro';
+import { Content as DemoMachineCode } from '../../components/debouncing/machine.md';
+import { Content as DemoReactCode } from '../../components/debouncing/Demo.md';
 
 The debouncing pattern is crucial to UI development.
 Debouncing – and [throttling](/throttling/) – are used to moderate
