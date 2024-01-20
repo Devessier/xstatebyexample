@@ -1,0 +1,42 @@
+---
+import { cva } from "../../styled-system/css";
+import type { MachineComplexity } from "../lib/types.ts";
+
+interface Props {
+  complexity: MachineComplexity;
+}
+
+const badge = cva({
+  base: {
+    display: "inline-flex",
+    alignItems: "center",
+    rounded: "full",
+    px: "2",
+    py: "0.5",
+    fontSize: "sm",
+    fontWeight: "semibold",
+  },
+  variants: {
+    complexity: {
+      beginner: {
+        bg: "green.100",
+        color: "green.700",
+      },
+      intermediate: {
+        bg: "yellow.100",
+        color: "yellow.800",
+      },
+      expert: {
+        bg: "red.100",
+        color: "red.700",
+      },
+    },
+  },
+});
+
+const { complexity } = Astro.props;
+---
+
+<span class={badge({ complexity })}>
+  {complexity.charAt(0).toUpperCase() + complexity.slice(1)}
+</span>

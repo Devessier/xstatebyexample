@@ -6,6 +6,7 @@ import { grid } from "../../styled-system/patterns";
 import { StandaloneDemo as SearchAsYouTypeDemo } from "../components/search-as-you-type/StandaloneDemo.tsx";
 import { Content as SearchAsYouTypeCode } from "../assets/home/code.md";
 import { getCollection } from "astro:content";
+import AppMachineDifficultyBadge from "../components/AppMachineDifficultyBadge.astro";
 
 const machineEntries = await getCollection('machines')
 
@@ -254,6 +255,10 @@ const orderedMachineEntries = machineEntries.sort((a, b) => a.data.id - b.data.i
                     {title}
                   </a>
                 </h3>
+
+                <div class={css({ mt: "2" })}>
+                  <AppMachineDifficultyBadge {complexity} />
+                </div>
               </article>
             ))
           }

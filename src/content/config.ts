@@ -1,4 +1,5 @@
 import { defineCollection, z } from "astro:content";
+import { MachineComplexity } from "../lib/types";
 
 const machineCollection = defineCollection({
   type: "content",
@@ -10,7 +11,7 @@ const machineCollection = defineCollection({
       width: z.number(),
       height: z.number(),
     }),
-    complexity: z.enum(["beginner", "intermediate", "expert"]),
+    complexity: MachineComplexity,
   }),
 });
 
