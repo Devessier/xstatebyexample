@@ -1,0 +1,35 @@
+---
+id: 5
+title: "Notification"
+image:
+  url: "https://stately.ai/registry/machines/a5823380-73ed-475b-ba67-73c09f421074.light.png"
+  width: 709
+  height: 600
+complexity: "beginner"
+---
+
+import Tabs from '../../components/Tabs.tsx';
+import DemoEntrypoint from '../../components/notification/index.tsx';
+import StatelyVisualizer from '../../components/StatelyVisualizer.astro';
+import { Content as DemoMachineCode } from '../../components/debouncing/machine.md';
+import { Content as DemoReactCode } from '../../components/debouncing/Demo.md';
+
+## Example
+
+<DemoEntrypoint client:load />
+
+## Code
+
+<Tabs labels={['Machine', 'React', 'Visualizer']} client:load>
+  <Fragment slot="1">
+    <DemoMachineCode />
+  </Fragment>
+
+  <Fragment slot="2">
+    <DemoReactCode />
+  </Fragment>
+
+  <Fragment slot="3">
+    <StatelyVisualizer src="https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?mode=Design&machineId=a5823380-73ed-475b-ba67-73c09f421074" />
+  </Fragment>
+</Tabs>
