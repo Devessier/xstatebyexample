@@ -4,6 +4,8 @@ import { notificationMachine } from "./machine";
 import type { ActorOptions, AnyActorLogic } from "xstate";
 import { Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
+import { flex, vstack } from "../../../styled-system/patterns";
+import { input } from "../authentication/recipes";
 
 interface Props {
   actorOptions: ActorOptions<AnyActorLogic> | undefined;
@@ -11,19 +13,34 @@ interface Props {
 
 export function Demo({ actorOptions }: Props) {
   const [state, send] = useActor(notificationMachine, actorOptions);
-  const [show, setShow] = useState(true);
+
+  const timeoutOptions: Array<{ title: string; value: number | undefined }> = [
+    {
+      title: "No timeout",
+      value: undefined,
+    },
+    {
+      title: "5s",
+      value: 5_000,
+    },
+    {
+      title: "10s",
+      value: 10_000,
+    },
+  ];
 
   return (
-    <div className={css({ pos: "relative", pt: "72" })}>
+    <div className={css({ pos: "relative" })}>
       <div
         aria-live="assertive"
         className={css({
           pointerEvents: "none",
-          pos: "absolute",
+          pos: "fixed",
           inset: "0",
           display: "flex",
           alignItems: "flex-start",
           p: "6",
+          zIndex: "20",
         })}
       >
         <div
@@ -32,11 +49,11 @@ export function Demo({ actorOptions }: Props) {
             w: "full",
             flexDir: "column",
             alignItems: "flex-end",
-            my: "4",
+            mb: "4",
           })}
         >
           <Transition
-            show={show}
+            show={state.matches("Open") === true}
             as={Fragment}
             enter={css({
               transitionTimingFunction: "ease-out",
@@ -46,10 +63,12 @@ export function Demo({ actorOptions }: Props) {
             enterFrom={css({
               translate: "auto",
               opacity: "0",
-              translateX: "2",
+              translateY: { base: "-2", sm: "0" },
+              translateX: { sm: "2" },
             })}
             enterTo={css({
               translate: "auto",
+              translateY: "0",
               translateX: "0",
               opacity: "1",
             })}
@@ -72,7 +91,7 @@ export function Demo({ actorOptions }: Props) {
                 shadow: "lg",
                 borderWidth: "1",
                 borderStyle: "solid",
-                borderColor: "gray.50",
+                borderColor: "gray.200",
               })}
             >
               <div className={css({ p: "4" })}>
@@ -84,13 +103,13 @@ export function Demo({ actorOptions }: Props) {
                       className={css({ h: "7", w: "7", color: "green.400" })}
                       fill="none"
                       viewBox="0 0 24 24"
-                      stroke-width="1.5"
+                      strokeWidth="1.5"
                       stroke="currentColor"
                       aria-hidden="true"
                     >
                       <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
@@ -142,7 +161,9 @@ export function Demo({ actorOptions }: Props) {
                         },
                       })}
                       onClick={() => {
-                        setShow(false);
+                        send({
+                          type: "close",
+                        });
                       }}
                     >
                       <span
@@ -177,28 +198,129 @@ export function Demo({ actorOptions }: Props) {
         </div>
       </div>
 
-      <div className={css({})}>
-        <button
-          type="button"
-          className={css({
-            rounded: "md",
-            bgColor: "gray.50",
-            px: "2.5",
-            py: "1.5",
-            fontSize: "sm",
-            lineHeight: "sm",
-            fontWeight: "semibold",
-            color: "gray.600",
-            shadow: "sm",
-            cursor: "pointer",
-            _hover: { bgColor: "gray.100" },
-          })}
-          onClick={() => {
-            setShow(true);
-          }}
-        >
-          Trigger the toast
-        </button>
+      <div className={vstack({ gap: "6", alignItems: "stretch", px: "4" })}>
+        <div>
+          <label
+            htmlFor="title"
+            className={css({
+              display: "block",
+              fontSize: "sm",
+              fontWeight: "medium",
+              color: "gray.900",
+            })}
+          >
+            Username
+          </label>
+
+          <div className={css({ mt: "2" })}>
+            <input id="title" name="title" type="text" className={input()} />
+          </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor="description"
+            className={css({
+              display: "block",
+              fontSize: "sm",
+              fontWeight: "medium",
+              color: "gray.900",
+            })}
+          >
+            Username
+          </label>
+
+          <div className={css({ mt: "2" })}>
+            <input
+              id="description"
+              name="description"
+              type="text"
+              className={input()}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor="timeout"
+            className={css({
+              display: "block",
+              fontSize: "sm",
+              fontWeight: "medium",
+              color: "gray.900",
+            })}
+          >
+            Username
+          </label>
+
+          <fieldset className={css({ mt: "2" })}>
+            <legend className={css({ srOnly: true })}>
+              Notification method
+            </legend>
+            <div className={vstack({ gap: "4", alignItems: "stretch" })}>
+              {timeoutOptions.map(({ title, value }) => (
+                <div
+                  key={title}
+                  className={css({ display: "flex", alignItems: "center" })}
+                >
+                  <input
+                    id={title}
+                    name="notification-method"
+                    type="radio"
+                    defaultChecked={value === undefined}
+                    className={css({
+                      h: "4",
+                      w: "4",
+                      borderColor: "gray.300",
+                      bg: "gray.600",
+                    })}
+                  />
+                  <label
+                    htmlFor={title}
+                    className={css({
+                      ml: "3",
+                      display: "block",
+                      fontSize: "sm",
+                      fontWeight: "medium",
+                      color: "gray.900",
+                    })}
+                  >
+                    {title}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </fieldset>
+        </div>
+
+        <div className={flex({ justifyContent: "center" })}>
+          <button
+            type="button"
+            className={css({
+              rounded: "md",
+              bgColor: "gray.50",
+              px: "2.5",
+              py: "1.5",
+              fontSize: "sm",
+              lineHeight: "sm",
+              fontWeight: "semibold",
+              color: "gray.600",
+              shadow: "sm",
+              cursor: "pointer",
+              _hover: { bgColor: "gray.100" },
+            })}
+            onClick={() => {
+              send({
+                type: "trigger",
+                title: "AA",
+                description: "BB",
+                timeout: 5_000,
+              });
+            }}
+          >
+            Trigger the toast
+          </button>
+        </div>
       </div>
     </div>
   );

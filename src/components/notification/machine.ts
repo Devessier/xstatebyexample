@@ -1,4 +1,4 @@
-import { setup } from "xstate";
+import { assertEvent, assign, setup } from "xstate";
 
 export const notificationMachine = setup({
   types: {
@@ -25,6 +25,20 @@ export const notificationMachine = setup({
       return context.timeout;
     },
   },
+  actions: {
+    "Assign notification configuration into context": assign(({ event }) => {
+      assertEvent(event, "trigger");
+
+      return {
+        title: event.title,
+        description: event.description,
+        timeout: event.timeout,
+      };
+    }),
+  },
+  guards: {
+    "Is timer defined": ({ context }) => typeof context.timeout === 'number',
+  }
 }).createMachine({
   context: {
     timeout: undefined,
@@ -33,7 +47,14 @@ export const notificationMachine = setup({
   },
   initial: "Closed",
   states: {
-    Closed: {},
+    Closed: {
+      on: {
+        trigger: {
+          target: "Open",
+          actions: "Assign notification configuration into context",
+        },
+      },
+    },
     Open: {
       initial: "Checking if timer is required",
       states: {
