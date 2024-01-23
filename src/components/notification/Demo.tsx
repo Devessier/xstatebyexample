@@ -125,7 +125,7 @@ export function Demo({ actorOptions }: Props) {
                         color: "gray.900",
                       })}
                     >
-                      Successfully saved!
+                      {state.context.title}
                     </p>
                     <p
                       className={css({
@@ -135,7 +135,7 @@ export function Demo({ actorOptions }: Props) {
                         color: "gray.500",
                       })}
                     >
-                      Anyone with a link can now view this file.
+                      {state.context.description}
                     </p>
                   </div>
                   <div
@@ -166,19 +166,7 @@ export function Demo({ actorOptions }: Props) {
                         });
                       }}
                     >
-                      <span
-                        className={css({
-                          pos: "absolute",
-                          w: "sr.only",
-                          h: "sr.only",
-                          p: "sr.only",
-                          m: "sr.only",
-                          overflow: "hidden",
-                          clip: "rect(0, 0, 0, 0)",
-                          whiteSpace: "nowrap",
-                          borderWidth: "0",
-                        })}
-                      >
+                      <span className={css({ srOnly: true })}>
                         Close
                       </span>
                       <svg
@@ -198,7 +186,30 @@ export function Demo({ actorOptions }: Props) {
         </div>
       </div>
 
-      <div className={vstack({ gap: "6", alignItems: "stretch", px: "4" })}>
+      <form
+        className={vstack({ gap: "6", alignItems: "stretch", px: "4" })}
+        onSubmit={(e) => {
+          e.preventDefault();
+
+          const formData = new FormData(e.currentTarget);
+          const rawTitle = formData.get("title");
+          const rawDescription = formData.get("description");
+          const rawTimeout = formData.get("timeout");
+
+          const timeout = rawTimeout === "" ? undefined : Number(rawTimeout);
+
+          send({
+            type: "trigger",
+            title: String(rawTitle),
+            description: String(rawDescription),
+            timeout,
+          });
+        }}
+      >
+        <h2 className={css({ fontSize: "xl", fontWeight: "semibold", color: "gray.900" })}>
+          Trigger a notification
+        </h2>
+
         <div>
           <label
             htmlFor="title"
@@ -209,11 +220,11 @@ export function Demo({ actorOptions }: Props) {
               color: "gray.900",
             })}
           >
-            Username
+            Title
           </label>
 
           <div className={css({ mt: "2" })}>
-            <input id="title" name="title" type="text" className={input()} />
+            <input id="title" name="title" type="text" required defaultValue="Successfully saved!" className={input()} />
           </div>
         </div>
 
@@ -227,7 +238,7 @@ export function Demo({ actorOptions }: Props) {
               color: "gray.900",
             })}
           >
-            Username
+            Description
           </label>
 
           <div className={css({ mt: "2" })}>
@@ -235,6 +246,8 @@ export function Demo({ actorOptions }: Props) {
               id="description"
               name="description"
               type="text"
+              required
+              defaultValue="Your XState machine has been saved 👌"
               className={input()}
             />
           </div>
@@ -242,7 +255,6 @@ export function Demo({ actorOptions }: Props) {
 
         <div>
           <label
-            htmlFor="timeout"
             className={css({
               display: "block",
               fontSize: "sm",
@@ -250,14 +262,14 @@ export function Demo({ actorOptions }: Props) {
               color: "gray.900",
             })}
           >
-            Username
+            Timeout
           </label>
 
           <fieldset className={css({ mt: "2" })}>
             <legend className={css({ srOnly: true })}>
               Notification method
             </legend>
-            <div className={vstack({ gap: "4", alignItems: "stretch" })}>
+            <div className={vstack({ gap: "2", alignItems: "stretch" })}>
               {timeoutOptions.map(({ title, value }) => (
                 <div
                   key={title}
@@ -265,14 +277,15 @@ export function Demo({ actorOptions }: Props) {
                 >
                   <input
                     id={title}
-                    name="notification-method"
+                    name="timeout"
                     type="radio"
                     defaultChecked={value === undefined}
+                    value={value}
                     className={css({
                       h: "4",
                       w: "4",
                       borderColor: "gray.300",
-                      bg: "gray.600",
+                      color: "gray.600",
                     })}
                   />
                   <label
@@ -295,33 +308,25 @@ export function Demo({ actorOptions }: Props) {
 
         <div className={flex({ justifyContent: "center" })}>
           <button
-            type="button"
+            type="submit"
             className={css({
               rounded: "md",
-              bgColor: "gray.50",
+              bg: "gray.800",
               px: "2.5",
               py: "1.5",
               fontSize: "sm",
               lineHeight: "sm",
               fontWeight: "semibold",
-              color: "gray.600",
+              color: "gray.50",
               shadow: "sm",
               cursor: "pointer",
-              _hover: { bgColor: "gray.100" },
+              _hover: { bgColor: "gray.700" },
             })}
-            onClick={() => {
-              send({
-                type: "trigger",
-                title: "AA",
-                description: "BB",
-                timeout: 5_000,
-              });
-            }}
           >
             Trigger the toast
           </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
