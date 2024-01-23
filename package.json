@@ -16,6 +16,7 @@
     "@astrojs/check": "^0.4.1",
     "@astrojs/mdx": "^2.0.3",
     "@astrojs/react": "^3.0.9",
+    "@headlessui/react": "^1.7.18",
     "@statelyai/inspect": "^0.2.0",
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "@pandacss/dev": "^0.26.1",
-    "pandacss-preset-typography": "^0.1.5"
+    "pandacss-preset-typography": "^0.1.5",
+    "pform-reset": "^0.0.2"
   }
 }

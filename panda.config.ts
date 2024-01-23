@@ -1,6 +1,7 @@
 import { defineConfig } from "@pandacss/dev";
 import typographyPreset from "pandacss-preset-typography";
-import pandaPreset from '@pandacss/preset-panda'
+import pandaPreset from '@pandacss/preset-panda';
+import formPreset from 'pform-reset';
 
 export default defineConfig({
   // Whether to use css reset
@@ -27,5 +28,6 @@ export default defineConfig({
       }
     }),
     pandaPreset,
+    formPreset,
   ]
 });
