@@ -1,3 +1,4 @@
+```tsx
 import { assertEvent, assign, setup } from "xstate";
 
 export const notificationMachine = setup({
@@ -99,3 +100,4 @@ export const notificationMachine = setup({
     },
   },
 });
+```

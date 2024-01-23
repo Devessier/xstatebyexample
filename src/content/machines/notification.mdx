@@ -1,9 +1,8 @@
 ---
-id: 5
 title: "Notification"
 image:
-  url: "https://stately.ai/registry/machines/a5823380-73ed-475b-ba67-73c09f421074.light.png"
-  width: 709
+  url: "https://stately.ai/registry/machines/0b1e0d81-ec76-4ebf-bfb1-fd952e9ac8ef.light.png"
+  width: 1303
   height: 600
 complexity: "beginner"
 ---
@@ -11,10 +10,35 @@ complexity: "beginner"
 import Tabs from '../../components/Tabs.tsx';
 import DemoEntrypoint from '../../components/notification/index.tsx';
 import StatelyVisualizer from '../../components/StatelyVisualizer.astro';
-import { Content as DemoMachineCode } from '../../components/debouncing/machine.md';
-import { Content as DemoReactCode } from '../../components/debouncing/Demo.md';
+import { Content as DemoMachineCode } from '../../components/notification/machine.md';
+import { Content as DemoReactCode } from '../../components/notification/Demo.md';
+
+Notifications, toasts, and snackbars – however you name them – are essential UI elements suitable to be implemented with a state machine.
+They use a timer, and this single reason is enough to use XState for me.
+
+This notification example allows only a single notification to be opened simultaneously.
+Stacking notifications will be showcased on another machine and involve spawned actors.
 
 ## Example
+
+A notification can be triggered only in the `Closed` state, that is, when the notification is not opened yet.
+Conversely, it can only be closed in the `Open` state.
+
+When entering the `Open` state, it will first go to the `Checking if timer is required` state.
+This state, often called a *determining state*, checks if a timeout has been defined for the notification.
+If a timeout was defined, it goes to `Waiting for timeout`. Otherwise, it goes to `Waiting for manual action`.
+The machine uses an *eventless transition* with the `always` keyword. This state is exited immediately after entering.
+
+The `close` event is listened to in both `Waiting for timeout` and `Waiting for manual action` states.
+When the `close` event is received, the machine goes to the `Done` state, whose type is `final`.
+The `Open` state defines an `onDone` transition, taken when it reaches one of its child final states,
+and makes the machine go back to `Closed` state.
+
+The benefit of the `Done` state is explicitly saying that it's the end of the `Closed` state.
+It also acts as a layer of abstraction: the child states of `Open` don't have to know about states outside their parent.
+
+Final states are a powerful feature of state charts, especially [with parallel states](https://stately.ai/docs/parallel-states#parallel-ondone-transition).
+
 
 <DemoEntrypoint client:load />
 
@@ -30,6 +54,6 @@ import { Content as DemoReactCode } from '../../components/debouncing/Demo.md';
   </Fragment>
 
   <Fragment slot="3">
-    <StatelyVisualizer src="https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?mode=Design&machineId=a5823380-73ed-475b-ba67-73c09f421074" />
+    <StatelyVisualizer src="https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=0b1e0d81-ec76-4ebf-bfb1-fd952e9ac8ef" />
   </Fragment>
 </Tabs>
