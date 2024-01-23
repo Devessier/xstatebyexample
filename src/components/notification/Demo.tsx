@@ -323,7 +323,7 @@ export function Demo({ actorOptions }: Props) {
               _hover: { bgColor: "gray.700" },
             })}
           >
-            Trigger the toast
+            Trigger
           </button>
         </div>
       </form>
