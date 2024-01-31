@@ -9,10 +9,10 @@ complexity: "beginner"
 ---
 
 import Tabs from '../../components/Tabs.tsx';
-import DemoEntrypoint from '../../components/notification/index.tsx';
+import DemoEntrypoint from '../../examples/notification/index.tsx';
 import StatelyVisualizer from '../../components/StatelyVisualizer.astro';
-import { Content as DemoMachineCode } from '../../components/notification/machine.md';
-import { Content as DemoReactCode } from '../../components/notification/Demo.md';
+import { Content as DemoMachineCode } from '../../examples/notification/machine.md';
+import { Content as DemoReactCode } from '../../examples/notification/Demo.md';
 
 Notifications, toasts, and snackbars – however you name them – are essential UI elements suitable to be implemented with a state machine.
 They use a timer, and this single reason is enough to use XState for me.

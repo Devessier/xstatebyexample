@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { css } from "../../../styled-system/css";
-import { AppExampleSandbox } from "../AppExampleSandbox.tsx";
+import { css } from "../../../styled-system/css/index";
+import { AppExampleSandbox } from "../../components/AppExampleSandbox.tsx";
 import { Demo } from "./Demo.tsx";
 import { Tooltip } from "@ark-ui/react";
 
