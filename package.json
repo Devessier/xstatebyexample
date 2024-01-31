@@ -26,12 +26,14 @@
     "astro-expressive-code": "^0.31.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-transition-group": "^4.4.5",
     "sharp-ico": "^0.1.5",
     "typescript": "^5.3.3",
     "xstate": "^5.5.1"
   },
   "devDependencies": {
     "@pandacss/dev": "^0.26.1",
+    "@types/react-transition-group": "^4.4.10",
     "pandacss-preset-typography": "^0.1.5",
     "pform-reset": "^0.0.2"
   }

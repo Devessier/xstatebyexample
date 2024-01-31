@@ -1,0 +1,36 @@
+---
+id: 5
+title: "Notification Center"
+image:
+  url: "https://stately.ai/registry/machines/0b1e0d81-ec76-4ebf-bfb1-fd952e9ac8ef.light.png"
+  width: 1303
+  height: 600
+complexity: "intermediate"
+---
+
+import Tabs from '../../components/Tabs.tsx';
+import DemoEntrypoint from '../../examples/notification-center/index.tsx';
+import StatelyVisualizer from '../../components/StatelyVisualizer.astro';
+import { Content as DemoMachineCode } from '../../examples/notification-center/machine.md';
+import { Content as DemoReactCode } from '../../examples/notification-center/Demo.md';
+
+
+## Example
+
+<DemoEntrypoint client:load />
+
+## Code
+
+<Tabs labels={['Machine', 'React', 'Visualizer']} client:load>
+  <Fragment slot="1">
+    <DemoMachineCode />
+  </Fragment>
+
+  <Fragment slot="2">
+    <DemoReactCode />
+  </Fragment>
+
+  <Fragment slot="3">
+    <StatelyVisualizer src="https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=0b1e0d81-ec76-4ebf-bfb1-fd952e9ac8ef" />
+  </Fragment>
+</Tabs>
