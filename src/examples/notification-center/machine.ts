@@ -146,7 +146,7 @@ export const notificationCenterMachine = setup({
 
         const newNotificationId = generateId();
 
-        return context.notificationRefs.concat(
+        return [
           spawn(notificationMachine, {
             id: newNotificationId,
             input: {
@@ -155,8 +155,9 @@ export const notificationCenterMachine = setup({
               description: event.description,
               timeout: event.timeout,
             },
-          })
-        );
+          }),
+          ...context.notificationRefs,
+        ];
       },
     }),
     "Stop closed notification": stopChild(({ context, event }) => {
