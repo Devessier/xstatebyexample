@@ -15,7 +15,21 @@ export default defineConfig({
 
   // Useful for theme customization
   theme: {
-    extend: {},
+    extend: {
+      keyframes: {
+        /**
+         * Comes from https://github.com/fkhadra/react-toastify/blob/edb231d07cc298a82e26d489030356387906ff92/scss/_progressBar.scss#L1-L8.
+         */
+        'progress-bar': {
+          '0%': {
+            transform: "scaleX(1)"
+          },
+          '100%': {
+            transform: "scaleX(0)"
+          },
+        }
+      }
+    },
   },
 
   // The output directory for your css system

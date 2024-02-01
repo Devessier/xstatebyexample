@@ -21,16 +21,7 @@ export const notificationMachine = setup({
       title: string;
       description: string;
     },
-    events: {} as { type: "close" },
-  },
-  delays: {
-    "Notification timeout": ({ context }) => {
-      if (context.timeout === undefined) {
-        throw new Error("Expect timeout to be defined.");
-      }
-
-      return context.timeout;
-    },
+    events: {} as { type: "close" } | { type: "mouse.enter" } | { type: "mouse.leave" } | { type: "animation.end" },
   },
   guards: {
     "Is timer defined": ({ context }) => typeof context.timeout === "number",
@@ -52,13 +43,28 @@ export const notificationMachine = setup({
       ],
     },
     "Waiting for timeout": {
-      after: {
-        "Notification timeout": {
-          target: "Done",
+      initial: "Active",
+      states: {
+        Active: {
+          on: {
+            "mouse.enter": {
+              target: "Inactive"
+            }
+          }
+        },
+        Inactive: {
+          on: {
+            "mouse.leave": {
+              target: "Active"
+            }
+          }
         },
       },
       on: {
         close: {
+          target: "Done",
+        },
+        "animation.end": {
           target: "Done",
         },
       },
