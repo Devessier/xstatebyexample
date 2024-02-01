@@ -5,7 +5,33 @@ import {
   type ActorRefFrom,
   sendParent,
   stopChild,
+  fromCallback,
+  enqueueActions,
 } from "xstate";
+
+const windowFocusLogic = fromCallback(
+  ({
+    sendBack,
+  }: {
+    sendBack: (type: { type: `window.${"focus" | "blur"}` }) => void;
+  }) => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.addEventListener("focus", () => {
+      sendBack({
+        type: "window.focus",
+      });
+    });
+
+    window.addEventListener("blur", () => {
+      sendBack({
+        type: "window.blur",
+      });
+    });
+  }
+);
 
 export const notificationMachine = setup({
   types: {
@@ -21,7 +47,13 @@ export const notificationMachine = setup({
       title: string;
       description: string;
     },
-    events: {} as { type: "close" } | { type: "mouse.enter" } | { type: "mouse.leave" } | { type: "animation.end" },
+    events: {} as
+      | { type: "close" }
+      | { type: "mouse.enter" }
+      | { type: "mouse.leave" }
+      | { type: "animation.end" }
+      | { type: "window.focus" }
+      | { type: "window.blur" },
   },
   guards: {
     "Is timer defined": ({ context }) => typeof context.timeout === "number",
@@ -48,16 +80,22 @@ export const notificationMachine = setup({
         Active: {
           on: {
             "mouse.enter": {
-              target: "Inactive"
-            }
-          }
+              target: "Inactive",
+            },
+            "window.blur": {
+              target: "Inactive",
+            },
+          },
         },
         Inactive: {
           on: {
             "mouse.leave": {
-              target: "Active"
-            }
-          }
+              target: "Active",
+            },
+            "window.focus": {
+              target: "Active",
+            },
+          },
         },
       },
       on: {
@@ -97,7 +135,9 @@ export const notificationCenterMachine = setup({
           title: string;
           description: string;
         }
-      | { type: "notification.closed"; notificationId: string },
+      | { type: "notification.closed"; notificationId: string }
+      | { type: "window.focus" }
+      | { type: "window.blur" },
   },
   actions: {
     "Assign notification configuration into context": assign({
@@ -141,6 +181,9 @@ export const notificationCenterMachine = setup({
   context: {
     notificationRefs: [],
   },
+  invoke: {
+    src: windowFocusLogic,
+  },
   on: {
     "notification.trigger": {
       actions: "Assign notification configuration into context",
@@ -150,6 +193,13 @@ export const notificationCenterMachine = setup({
         "Stop closed notification",
         "Remove closed notification from context",
       ],
+    },
+    "window.*": {
+      actions: enqueueActions(({ enqueue, context, event }) => {
+        for (const ref of context.notificationRefs) {
+          enqueue.sendTo(ref, event);
+        }
+      }),
     },
   },
 });
