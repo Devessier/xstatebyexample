@@ -14,7 +14,7 @@
   "dependencies": {
     "@ark-ui/react": "^1.2.1",
     "@astrojs/check": "^0.4.1",
-    "@astrojs/mdx": "^2.0.3",
+    "@astrojs/mdx": "^2.1.1",
     "@astrojs/react": "^3.0.9",
     "@headlessui/react": "^1.7.18",
     "@statelyai/inspect": "^0.2.0",
@@ -22,7 +22,7 @@
     "@types/react-dom": "^18.2.18",
     "@uidotdev/usehooks": "^2.4.1",
     "@xstate/react": "^4.0.2",
-    "astro": "^4.1.1",
+    "astro": "^4.3.0",
     "astro-expressive-code": "^0.31.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -32,7 +32,7 @@
     "xstate": "^5.5.1"
   },
   "devDependencies": {
-    "@pandacss/dev": "^0.26.1",
+    "@pandacss/dev": "^0.29.1",
     "@types/react-transition-group": "^4.4.10",
     "pandacss-preset-typography": "^0.1.5",
     "pform-reset": "^0.0.2"
