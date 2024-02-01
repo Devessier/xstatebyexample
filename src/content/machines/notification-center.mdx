@@ -14,6 +14,17 @@ import StatelyVisualizer from '../../components/StatelyVisualizer.astro';
 import { Content as DemoMachineCode } from '../../examples/notification-center/machine.md';
 import { Content as DemoReactCode } from '../../examples/notification-center/Demo.md';
 
+Many applications use toasts to give feedback to the user about an action.
+I've often used [React-Toastify](https://github.com/fkhadra/react-toastify)
+to notify the user that she could be signed in successfully or that the website performed an automatic update in the background.
+
+React-Toastify has many interesting features:
+
+- You render the `<ToastContainer />` component at the top level of your application, and later, you can call the `toast()` function wherever and expect a toast to appear.
+- Toasts can have a timer or be displayed for an indeterminate time.
+- When the user unfocuses the page, all toasts running a timer are frozen, and the timers restart when the user focuses the page again.
+- There can be multiple toasts, and notifications are stacked from the most recent to the oldest.
+- The configuration of each toast is independent. One toast can have a timeout when another doesn't.
 
 ## Example
 
