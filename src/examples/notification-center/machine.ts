@@ -77,28 +77,32 @@ export const notificationMachine = setup({
     "Waiting for timeout": {
       initial: "Active",
       states: {
-        Active: {
+        "Active": {
           on: {
             "mouse.enter": {
-              target: "Inactive",
-            },
-            "window.blur": {
-              target: "Inactive",
+              target: "Hovering",
             },
           },
         },
-        Inactive: {
+        "Hovering": {
           on: {
             "mouse.leave": {
               target: "Active",
             },
+          },
+        },
+        "Window inactive": {
+          on: {
             "window.focus": {
               target: "Active",
             },
-          },
+          }
         },
       },
       on: {
+        "window.blur": {
+          target: ".Window inactive",
+        },
         close: {
           target: "Done",
         },
