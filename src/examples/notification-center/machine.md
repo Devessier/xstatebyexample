@@ -14,12 +14,8 @@ const windowFocusLogic = fromCallback(
   ({
     sendBack,
   }: {
-    sendBack: (type: { type: `window.${"focus" | "blur"}` }) => void;
+    sendBack: (event: { type: "window.focus" | "window.blur" }) => void;
   }) => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
     window.addEventListener("focus", () => {
       sendBack({
         type: "window.focus",
@@ -78,14 +74,14 @@ export const notificationMachine = setup({
     "Waiting for timeout": {
       initial: "Active",
       states: {
-        "Active": {
+        Active: {
           on: {
             "mouse.enter": {
               target: "Hovering",
             },
           },
         },
-        "Hovering": {
+        Hovering: {
           on: {
             "mouse.leave": {
               target: "Active",
@@ -97,7 +93,7 @@ export const notificationMachine = setup({
             "window.focus": {
               target: "Active",
             },
-          }
+          },
         },
       },
       on: {

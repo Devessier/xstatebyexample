@@ -15,10 +15,6 @@ const windowFocusLogic = fromCallback(
   }: {
     sendBack: (event: { type: "window.focus" | "window.blur" }) => void;
   }) => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
     window.addEventListener("focus", () => {
       sendBack({
         type: "window.focus",
