@@ -13,9 +13,7 @@ interface Props {
 export function Demo({ actorOptions }: Props) {
   const [state, send] = useActor(notificationCenterMachine, actorOptions);
 
-  console.log(state.context.notificationRefs);
-
-  const timeoutOptions: Array<{ title: string; value: number | undefined }> = [
+  const timeoutOptions: Array<{ title: string; value: number | undefined; isDefaultValue?: true }> = [
     {
       title: "No timeout",
       value: undefined,
@@ -23,6 +21,7 @@ export function Demo({ actorOptions }: Props) {
     {
       title: "5s",
       value: 5_000,
+      isDefaultValue: true,
     },
     {
       title: "10s",
@@ -87,10 +86,7 @@ export function Demo({ actorOptions }: Props) {
                 }),
               }}
             >
-              <Notification
-                notificationId={notificationRef.id}
-                notificationRef={notificationRef}
-              />
+              <Notification notificationRef={notificationRef} />
             </CSSTransition>
           ))}
         </TransitionGroup>
@@ -193,7 +189,7 @@ export function Demo({ actorOptions }: Props) {
               Notification method
             </legend>
             <div className={vstack({ gap: "2", alignItems: "stretch" })}>
-              {timeoutOptions.map(({ title, value }) => (
+              {timeoutOptions.map(({ title, value, isDefaultValue }) => (
                 <div
                   key={title}
                   className={css({ display: "flex", alignItems: "center" })}
@@ -202,7 +198,7 @@ export function Demo({ actorOptions }: Props) {
                     id={title}
                     name="timeout"
                     type="radio"
-                    defaultChecked={value === undefined}
+                    defaultChecked={isDefaultValue}
                     value={value}
                     className={css({
                       h: "4",
@@ -256,14 +252,13 @@ export function Demo({ actorOptions }: Props) {
 
 interface NotificationProps {
   notificationRef: ActorRefFrom<typeof notificationMachine>;
-  notificationId: string;
 }
 
 /**
  * The progress bar and hover features are inspired by React Toastify.
  * See https://github.com/fkhadra/react-toastify/blob/edb231d07cc298a82e26d489030356387906ff92/src/components/ProgressBar.tsx.
  */
-function Notification({ notificationRef, notificationId }: NotificationProps) {
+function Notification({ notificationRef }: NotificationProps) {
   const state = useSelector(notificationRef, (state) => state);
 
   return (

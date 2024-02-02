@@ -8,6 +8,7 @@ image:
 complexity: "intermediate"
 ---
 
+import { css } from '../../../styled-system/css';
 import Tabs from '../../components/Tabs.tsx';
 import DemoEntrypoint from '../../examples/notification-center/index.tsx';
 import StatelyVisualizer from '../../components/StatelyVisualizer.astro';
@@ -15,10 +16,10 @@ import { Content as DemoMachineCode } from '../../examples/notification-center/m
 import { Content as DemoReactCode } from '../../examples/notification-center/Demo.md';
 
 Many applications use toasts to give feedback to the user about an action.
-I've often used [React-Toastify](https://github.com/fkhadra/react-toastify)
+I've often used [React Toastify](https://fkhadra.github.io/react-toastify/introduction/)
 to notify the user that she could be signed in successfully or that the website performed an automatic update in the background.
 
-React-Toastify has many interesting features:
+React Toastify has many exciting features:
 
 - You render the `<ToastContainer />` component at the top level of your application, and later, you can call the `toast()` function wherever and expect a toast to appear.
 - Toasts can have a timer or be displayed for an indeterminate time.
@@ -26,9 +27,197 @@ React-Toastify has many interesting features:
 - There can be multiple toasts, and notifications are stacked from the most recent to the oldest.
 - The configuration of each toast is independent. One toast can have a timeout when another doesn't.
 
-## Example
+This example is a simplified re-implementation of React Toastify with XState. To play with the demo, **hover over the notifications, focus another window and switch to another tab**.
 
 <DemoEntrypoint client:load />
+
+## Example
+
+This example is based on [the Notification machine](/notification).
+Two state machines and one callback logic are involved.
+
+The root machine is `notificationCenterMachine`. This state machine doesn't define any *child state*;
+there is only the [*root state*](https://stately.ai/docs/parent-states#root-state).
+
+### Spawning notification actors
+
+The `notificationCenterMachine` acts as a proxy, knowing what notification actors are available and forwarding events to them.
+Its context contains a `notificationRefs` array.
+
+When the state machine receives the `notification.trigger` event, it executes the `Assign notification configuration into context` action,
+which [*spawns*](https://stately.ai/docs/spawn) a new notification actor and prepends the reference to the `notificationRefs` array. The `notificationMachine` is spawned
+with its [*input*](https://stately.ai/docs/input), containing the timeout, title, and description properties,
+defining how the notification machine will behave.
+
+The `notificationMachine` sets its initial context as the input received. In this specific case, the types of the context and the input are equal, and we can do as follows:
+
+```ts
+context: ({ input }) => input
+```
+
+### Controlling the CSS animation
+
+The notifications with a timeout display a progress bar, which is stopped when the user hovers over the notification or unfocuses the page.
+
+<div class={css({ display: "flex", justifyContent: "center", '& img': { maxWidth: "500px", w: "full" } })}>
+  ![A user hovers over the notification and it automatically stops](../../assets/notification-center/animation-stops-on-hover.gif)
+</div>
+
+Inspired by React Toastify, the timer of the notification is managed by the browser: the end of the animation is waited for with the `animationend` event
+and the animation is paused with the `animation-play-state` CSS property.
+
+When the animation of the progress bar ends, it sends an `animation.end` event to the notification's actor. The state machine then goes to the `Done` state
+and sends a `notification.closed` event to its parent, as discussed above.
+
+```tsx
+onAnimationEnd={() => {
+  notificationRef.send({
+    type: "animation.end",
+  });
+}}
+```
+
+The animation runs when the `notificationMachine` is in `Waiting for timeout.Active` state:
+
+```tsx
+style={{
+  animationDuration: state.context.timeout! + "ms",
+  animationPlayState:
+    state.matches({ "Waiting for timeout": "Active" }) === true
+      ? "running"
+      : "paused",
+}}
+```
+
+Relying on the animation's state is brilliant because it can serve as the single source of truth.
+Instinctively, I would have opted for a full-JS implementation, probably using `setTimeout` and `Date.now()`,
+to control the position where the animation should restart after a pause. CSS deserves much more love!
+
+### Listening to window focus and blur
+
+We need to call `window.addEventListener()` to know when the page is focused or blurred.
+I don't want to listen to these events in each notification actor; these events are not tied to any specific notification.
+It would be better to have a single listener for each of them.
+
+It's perfect because we already have a state machine singleton wrapping every notification!
+The `notificationCenterMachine` invokes the `windowFocusLogic` actor, which sets up the listeners for the `focus` and `blur` events.
+
+```ts
+const windowFocusLogic = fromCallback(({ sendBack }) => {
+  window.addEventListener("focus", () => {
+    sendBack({
+      type: "window.focus",
+    });
+  });
+
+  window.addEventListener("blur", () => {
+    sendBack({
+      type: "window.blur",
+    });
+  });
+});
+
+const notificationCenterMachine = createMachine({
+  invoke: {
+    src: windowFocusLogic,
+  },
+});
+```
+
+When `windowFocusLogic` calls the `sendBack` function with an event, the `notificationCenterMachine`
+receives it as if a React component sent it from outside the machine.
+It then forwards the event to every notification actor:
+
+```ts
+const notificationCenterMachine = createMachine({
+  invoke: {
+    src: windowFocusLogic,
+  },
+  "window.*": {
+    actions: enqueueActions(({ enqueue, context, event }) => {
+      for (const ref of context.notificationRefs) {
+        enqueue.sendTo(ref, event);
+      }
+    }),
+  },
+});
+```
+
+The [`enqueueActions`](https://stately.ai/docs/actions#enqueue-actions) action programmatically defines which actions XState should run.
+Usually, it's better to rely on the basic actions that make it easier to introspect the machine to determine what it does.
+But, sometimes, running a JavaScript function is necessary to determine what actions XState must execute.
+
+Note that `enqueueActions` *enqueues* actions; it doesn't execute them right away. Actions are always declarative and pure with XState.
+It's crucial for APIs like [`state.can()`](https://stately.ai/docs/states#statecaneventtype) to work.
+
+We must use `enqueueActions` because we don't know the number of notification actors in advance; we must compute some JavaScript to determine it.
+
+### Cleaning stopped actors
+
+When the notification is closed because the user clicked the close button or reached the timeout,
+the `notificationMachine` goes to the `Done` state. In this state, the machine sends a `notification.closed` event to its parent:
+
+```ts
+Done: {
+  entry: sendParent(({ context }) => ({
+    type: "notification.closed",
+    notificationId: context.notificationId,
+  })),
+}
+```
+
+To stop a spawned actor stored in the context of a machine, you need to do two things:
+
+- Stop the actor with the [`stopChild`](https://stately.ai/docs/actions#stop-child-action) action.
+- Remove the reference to the actor from the context with the `assign` action.
+
+When the `notificationCenterMachine` receives a `notification.closed` event, it executes two actions:
+
+1. `Stop closed notification`
+2. `Remove closed notification from context`
+
+Each notification actor gets an ID when spawned; this is how the `notificationCenterMachine` knows which actor to stop.
+
+## Integrate the Notification Center with an Actor System
+
+A Notification Center is typically a unique actor. There is a single Notification Center in an application,
+and every time you want to trigger a notification, you need to reach out to it.
+
+I usually create an `appMachine` managing the authentication state and make it globally available throughout the code base.
+We can invoke the `notificationCenterMachine` at the root state of the `appMachine` to make it live in every state.
+
+With the [Systems](https://stately.ai/docs/system) feature of XState 5, we can even make the Notification Center
+available to the whole hierarchy of actors invoked and spawned by or under the `appMachine`:
+
+```ts
+const childMachine = createMachine({
+  entry: sendTo(({ system }) => system.get('notification-center'), {
+    type: "notification.trigger",
+    title: "Child machine has been loaded",
+    description: "Start sending it some events",
+    timeout,
+  }),
+});
+
+const appMachine = createMachine({
+  invoke: {
+    src: notificationCenterMachine,
+    systemId: "notification-center",
+  },
+  initial: "Checking if user is initially authenticated",
+  states: {
+    "Checking if user is initially authenticated": { /** */ },
+    Authenticated: {
+      invoke: {
+        src: childMachine,
+      },
+    },
+    "Not authenticated": { /** */ },
+  },
+});
+```
+
+This example doesn't implement that, but this pattern may suit real-world applications well.
 
 ## Code
 

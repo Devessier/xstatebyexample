@@ -6,7 +6,33 @@ import {
   type ActorRefFrom,
   sendParent,
   stopChild,
+  fromCallback,
+  enqueueActions,
 } from "xstate";
+
+const windowFocusLogic = fromCallback(
+  ({
+    sendBack,
+  }: {
+    sendBack: (type: { type: `window.${"focus" | "blur"}` }) => void;
+  }) => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.addEventListener("focus", () => {
+      sendBack({
+        type: "window.focus",
+      });
+    });
+
+    window.addEventListener("blur", () => {
+      sendBack({
+        type: "window.blur",
+      });
+    });
+  }
+);
 
 export const notificationMachine = setup({
   types: {
@@ -22,16 +48,13 @@ export const notificationMachine = setup({
       title: string;
       description: string;
     },
-    events: {} as { type: "close" },
-  },
-  delays: {
-    "Notification timeout": ({ context }) => {
-      if (context.timeout === undefined) {
-        throw new Error("Expect timeout to be defined.");
-      }
-
-      return context.timeout;
-    },
+    events: {} as
+      | { type: "close" }
+      | { type: "mouse.enter" }
+      | { type: "mouse.leave" }
+      | { type: "animation.end" }
+      | { type: "window.focus" }
+      | { type: "window.blur" },
   },
   guards: {
     "Is timer defined": ({ context }) => typeof context.timeout === "number",
@@ -53,13 +76,38 @@ export const notificationMachine = setup({
       ],
     },
     "Waiting for timeout": {
-      after: {
-        "Notification timeout": {
-          target: "Done",
+      initial: "Active",
+      states: {
+        "Active": {
+          on: {
+            "mouse.enter": {
+              target: "Hovering",
+            },
+          },
+        },
+        "Hovering": {
+          on: {
+            "mouse.leave": {
+              target: "Active",
+            },
+          },
+        },
+        "Window inactive": {
+          on: {
+            "window.focus": {
+              target: "Active",
+            },
+          }
         },
       },
       on: {
+        "window.blur": {
+          target: ".Window inactive",
+        },
         close: {
+          target: "Done",
+        },
+        "animation.end": {
           target: "Done",
         },
       },
@@ -92,7 +140,9 @@ export const notificationCenterMachine = setup({
           title: string;
           description: string;
         }
-      | { type: "notification.closed"; notificationId: string },
+      | { type: "notification.closed"; notificationId: string }
+      | { type: "window.focus" }
+      | { type: "window.blur" },
   },
   actions: {
     "Assign notification configuration into context": assign({
@@ -101,7 +151,7 @@ export const notificationCenterMachine = setup({
 
         const newNotificationId = generateId();
 
-        return context.notificationRefs.concat(
+        return [
           spawn(notificationMachine, {
             id: newNotificationId,
             input: {
@@ -110,8 +160,9 @@ export const notificationCenterMachine = setup({
               description: event.description,
               timeout: event.timeout,
             },
-          })
-        );
+          }),
+          ...context.notificationRefs,
+        ];
       },
     }),
     "Stop closed notification": stopChild(({ context, event }) => {
@@ -136,6 +187,9 @@ export const notificationCenterMachine = setup({
   context: {
     notificationRefs: [],
   },
+  invoke: {
+    src: windowFocusLogic,
+  },
   on: {
     "notification.trigger": {
       actions: "Assign notification configuration into context",
@@ -145,6 +199,13 @@ export const notificationCenterMachine = setup({
         "Stop closed notification",
         "Remove closed notification from context",
       ],
+    },
+    "window.*": {
+      actions: enqueueActions(({ enqueue, context, event }) => {
+        for (const ref of context.notificationRefs) {
+          enqueue.sendTo(ref, event);
+        }
+      }),
     },
   },
 });

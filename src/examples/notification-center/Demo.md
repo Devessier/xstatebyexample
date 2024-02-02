@@ -14,9 +14,7 @@ interface Props {
 export function Demo({ actorOptions }: Props) {
   const [state, send] = useActor(notificationCenterMachine, actorOptions);
 
-  console.log(state.context.notificationRefs)
-
-  const timeoutOptions: Array<{ title: string; value: number | undefined }> = [
+  const timeoutOptions: Array<{ title: string; value: number | undefined; isDefaultValue?: true }> = [
     {
       title: "No timeout",
       value: undefined,
@@ -24,6 +22,7 @@ export function Demo({ actorOptions }: Props) {
     {
       title: "5s",
       value: 5_000,
+      isDefaultValue: true,
     },
     {
       title: "10s",
@@ -55,47 +54,42 @@ export function Demo({ actorOptions }: Props) {
             rowGap: "2",
           })}
         >
-          {state.context.notificationRefs.map(
-            (notificationRef) => (
-              <CSSTransition
-                key={notificationRef.id}
-                // transitionDuration: "slow" === 300ms
-                // transitionDuration: "fast" === 150ms
-                timeout={{ enter: 300, exit: 300 }}
-                classNames={{
-                  enter: css({
-                    translate: "auto",
-                    opacity: "0",
-                    translateY: { base: "-2", sm: "0" },
-                    translateX: { sm: "2" },
-                  }),
-                  enterActive: css({
-                    transitionTimingFunction: "ease-out",
-                    transitionDuration: "300ms",
-                    transitionProperty: "all",
-                    translate: "auto",
-                    translateY: "0 !important",
-                    translateX: "0 !important",
-                    opacity: "1 !important",
-                  }),
-                  exit: css({
-                    opacity: "1",
-                  }),
-                  exitActive: css({
-                    transitionTimingFunction: "ease-in",
-                    transitionDuration: "fast",
-                    transitionProperty: "all",
-                    opacity: "0 !important",
-                  }),
-                }}
-              >
-                <Notification
-                  notificationId={notificationRef.id}
-                  notificationRef={notificationRef}
-                />
-              </CSSTransition>
-            )
-          )}
+          {state.context.notificationRefs.map((notificationRef) => (
+            <CSSTransition
+              key={notificationRef.id}
+              // transitionDuration: "slow" === 300ms
+              // transitionDuration: "fast" === 150ms
+              timeout={{ enter: 300, exit: 300 }}
+              classNames={{
+                enter: css({
+                  translate: "auto",
+                  opacity: "0",
+                  translateY: { base: "-2", sm: "0" },
+                  translateX: { sm: "2" },
+                }),
+                enterActive: css({
+                  transitionTimingFunction: "ease-out",
+                  transitionDuration: "300ms",
+                  transitionProperty: "all",
+                  translate: "auto",
+                  translateY: "0 !important",
+                  translateX: "0 !important",
+                  opacity: "1 !important",
+                }),
+                exit: css({
+                  opacity: "1",
+                }),
+                exitActive: css({
+                  transitionTimingFunction: "ease-in",
+                  transitionDuration: "fast",
+                  transitionProperty: "all",
+                  opacity: "0 !important",
+                }),
+              }}
+            >
+              <Notification notificationRef={notificationRef} />
+            </CSSTransition>
+          ))}
         </TransitionGroup>
       </div>
 
@@ -196,7 +190,7 @@ export function Demo({ actorOptions }: Props) {
               Notification method
             </legend>
             <div className={vstack({ gap: "2", alignItems: "stretch" })}>
-              {timeoutOptions.map(({ title, value }) => (
+              {timeoutOptions.map(({ title, value, isDefaultValue }) => (
                 <div
                   key={title}
                   className={css({ display: "flex", alignItems: "center" })}
@@ -205,7 +199,7 @@ export function Demo({ actorOptions }: Props) {
                     id={title}
                     name="timeout"
                     type="radio"
-                    defaultChecked={value === undefined}
+                    defaultChecked={isDefaultValue}
                     value={value}
                     className={css({
                       h: "4",
@@ -259,10 +253,13 @@ export function Demo({ actorOptions }: Props) {
 
 interface NotificationProps {
   notificationRef: ActorRefFrom<typeof notificationMachine>;
-  notificationId: string;
 }
 
-function Notification({ notificationRef, notificationId }: NotificationProps) {
+/**
+ * The progress bar and hover features are inspired by React Toastify.
+ * See https://github.com/fkhadra/react-toastify/blob/edb231d07cc298a82e26d489030356387906ff92/src/components/ProgressBar.tsx.
+ */
+function Notification({ notificationRef }: NotificationProps) {
   const state = useSelector(notificationRef, (state) => state);
 
   return (
@@ -278,7 +275,18 @@ function Notification({ notificationRef, notificationId }: NotificationProps) {
         borderWidth: "1",
         borderStyle: "solid",
         borderColor: "gray.200",
+        pos: "relative",
       })}
+      onMouseEnter={() => {
+        notificationRef.send({
+          type: "mouse.enter",
+        });
+      }}
+      onMouseLeave={() => {
+        notificationRef.send({
+          type: "mouse.leave",
+        });
+      }}
     >
       <div className={css({ p: "4" })}>
         <div className={css({ display: "flex", alignItems: "flex-start" })}>
@@ -361,6 +369,36 @@ function Notification({ notificationRef, notificationId }: NotificationProps) {
           </div>
         </div>
       </div>
+
+      {state.matches("Waiting for timeout") === true ? (
+        <div
+          className={css({
+            pos: "absolute",
+            bottom: 0,
+            left: 0,
+            h: "1.5",
+            w: "full",
+            bg: "green.400/50",
+            transformOrigin: "left",
+            animationName: "progress-bar",
+            animationFillMode: "forwards",
+            animationIterationCount: 1,
+            animationTimingFunction: "linear",
+          })}
+          style={{
+            animationDuration: state.context.timeout! + "ms",
+            animationPlayState:
+              state.matches({ "Waiting for timeout": "Active" }) === true
+                ? "running"
+                : "paused",
+          }}
+          onAnimationEnd={() => {
+            notificationRef.send({
+              type: "animation.end",
+            });
+          }}
+        />
+      ) : null}
     </div>
   );
 }
