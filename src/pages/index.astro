@@ -3,7 +3,7 @@ import { Image } from "astro:assets";
 import Layout from "../layouts/Layout.astro";
 import { css } from "../../styled-system/css";
 import { grid } from "../../styled-system/patterns";
-import { StandaloneDemo as SearchAsYouTypeDemo } from "../components/search-as-you-type/StandaloneDemo.tsx";
+import { StandaloneDemo as SearchAsYouTypeDemo } from "../examples/search-as-you-type/StandaloneDemo.tsx";
 import { Content as SearchAsYouTypeCode } from "../assets/home/code.md";
 import { getCollection } from "astro:content";
 import AppMachineDifficultyBadge from "../components/AppMachineDifficultyBadge.astro";
@@ -206,7 +206,7 @@ const orderedMachineEntries = machineEntries.sort((a, b) => a.data.id - b.data.i
           lg: { pl: "8", pr: "8" },
         })}
       >
-        <div class={grid({ columns: { base: 1, sm: 2, lg: 3 }, gap: "4" })}>
+        <div class={grid({ columns: { base: 1, sm: 2, lg: 3 }, gap: "4", gridAutoRows: "1fr" })}>
           {
             orderedMachineEntries.map(({ slug, data: { title, image, complexity } }) => (
               <article
@@ -336,3 +336,4 @@ const orderedMachineEntries = machineEntries.sort((a, b) => a.data.id - b.data.i
     </div>
   </section>
 </Layout>
+../examples/search-as-you-type/StandaloneDemo.tsx

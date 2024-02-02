@@ -1,7 +1,7 @@
 import { opendir, readFile, writeFile } from 'node:fs/promises'
 import { join, extname } from 'node:path';
 
-const BASE_DIR = new URL("./src/components", import.meta.url)
+const BASE_DIR = new URL("./src/examples", import.meta.url)
 
 const FILES_TO_COPY = ["Demo.tsx", "machine.ts"]
 
