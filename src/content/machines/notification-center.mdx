@@ -63,11 +63,11 @@ The notifications with a timeout display a progress bar, which is stopped when t
   ![A user hovers over the notification and it automatically stops](../../assets/notification-center/animation-stops-on-hover.gif)
 </div>
 
-Inspired by React Toastify, the timer of the notification is managed by the browser: the end of the animation is waited for with the `animationend` event
-and the animation is paused with the `animation-play-state` CSS property.
+Inspired by React Toastify, the timer of the notification is managed by the browser: the end of the animation is waited for with the [`animationend`](https://developer.mozilla.org/en-US/docs/Web/API/Element/animationend_event) event,
+and the animation is paused with the [`animation-play-state`](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-play-state) CSS property.
 
-When the animation of the progress bar ends, it sends an `animation.end` event to the notification's actor. The state machine then goes to the `Done` state
-and sends a `notification.closed` event to its parent, as discussed above.
+When the animation of the progress bar ends, the React component sends an `animation.end` event to the notification's actor. The state machine then goes to the `Done` state
+and sends a `notification.closed` event to its parent, [as discussed below](#cleaning-stopped-actors).
 
 ```tsx
 onAnimationEnd={() => {
@@ -89,7 +89,10 @@ style={{
 }}
 ```
 
-Relying on the animation's state is brilliant because it can serve as the single source of truth.
+Relying on the animation's state is brilliant because the browser serves as the single source of truth.
+One fun side effect of doing so is that if you pause the animation in the dev tools ([Firefox can do that](https://firefox-source-docs.mozilla.org/devtools-user/page_inspector/how_to/work_with_animations/index.html#animation-playback)),
+the notification won't close unexpectedly.
+
 Instinctively, I would have opted for a full-JS implementation, probably using `setTimeout` and `Date.now()`,
 to control the position where the animation should restart after a pause. CSS deserves much more love!
 
