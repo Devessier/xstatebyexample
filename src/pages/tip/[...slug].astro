@@ -1,0 +1,25 @@
+---
+import { getCollection } from "astro:content";
+import MachineLayout from "../../layouts/MachineLayout.astro";
+
+export async function getStaticPaths() {
+  const tipsEntries = await getCollection("tips");
+
+  return tipsEntries.map((entry) => ({
+    params: {
+      slug: entry.slug,
+    },
+    props: {
+      entry,
+      title: entry.data.title,
+    },
+  }));
+}
+
+const { entry, title } = Astro.props;
+const { Content } = await entry.render();
+---
+
+<MachineLayout title={title}>
+  <Content />
+</MachineLayout>

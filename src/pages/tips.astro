@@ -1,0 +1,83 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { css } from "../../styled-system/css";
+import { vstack } from "../../styled-system/patterns";
+import { getCollection } from "astro:content";
+
+const tipsEntries = await getCollection("tips");
+
+const orderedTipsEntries = tipsEntries.sort((a, b) => a.data.id - b.data.id);
+---
+
+<Layout title="XState by Example" ogType="website">
+  <section>
+    <header>
+      <div
+        class={css({
+          ml: "auto",
+          mr: "auto",
+          maxW: "3xl",
+          pl: "4",
+          pr: "4",
+          sm: { pl: "6", pr: "6" },
+          lg: { pl: "8", pr: "8" },
+        })}
+      >
+        <h1
+          class={css({
+            fontSize: "4xl",
+            lineHeight: "tight",
+            fontWeight: "bold",
+            letterSpacing: "tight",
+            color: "gray.900",
+          })}
+        >
+          Tips & Tricks
+        </h1>
+
+        <p
+          class={css({
+            mt: "2",
+            color: "gray.600",
+            maxW: "2xl",
+            fontSize: "lg",
+          })}
+        >
+          A collection of tips and tricks to make the best use of XState.
+        </p>
+      </div>
+    </header>
+    <div class={css({ mt: "10" })}>
+      <div
+        class={css({
+          ml: "auto",
+          mr: "auto",
+          maxW: "3xl",
+          pl: "4",
+          pr: "4",
+          sm: { pl: "6", pr: "6" },
+          lg: { pl: "8", pr: "8" },
+        })}
+      >
+        <div class={vstack({ gap: "4", alignItems: "stretch" })}>
+          {
+            orderedTipsEntries.map((tip) => (
+              <article
+                class={css({
+                  display: "block",
+                  rounded: "lg",
+                  fontSize: "lg",
+                  fontWeight: "semibold",
+                  color: "gray.900",
+                  _hover: { textDecoration: "underline" },
+                })}
+              >
+                <a href={`/tip/${tip.slug}/`}>{tip.data.title}</a>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

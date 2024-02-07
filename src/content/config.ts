@@ -15,6 +15,15 @@ const machineCollection = defineCollection({
   }),
 });
 
+const tipCollection = defineCollection({
+  type: "content",
+  schema: z.object({
+    id: z.number().nonnegative(),
+    title: z.string(),
+  }),
+});
+
 export const collections = {
   machines: machineCollection,
+  tips: tipCollection,
 };
