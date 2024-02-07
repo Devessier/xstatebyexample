@@ -69,10 +69,14 @@ const orderedTipsEntries = tipsEntries.sort((a, b) => a.data.id - b.data.id);
                   fontSize: "lg",
                   fontWeight: "semibold",
                   color: "gray.900",
-                  _hover: { textDecoration: "underline" },
                 })}
               >
-                <a href={`/tip/${tip.slug}/`}>{tip.data.title}</a>
+                <a
+                  href={`/tip/${tip.slug}/`}
+                  class={css({ _hover: { textDecoration: "underline" } })}
+                >
+                  {tip.data.title}
+                </a>
               </article>
             ))
           }
