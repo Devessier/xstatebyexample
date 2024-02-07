@@ -12,7 +12,7 @@ const mastHeadLinks: Array<{ href: string; label: string }> = [
     href: "/#examples",
   },
   {
-    label: "Tips",
+    label: "Tips & Tricks",
     href: "/tips/",
   },
 ];
@@ -68,10 +68,7 @@ export function TheMastHead({
           alignItems: "center",
           mx: "auto",
           maxW: "7xl",
-          pl: "4",
-          pr: "4",
-          sm: { pl: "6", pr: "6" },
-          lg: { pl: "8", pr: "8" },
+          px: { base: "4", sm: "6", lg: "8" }
         })}
       >
         <div
@@ -93,7 +90,7 @@ export function TheMastHead({
           </div>
         </div>
 
-        <div className={css({ display: { base: "flex", lg: "none" } })}>
+        <div className={css({ display: { base: "flex", md: "none" } })}>
           <button
             type="button"
             className={css({
@@ -131,7 +128,7 @@ export function TheMastHead({
         <div
           className={css({
             display: "none",
-            lg: { display: "flex", columnGap: "12" },
+            md: { display: "flex", columnGap: "12" },
           })}
         >
           {mastHeadLinks.map((link, index) => (
@@ -151,7 +148,7 @@ export function TheMastHead({
 
         <div
           className={hstack({
-            display: { base: "none", lg: "flex" },
+            display: { base: "none", md: "flex" },
             gap: "4",
           })}
         >
@@ -202,12 +199,12 @@ export function TheMastHead({
 
       <Dialog.Root open={isOpen} onOpenChange={(e) => setIsOpen(e.open)}>
         <Portal>
-          <Dialog.Backdrop className={css({ lg: { display: "none" } })} />
+          <Dialog.Backdrop className={css({ md: { display: "none" } })} />
 
           <Dialog.Positioner>
             <Dialog.Content
               className={css({
-                lg: { display: "none" },
+                md: { display: "none" },
                 pos: "fixed",
                 insetY: "0",
                 right: "0",
