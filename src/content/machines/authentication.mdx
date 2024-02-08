@@ -5,14 +5,11 @@ image:
   url: "https://stately.ai/registry/machines/85c8201b-62c9-4a35-9544-a313d8cadf49.light.png"
   width: 692
   height: 600
+visualizerSrc: "https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=85c8201b-62c9-4a35-9544-a313d8cadf49&mode=design"
 complexity: "advanced"
 ---
 
-import Tabs from '../../components/Tabs.tsx';
 import DemoEntrypoint from '../../examples/authentication/index.tsx';
-import StatelyVisualizer from '../../components/StatelyVisualizer.astro';
-import { Content as DemoMachineCode } from '../../examples/authentication/machine.md';
-import { Content as DemoReactCode } from '../../examples/authentication/Demo.md';
 
 One of my favorite uses of XState is for global state management.
 It excels in an environment fully controlled by JavaScript, like a SPA (Single Page Application) or React Native.
@@ -70,19 +67,3 @@ Error handling is crucial in this scenario. In case of an error during signing-i
 with the error in a human-readable format. Promise actors can throw errors; the machine handles them thanks to the `onError` transitions.
 
 <DemoEntrypoint client:load />
-
-## Code
-
-<Tabs labels={['Machine', 'React', 'Visualizer']} client:load>
-  <Fragment slot="1">
-    <DemoMachineCode />
-  </Fragment>
-
-  <Fragment slot="2">
-    <DemoReactCode />
-  </Fragment>
-
-  <Fragment slot="3">
-    <StatelyVisualizer src="https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=85c8201b-62c9-4a35-9544-a313d8cadf49&mode=design" />
-  </Fragment>
-</Tabs>

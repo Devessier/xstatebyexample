@@ -5,16 +5,13 @@ image:
   url: "https://stately.ai/registry/machines/46d48d1d-ce1e-4286-8cd9-226f852a37f0.light.png"
   width: 1187
   height: 600
+visualizerSrc: "https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=46d48d1d-ce1e-4286-8cd9-226f852a37f0"
 complexity: "intermediate"
 ---
 
 import { Image } from "astro:assets";
-import Tabs from '../../components/Tabs.tsx';
 import { css } from '../../../styled-system/css';
 import DemoEntrypoint from '../../examples/search-as-you-type/index.tsx';
-import StatelyVisualizer from '../../components/StatelyVisualizer.astro';
-import { Content as DemoMachineCode } from '../../examples/search-as-you-type/machine.md';
-import { Content as DemoReactCode } from '../../examples/search-as-you-type/Demo.md';
 import GoogleSearchAsYouTypeDemo from '../../assets/search-as-you-type/google-demo.gif';
 
 Many websites implement search as you type for their search engine.
@@ -51,19 +48,3 @@ Try to type any character in the input. It will autocomplete based on its tiny d
 Type more characters while debouncing or fetching happens. Try to break the machine!
 
 <DemoEntrypoint client:load />
-
-## Code
-
-<Tabs labels={['Machine', 'React', 'Visualizer']} client:load>
-  <Fragment slot="1">
-    <DemoMachineCode />
-  </Fragment>
-
-  <Fragment slot="2">
-    <DemoReactCode />
-  </Fragment>
-
-  <Fragment slot="3">
-    <StatelyVisualizer src="https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=46d48d1d-ce1e-4286-8cd9-226f852a37f0" />
-  </Fragment>
-</Tabs>

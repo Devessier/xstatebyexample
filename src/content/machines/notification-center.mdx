@@ -5,15 +5,12 @@ image:
   url: "https://stately.ai/registry/machines/830e93a8-8ee2-4fcc-9868-0bb9b12bc5a9.light.png"
   width: 1303
   height: 600
+visualizerSrc: "https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=830e93a8-8ee2-4fcc-9868-0bb9b12bc5a9&mode=design"
 complexity: "intermediate"
 ---
 
 import { css } from '../../../styled-system/css';
-import Tabs from '../../components/Tabs.tsx';
 import DemoEntrypoint from '../../examples/notification-center/index.tsx';
-import StatelyVisualizer from '../../components/StatelyVisualizer.astro';
-import { Content as DemoMachineCode } from '../../examples/notification-center/machine.md';
-import { Content as DemoReactCode } from '../../examples/notification-center/Demo.md';
 
 Many applications use toasts to give feedback to the user about an action.
 I've often used [React Toastify](https://fkhadra.github.io/react-toastify/introduction/)
@@ -221,19 +218,3 @@ const appMachine = createMachine({
 ```
 
 This example doesn't implement that, but this pattern may suit real-world applications well.
-
-## Code
-
-<Tabs labels={['Machine', 'React', 'Visualizer']} client:load>
-  <Fragment slot="1">
-    <DemoMachineCode />
-  </Fragment>
-
-  <Fragment slot="2">
-    <DemoReactCode />
-  </Fragment>
-
-  <Fragment slot="3">
-    <StatelyVisualizer src="https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=830e93a8-8ee2-4fcc-9868-0bb9b12bc5a9&mode=design" />
-  </Fragment>
-</Tabs>

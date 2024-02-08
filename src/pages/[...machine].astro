@@ -1,6 +1,8 @@
 ---
 import { getCollection } from "astro:content";
 import MachineLayout from "../layouts/MachineLayout.astro";
+import Tabs from '../components/Tabs.tsx';
+import StatelyVisualizer from '../components/StatelyVisualizer.astro';
 
 export async function getStaticPaths() {
   const machinesEntries = await getCollection("machines");
@@ -18,8 +20,29 @@ export async function getStaticPaths() {
 
 const { entry, title } = Astro.props;
 const { Content } = await entry.render();
+
+const MachineCode = await import(`../examples/${Astro.params.machine}/machine.md`)
+const ReactCode = await import(`../examples/${Astro.params.machine}/Demo.md`)
 ---
 
 <MachineLayout title={title}>
   <Content />
+
+  <h2 id="code">Code</h2>
+
+  <Tabs labels={["Machine", "React", "Visualizer"]} client:load>
+    <Fragment slot="1">
+      <MachineCode.Content />
+    </Fragment>
+  
+    <Fragment slot="2">
+      <ReactCode.Content />
+    </Fragment>
+  
+    <Fragment slot="3">
+      <StatelyVisualizer
+        src={entry.data.visualizerSrc}
+      />
+    </Fragment>
+  </Tabs>
 </MachineLayout>
