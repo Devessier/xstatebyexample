@@ -1,6 +1,9 @@
 ---
 import { getCollection } from "astro:content";
 import MachineLayout from "../layouts/MachineLayout.astro";
+import Tabs from "../components/Tabs.tsx";
+import StatelyVisualizer from "../components/StatelyVisualizer.astro";
+import { css } from "../../styled-system/css";
 
 export async function getStaticPaths() {
   const machinesEntries = await getCollection("machines");
@@ -18,8 +21,45 @@ export async function getStaticPaths() {
 
 const { entry, title } = Astro.props;
 const { Content } = await entry.render();
+
+const MachineCode = await import(
+  `../examples/${Astro.params.machine}/machine.md`
+);
+const ReactCode = await import(`../examples/${Astro.params.machine}/Demo.md`);
 ---
 
 <MachineLayout title={title}>
   <Content />
+
+  <h2 id="code">Code</h2>
+
+  <Tabs labels={["Machine", "React", "Visualizer"]} client:load>
+    <Fragment slot="1">
+      <a
+        href={`https://github.com/Devessier/xstatebyexample/tree/main/src/examples/${Astro.params.machine}/machine.ts`}
+        target="_blank"
+        class={css({ display: "inline-block", mb: "4" })}
+      >
+        View in GitHub
+      </a>
+
+      <MachineCode.Content />
+    </Fragment>
+
+    <Fragment slot="2">
+      <a
+        href={`https://github.com/Devessier/xstatebyexample/tree/main/src/examples/${Astro.params.machine}/Demo.tsx`}
+        target="_blank"
+        class={css({ display: "inline-block", mb: "4" })}
+      >
+        View in GitHub
+      </a>
+
+      <ReactCode.Content />
+    </Fragment>
+
+    <Fragment slot="3">
+      <StatelyVisualizer src={entry.data.visualizerSrc} />
+    </Fragment>
+  </Tabs>
 </MachineLayout>

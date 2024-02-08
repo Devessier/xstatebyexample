@@ -11,6 +11,7 @@ const machineCollection = defineCollection({
       width: z.number(),
       height: z.number(),
     }),
+    visualizerSrc: z.string(),
     complexity: MachineComplexity,
   }),
 });

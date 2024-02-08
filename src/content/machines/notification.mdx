@@ -5,14 +5,11 @@ image:
   url: "https://stately.ai/registry/machines/0b1e0d81-ec76-4ebf-bfb1-fd952e9ac8ef.light.png"
   width: 1303
   height: 600
+visualizerSrc: "https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=0b1e0d81-ec76-4ebf-bfb1-fd952e9ac8ef"
 complexity: "beginner"
 ---
 
-import Tabs from '../../components/Tabs.tsx';
 import DemoEntrypoint from '../../examples/notification/index.tsx';
-import StatelyVisualizer from '../../components/StatelyVisualizer.astro';
-import { Content as DemoMachineCode } from '../../examples/notification/machine.md';
-import { Content as DemoReactCode } from '../../examples/notification/Demo.md';
 
 Notifications, toasts, and snackbars – however you name them – are essential UI elements suitable to be implemented with a state machine.
 They use a timer, and this single reason is enough to use XState for me.
@@ -43,21 +40,4 @@ It also acts as a layer of abstraction: the child states of `Open` don't have to
 
 Final states are a powerful feature of state charts, especially [with parallel states](https://stately.ai/docs/parallel-states#parallel-ondone-transition).
 
-
 <DemoEntrypoint client:load />
-
-## Code
-
-<Tabs labels={['Machine', 'React', 'Visualizer']} client:load>
-  <Fragment slot="1">
-    <DemoMachineCode />
-  </Fragment>
-
-  <Fragment slot="2">
-    <DemoReactCode />
-  </Fragment>
-
-  <Fragment slot="3">
-    <StatelyVisualizer src="https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=0b1e0d81-ec76-4ebf-bfb1-fd952e9ac8ef" />
-  </Fragment>
-</Tabs>

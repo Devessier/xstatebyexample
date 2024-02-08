@@ -5,14 +5,11 @@ image:
   url: "https://stately.ai/registry/machines/a5823380-73ed-475b-ba67-73c09f421074.light.png"
   width: 709
   height: 600
+visualizerSrc: "https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?mode=Design&machineId=a5823380-73ed-475b-ba67-73c09f421074"
 complexity: "beginner"
 ---
 
-import Tabs from '../../components/Tabs.tsx';
 import DemoEntrypoint from '../../examples/debouncing/index.tsx';
-import StatelyVisualizer from '../../components/StatelyVisualizer.astro';
-import { Content as DemoMachineCode } from '../../examples/debouncing/machine.md';
-import { Content as DemoReactCode } from '../../examples/debouncing/Demo.md';
 
 The debouncing pattern is crucial to UI development.
 Debouncing – and [throttling](/throttling/) – are used to moderate
@@ -35,19 +32,3 @@ The counter will be incremented one second after you stop clicking the button.
 The state machine is resilient to spamming. It controls how it should behave if the user abuses the button.
 
 <DemoEntrypoint client:load />
-
-## Code
-
-<Tabs labels={['Machine', 'React', 'Visualizer']} client:load>
-  <Fragment slot="1">
-    <DemoMachineCode />
-  </Fragment>
-
-  <Fragment slot="2">
-    <DemoReactCode />
-  </Fragment>
-
-  <Fragment slot="3">
-    <StatelyVisualizer src="https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?mode=Design&machineId=a5823380-73ed-475b-ba67-73c09f421074" />
-  </Fragment>
-</Tabs>
