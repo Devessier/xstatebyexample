@@ -6,7 +6,7 @@ import itemsCollection from "./database.json";
 
 const fetchAutocompleteItems = fromPromise<string[], { search: string }>(
   async ({ input }) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    console.log('fetch items', { search: input.search })
 
     if (input.search === "") {
       return [];
@@ -108,13 +108,6 @@ export const searchAsYouTypeMachine = setup({
           ],
         },
         Idle: {},
-        Debouncing: {
-          after: {
-            500: {
-              target: "Fetching",
-            },
-          },
-        },
         Fetching: {
           tags: "Display loader",
           invoke: {
@@ -136,7 +129,7 @@ export const searchAsYouTypeMachine = setup({
       },
       on: {
         "input.change": {
-          target: ".Debouncing",
+          target: ".Fetching",
           reenter: true,
           actions: "Assign search input to context",
         },

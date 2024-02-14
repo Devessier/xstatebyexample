@@ -23,26 +23,10 @@ export const debouncingMachine = setup({
     Idle: {
       on: {
         click: {
-          target: "Debouncing",
+          actions: "Increment counter",
         },
         reset: {
           actions: "Reset counter",
-        },
-      },
-    },
-    Debouncing: {
-      after: {
-        "1000": {
-          target: "Idle",
-          actions: "Increment counter",
-        },
-      },
-      on: {
-        click: {
-          target: "Debouncing",
-          description:
-            "Re-enter `Debouncing` state and reinitialize the delayed transition.",
-          reenter: true,
         },
       },
     },
