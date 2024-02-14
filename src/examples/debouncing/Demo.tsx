@@ -80,7 +80,7 @@ export function Demo({ actorOptions }: Props) {
       <div className={flex({ mt: "4" })}>
         <span
           className={css({
-            visibility: "hidden",
+            visibility: state.matches('Debouncing') === true ? 'visible' : "hidden",
             display: "inline-flex",
             alignItems: "center",
             columnGap: "1.5",
