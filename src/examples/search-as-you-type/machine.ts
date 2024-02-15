@@ -108,6 +108,13 @@ export const searchAsYouTypeMachine = setup({
           ],
         },
         Idle: {},
+        Debouncing: {
+          after: {
+            500: {
+              target: "Fetching"
+            }
+          }
+        },
         Fetching: {
           tags: "Display loader",
           invoke: {
@@ -129,7 +136,7 @@ export const searchAsYouTypeMachine = setup({
       },
       on: {
         "input.change": {
-          target: ".Fetching",
+          target: ".Debouncing",
           reenter: true,
           actions: "Assign search input to context",
         },
