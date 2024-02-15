@@ -9,7 +9,20 @@ visualizerSrc: "https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d
 complexity: "beginner"
 ---
 
+import { Image } from "astro:assets";
+import { css } from '../../../styled-system/css';
 import DemoEntrypoint from '../../examples/user-activity/index.tsx';
+import DemoGif from '../../assets/user-activity/demo.gif';
+
+[VueUse](https://vueuse.org/) is a gold mine for Vue.js developers. It's a collection of *composables* (aka hooks in the Vue world).
+
+VueUse brings complex utility functions, like the [`useIdle`](https://vueuse.org/core/useIdle/) composable that tracks the user's activity on the page.
+
+<Image
+  src={DemoGif}
+  alt="User simulates inactivity to see how the state machine reacts."
+  class={css({ mx: "auto", aspectRatio: "wide", objectFit: "cover", borderStyle: "solid", borderWidth: 1, borderColor: "gray.300", rounded: "2xl" })}
+/>
 
 ## Example
 
