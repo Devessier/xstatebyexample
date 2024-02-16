@@ -123,40 +123,17 @@ export const userActivityMachine = setup({
   initial: "Active",
   states: {
     Active: {
-      initial: "Idle",
-      states: {
-        Idle: {
-          after: {
-            "Inactivity timeout": {
-              target: "Done",
-            },
-          },
-          on: {
-            activity: {
-              target: "Deduplicating",
-              actions: "Assign last active timestamp to context",
-            },
-          },
-        },
-        Deduplicating: {
-          description: `
-            We throttle here to keep things under control.
-            Deduplicating with a small timer prevents restarting the "Inactivity timeout"
-            too often if the state machine receives a lot of "activity" events
-            in a short amount of time.
-          `,
-          after: {
-            50: {
-              target: "Idle",
-            },
-          },
-        },
-        Done: {
-          type: "final",
+      after: {
+        "Inactivity timeout": {
+          target: "Inactive",
         },
       },
-      onDone: {
-        target: "Inactive",
+      on: {
+        activity: {
+          target: "Active",
+          reenter: true,
+          actions: "Assign last active timestamp to context",
+        },
       },
     },
     Inactive: {

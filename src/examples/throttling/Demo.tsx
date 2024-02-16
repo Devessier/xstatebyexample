@@ -80,7 +80,7 @@ export function Demo({ actorOptions }: Props) {
       <div className={flex({ mt: "4" })}>
         <span
           className={css({
-            visibility: state.matches("Throttling") ? undefined : "hidden",
+            visibility: "hidden",
             display: "inline-flex",
             alignItems: "center",
             columnGap: "1.5",
