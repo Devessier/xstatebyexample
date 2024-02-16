@@ -25,6 +25,7 @@ export const throttlingMachine = setup({
       on: {
         click: {
           target: "Throttling",
+          actions: "Increment counter",
         },
         reset: {
           actions: "Reset counter",
@@ -35,7 +36,6 @@ export const throttlingMachine = setup({
       after: {
         "1000": {
           target: "Idle",
-          actions: "Increment counter",
         },
       },
     },
