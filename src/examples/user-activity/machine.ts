@@ -123,18 +123,35 @@ export const userActivityMachine = setup({
   initial: "Active",
   states: {
     Active: {
-      after: {
-        "Inactivity timeout": {
-          target: "Inactive",
+      initial: "Idle",
+      states: {
+        Idle: {
+          after: {
+            "Inactivity timeout": {
+              target: "Done",
+            },
+          },
+          on: {
+            activity: {
+              target: "Throttling",
+              actions: "Assign last active timestamp to context",
+            },
+          },
         },
-      },
-      on: {
-        activity: {
-          target: "Active",
-          reenter: true,
-          actions: "Assign last active timestamp to context",
+        Throttling: {
+          after: {
+            50: {
+              target: "Idle"
+            }
+          }
         },
+        Done: {
+          type: "final"
+        }
       },
+      onDone: {
+        target: "Inactive"
+      }
     },
     Inactive: {
       on: {
