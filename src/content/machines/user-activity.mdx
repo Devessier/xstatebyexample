@@ -16,7 +16,9 @@ import DemoGif from '../../assets/user-activity/demo.gif';
 
 [VueUse](https://vueuse.org/) is a gold mine for Vue.js developers. It's a collection of *composables* (aka hooks in the Vue world).
 
-VueUse brings complex utility functions, like the [`useIdle`](https://vueuse.org/core/useIdle/) composable that tracks the user's activity on the page.
+VueUse brings complex utility functions, like the [`useIdle`](https://vueuse.org/core/useIdle/) composable that tracks the user's activity on the page. The composable listens
+to every `mousemove`, `mousedown`, `resize`, `keydown`, `touchart` and `wheel` event and considers the user active for a certain amount of time after receiving one of these events.
+Every time the user interacts with the page, the `useIdle` composable restarts the timer.
 
 <Image
   src={DemoGif}
@@ -24,6 +26,215 @@ VueUse brings complex utility functions, like the [`useIdle`](https://vueuse.org
   class={css({ mx: "auto", aspectRatio: "wide", objectFit: "cover", borderStyle: "solid", borderWidth: 1, borderColor: "gray.300", rounded: "2xl" })}
 />
 
+XState excels at orchestrating code with timers, and this example will be fun to reimplement! It combines the [debouncing](/debouncing/) and [throttling](/throttling/) patterns.
+
 ## Example
 
+You can interact with the page and see the timer remain at 0s, or stop interacting with the page in any way,
+and see it increase and the state `Idle` value becoming `true`:
+
 <DemoEntrypoint client:load />
+
+### Listening to DOM events
+
+The `domEventListener` logic is a callback that sets up many events listeners on the window and optionnally on the document.
+Callback logics can return a callback function that's called when an actor invoked or spawned based on the logic stops.
+
+Every time the `window` or the `document` receives an event, the logic sends an `"activity"` event to its parent actor.
+
+```ts
+const domEventListener = fromCallback(({ input, sendBack }) => {
+  /**
+   * Set up event listeners.
+   */
+  window.addEventListener("mousemove", () => {
+    sendBack({
+      type: "activity"
+    });
+  });
+
+  return () => {
+    /**
+     * Clear event listeners.
+     */
+  };
+});
+```
+
+The `domEventListener` logic is invoked at the root state of the machine and is renamed to `Listen to DOM events`:
+
+```ts
+export const userActivityMachine = setup({
+  // ...
+  actors: {
+    "Listen to DOM events": domEventListener,
+  },
+  // ...
+}).createMachine({
+  // ...
+  invoke: {
+    src: "Listen to DOM events",
+    input: ({ context }) => ({
+      events: context.events,
+      listenForVisibilityChange: context.listenForVisibilityChange,
+    }),
+  },
+  // ...
+});
+```
+
+Later, the state machine handles the `"activity"` events differently based on its current state.
+
+### Use timers to detect the user's inactivity
+
+The user is by default considered active. The initial state is `Active.Idle`,
+and a timer is instantly started with the `"Inactivity timeout"` value.
+
+When the timer ends, it targets the `Active.Done` *final* state, which triggers a transition to the `Inactive` state.
+
+```ts
+createMachine({
+  // ...
+  initial: "Active",
+  states: {
+    Active: {
+      initial: "Idle",
+      states: {
+        Idle: {
+          after: {
+            "Inactivity timeout": {
+              target: "Done",
+            },
+          },
+        },
+        Deduplicating: { /** */ },
+        Done: {
+          type: "final",
+        },
+      },
+      onDone: {
+        target: "Inactive",
+      },
+    },
+    Inactive: { /** */ },
+  },
+});
+```
+
+I like to rely on final states to emphasize where a flow ends.
+I dislike using global state ids as targets and tend to prefer final states for this purpose.
+
+When the state machine receives the `"activity"` in the `Active.Idle` state, it targets the `Active.Deduplicating` state:
+
+```ts {14-19}
+createMachine({
+  // ...
+  initial: "Active",
+  states: {
+    Active: {
+      initial: "Idle",
+      states: {
+        Idle: {
+          after: {
+            "Inactivity timeout": {
+              target: "Done",
+            },
+          },
+          on: {
+            activity: {
+              target: "Deduplicating",
+              actions: "Assign last active timestamp to context",
+            },
+          },
+        },
+        Deduplicating: { /** */ },
+        Done: {
+          type: "final",
+        },
+      },
+      onDone: {
+        target: "Inactive",
+      },
+    },
+    Inactive: { /** */ },
+  },
+});
+```
+
+The `Active.Deduplicating` state is [*throttling*](/throttling/) the `"activity"` event.
+Throttling can be summarized as stopping to listen to an event for a certain amount of time.
+
+```ts {22-26}
+createMachine({
+  // ...
+  initial: "Active",
+  states: {
+    Active: {
+      initial: "Idle",
+      states: {
+        Idle: {
+          after: {
+            "Inactivity timeout": {
+              target: "Done",
+            },
+          },
+          on: {
+            activity: {
+              target: "Deduplicating",
+              actions: "Assign last active timestamp to context",
+            },
+          },
+        },
+        Deduplicating: {
+          after: {
+            50: {
+              target: "Idle",
+            },
+          },
+        },
+        Done: {
+          type: "final",
+        },
+      },
+      onDone: {
+        target: "Inactive",
+      },
+    },
+    Inactive: { /** */ },
+  },
+});
+```
+
+The `useIdle` composable throttles events by 50ms.
+I assume the reason is that it's cheaper to create a 50ms timer then creating
+many more timers that would be created if it wasn't throttling.
+
+Finally, the `Inactive` state also listens to the `"activity"` event and transitions to the `Active` state:
+
+```ts {13-18}
+createMachine({
+  // ...
+  initial: "Active",
+  states: {
+    Active: {
+      initial: "Idle",
+      states: { /** */ },
+      onDone: {
+        target: "Inactive",
+      },
+    },
+    Inactive: {
+      on: {
+        activity: {
+          target: "Active",
+          actions: "Assign last active timestamp to context",
+        },
+      },
+    },
+  },
+});
+```
+
+The code for this example is really lightweight but the represented logic is not simple.
+XState makes managing timers so easy that it hides the underlying complexity
+and instead makes the intrinsic logic stand out.

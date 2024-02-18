@@ -4,7 +4,7 @@
  * See https://github.com/vueuse/vueuse/blob/main/packages/core/useIdle/index.ts.
  */
 
-import { assign, fromCallback, setup, type SnapshotFrom } from "xstate";
+import { assign, fromCallback, setup } from "xstate";
 
 type WindowEventName = keyof WindowEventMap;
 
@@ -57,6 +57,10 @@ const domEventListener = fromCallback<
     );
   }
 
+  /**
+   * That callback will be called when the service exits, that is, when the state that invoked it exits or
+   * the overall state machine stops.
+   */
   return () => {
     for (const [event, handler] of windowEventMap.entries()) {
       window.removeEventListener(event, handler);
@@ -82,6 +86,8 @@ export const userActivityMachine = setup({
     },
     input: {} as {
       /**
+       * How long the user can stop interacting with the page before being considered inactive.
+       *
        * @default 60_000 (1 minute)
        */
       timeout?: number;
@@ -99,6 +105,9 @@ export const userActivityMachine = setup({
     "Listen to DOM events": domEventListener,
   },
   delays: {
+    /**
+     * This is a dynamic timer. The `timeout` comes from the input and isn't expect to change.
+     */
     "Inactivity timeout": ({ context }) => context.timeout,
   },
   actions: {
@@ -140,6 +149,14 @@ export const userActivityMachine = setup({
           },
         },
         Deduplicating: {
+          description: `
+            We throttle here to keep things under control.
+            Deduplicating with a small timer prevents restarting the "Inactivity timeout"
+            too often if the state machine receives a lot of "activity" events
+            in a short amount of time.
+            The useIdle composable prefers to create one timer per 50ms then even more
+            if a large amount of *activity* events are sent to the machine.
+          `,
           after: {
             50: {
               target: "Idle",
@@ -147,12 +164,17 @@ export const userActivityMachine = setup({
           },
         },
         Done: {
-          type: "final"
-        }
+          type: "final",
+          description: `
+            Use a *final* state to trigger a transition to the Inactive state.
+            I prefer to use it instead of directly targetting the Inactive state from the Active.Idle state,
+            because I would need to rely on a global id selector.
+          `,
+        },
       },
       onDone: {
-        target: "Inactive"
-      }
+        target: "Inactive",
+      },
     },
     Inactive: {
       on: {
