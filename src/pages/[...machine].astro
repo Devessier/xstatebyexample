@@ -30,6 +30,12 @@ const ReactCode = await import(`../examples/${Astro.params.machine}/Demo.md`);
 ---
 
 <MachineLayout title={title}>
+  {typeof entry.data.youtubeVideoId === 'string' ? (
+    <div class={css({ py: "6" })}>
+      <YouTube id={entry.data.youtubeVideoId} class={css({ mx: "auto" })} />
+    </div>
+  ) : null}
+
   <Content />
 
   <h2 id="code">Code</h2>
@@ -63,14 +69,4 @@ const ReactCode = await import(`../examples/${Astro.params.machine}/Demo.md`);
       <StatelyVisualizer src={entry.data.visualizerSrc} />
     </Fragment>
   </Tabs>
-
-  {typeof entry.data.youtubeVideoId === 'string' ? (
-    <>
-      <h2 id="video">Video</h2>
-
-      <p>Do you prefer to learn with video? Here we go!</p>
-
-      <YouTube id={entry.data.youtubeVideoId} class={css({ mx: "auto" })} />
-    </>
-  ) : null}
 </MachineLayout>
