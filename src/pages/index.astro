@@ -2,15 +2,18 @@
 import { Image } from "astro:assets";
 import Layout from "../layouts/Layout.astro";
 import { css } from "../../styled-system/css";
-import { grid } from "../../styled-system/patterns";
+import { grid, hstack } from "../../styled-system/patterns";
 import { StandaloneDemo as SearchAsYouTypeDemo } from "../examples/search-as-you-type/StandaloneDemo.tsx";
 import { Content as SearchAsYouTypeCode } from "../assets/home/code.md";
 import { getCollection } from "astro:content";
 import AppMachineDifficultyBadge from "../components/AppMachineDifficultyBadge.astro";
+import AppBadge from "../components/AppBadge.astro";
 
-const machineEntries = await getCollection('machines')
+const machineEntries = await getCollection("machines");
 
-const orderedMachineEntries = machineEntries.sort((a, b) => a.data.id - b.data.id);
+const orderedMachineEntries = machineEntries.sort(
+  (a, b) => a.data.id - b.data.id
+);
 ---
 
 <Layout title="XState by Example" ogType="website">
@@ -207,61 +210,86 @@ const orderedMachineEntries = machineEntries.sort((a, b) => a.data.id - b.data.i
           lg: { pl: "8", pr: "8" },
         })}
       >
-        <div class={grid({ columns: { base: 1, sm: 2, lg: 3 }, gap: "4", gridAutoRows: "1fr" })}>
+        <div
+          class={grid({
+            columns: { base: 1, sm: 2, lg: 3 },
+            gap: "4",
+            gridAutoRows: "1fr",
+          })}
+        >
           {
-            orderedMachineEntries.map(({ slug, data: { title, image, complexity } }) => (
-              <article
-                class={css({
-                  pos: "relative",
-                  shadow: "md",
-                  bg: "white",
-                  rounded: "xl",
-                  p: "4",
-                  translate: "auto",
-                  transition: "all",
-                  transitionTimingFunction: "ease-in-out",
-                  transitionDuration: "fast",
-                  _hover: { translateY: "-2" },
-                })}
-              >
-                <Image
-                  src={image.url}
-                  alt=""
-                  width={image.width}
-                  height={image.height}
+            orderedMachineEntries.map(
+              ({
+                slug,
+                data: { title, image, complexity, youtubeVideoId },
+              }) => (
+                <article
                   class={css({
-                    aspectRatio: "wide",
-                    objectFit: "cover",
-                    bg: "#f5f7f7",
-                    rounded: "md",
-                    borderStyle: "solid",
-                    borderWidth: "2px",
-                    borderColor: "gray.300",
-                  })}
-                />
-
-                <h3
-                  class={css({
-                    mt: "3",
-                    fontSize: "xl",
-                    fontWeight: "semibold",
+                    pos: "relative",
+                    shadow: "md",
+                    bg: "white",
+                    rounded: "xl",
+                    p: "4",
+                    translate: "auto",
+                    transition: "all",
+                    transitionTimingFunction: "ease-in-out",
+                    transitionDuration: "fast",
+                    _hover: { translateY: "-2" },
                   })}
                 >
-                  <a
-                    href={`/${slug}/`}
+                  <Image
+                    src={image.url}
+                    alt=""
+                    width={image.width}
+                    height={image.height}
                     class={css({
-                      _after: { content: '""', pos: "absolute", inset: 0 },
+                      aspectRatio: "wide",
+                      objectFit: "cover",
+                      bg: "#f5f7f7",
+                      rounded: "md",
+                      borderStyle: "solid",
+                      borderWidth: "2px",
+                      borderColor: "gray.300",
+                    })}
+                  />
+
+                  <h3
+                    class={css({
+                      mt: "3",
+                      fontSize: "xl",
+                      fontWeight: "semibold",
                     })}
                   >
-                    {title}
-                  </a>
-                </h3>
+                    <a
+                      href={`/${slug}/`}
+                      class={css({
+                        _after: { content: '""', pos: "absolute", inset: 0 },
+                      })}
+                    >
+                      {title}
+                    </a>
+                  </h3>
 
-                <div class={css({ mt: "2" })}>
-                  <AppMachineDifficultyBadge {complexity} />
-                </div>
-              </article>
-            ))
+                  <div class={hstack({ mt: "2", alignItems: "stretch" })}>
+                    <AppMachineDifficultyBadge {complexity} />
+
+                    {typeof youtubeVideoId === "string" ? (
+                      <AppBadge color="gray">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          aria-label="Contains a video explanation"
+                          class={css({ w: "4", h: "4" })}
+                        >
+                          <path d="M3.25 4A2.25 2.25 0 0 0 1 6.25v7.5A2.25 2.25 0 0 0 3.25 16h7.5A2.25 2.25 0 0 0 13 13.75v-7.5A2.25 2.25 0 0 0 10.75 4h-7.5ZM19 4.75a.75.75 0 0 0-1.28-.53l-3 3a.75.75 0 0 0-.22.53v4.5c0 .199.079.39.22.53l3 3a.75.75 0 0 0 1.28-.53V4.75Z" />
+                        </svg>
+                      </AppBadge>
+                    ) : null}
+                  </div>
+                </article>
+              )
+            )
           }
 
           <article
