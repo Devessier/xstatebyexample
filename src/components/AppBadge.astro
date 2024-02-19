@@ -1,0 +1,45 @@
+---
+import { cva } from "../../styled-system/css";
+
+interface Props {
+  color: "green" | "yellow" | "red" | "gray"
+}
+
+const badge = cva({
+  base: {
+    display: "inline-flex",
+    alignItems: "center",
+    rounded: "full",
+    px: "2",
+    py: "0.5",
+    fontSize: "sm",
+    fontWeight: "semibold",
+  },
+  variants: {
+    color: {
+      green: {
+        bg: "green.100",
+        color: "green.700",
+      },
+      yellow: {
+        bg: "yellow.100",
+        color: "yellow.800",
+      },
+      red: {
+        bg: "red.100",
+        color: "red.700",
+      },
+      gray: {
+        bg: "gray.100",
+        color: "gray.600",
+      },
+    },
+  },
+});
+
+const { color } = Astro.props;
+---
+
+<span class={badge({ color })}>
+  <slot />
+</span>

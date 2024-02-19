@@ -1,4 +1,5 @@
 ---
+import { YouTube } from '@astro-community/astro-embed-youtube';
 import { getCollection } from "astro:content";
 import MachineLayout from "../layouts/MachineLayout.astro";
 import Tabs from "../components/Tabs.tsx";
@@ -29,6 +30,12 @@ const ReactCode = await import(`../examples/${Astro.params.machine}/Demo.md`);
 ---
 
 <MachineLayout title={title}>
+  {typeof entry.data.youtubeVideoId === 'string' ? (
+    <div class={css({ py: "6" })}>
+      <YouTube id={entry.data.youtubeVideoId} class={css({ mx: "auto" })} />
+    </div>
+  ) : null}
+
   <Content />
 
   <h2 id="code">Code</h2>
