@@ -13,6 +13,7 @@ const machineCollection = defineCollection({
     }),
     visualizerSrc: z.string(),
     complexity: MachineComplexity,
+    youtubeVideoId: z.string().optional(),
   }),
 });
 

@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@ark-ui/react": "^1.2.1",
+    "@astro-community/astro-embed-youtube": "^0.4.4",
     "@astrojs/check": "^0.4.1",
     "@astrojs/mdx": "^2.1.1",
     "@astrojs/react": "^3.0.9",
@@ -36,5 +37,8 @@
     "@types/react-transition-group": "^4.4.10",
     "pandacss-preset-typography": "^0.1.5",
     "pform-reset": "^0.0.2"
+  },
+  "volta": {
+    "node": "20.11.1"
   }
 }
