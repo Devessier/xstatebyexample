@@ -35,13 +35,11 @@ const { default: reactCode } = await import(
 <MachineLayout title={title}>
   {
     typeof entry.data.youtubeVideoId === "string" ? (
-      <div class={css({ py: "6" })}>
+      <div class={css({ py: "6", w: "full" })}>
         <YouTube
           id={entry.data.youtubeVideoId}
-          class={css({
-            mx: "auto",
-            _before: { boxSizing: "unset" },
-          })}
+          poster={`https://i.ytimg.com/vi/${entry.data.youtubeVideoId}/maxresdefault.jpg`}
+          class={css({ w: "full", maxW: "none!" })}
         />
       </div>
     ) : null
