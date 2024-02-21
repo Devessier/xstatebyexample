@@ -1,0 +1,245 @@
+---
+id: 4
+title: "User Activity"
+image:
+  url: "https://stately.ai/registry/machines/8889a0fa-4e05-4880-96c2-09aa186aef4b.light.png"
+  width: 1284
+  height: 600
+visualizerSrc: "https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=8889a0fa-4e05-4880-96c2-09aa186aef4b&mode=design"
+complexity: "beginner"
+---
+
+import { Image } from "astro:assets";
+import { css } from '../../../styled-system/css';
+import DemoEntrypoint from '../../examples/user-activity/index.tsx';
+import DemoGif from '../../assets/user-activity/demo.gif';
+
+[VueUse](https://vueuse.org/) is a gold mine for Vue.js developers. It's a collection of *composables* (aka hooks in the Vue world).
+
+VueUse brings complex utility functions, like the [`useIdle`](https://vueuse.org/core/useIdle/) composable that tracks the user's activity on the page. The composable listens to every `mousemove`, `mousedown`, `resize`, `keydown`, `touchart`, and `wheel` event and considers the user active for a specific duration after receiving one of these events.
+The `useIdle` composable restarts the timer whenever the user interacts with the page.
+
+<Image
+  src={DemoGif}
+  alt="User simulates inactivity to see how the state machine reacts."
+  class={css({ mx: "auto", aspectRatio: "wide", objectFit: "cover", borderStyle: "solid", borderWidth: 1, borderColor: "gray.300", rounded: "2xl" })}
+/>
+
+XState excels at orchestrating code with timers, and this example will be fun to reimplement! It combines the [debouncing](/debouncing/) and [throttling](/throttling/) patterns.
+
+## Example
+
+You can interact with the page and see the timer remain at 0s, or stop interacting with the page in any way,
+and see it increase and the state `Idle` value becoming `true`:
+
+<DemoEntrypoint client:load />
+
+### Listening to DOM events
+
+The `domEventListener` logic is a callback that sets up many event listeners on the window and optionally on the document.
+A callback logic can return a callback function that's called when an actor that was invoked or spawned based on the logic stops.
+
+Every time the `window` or the `document` receives one of the listened events, the logic sends an `"activity"` event to its parent actor.
+
+```ts
+const domEventListener = fromCallback(({ input, sendBack }) => {
+  /**
+   * Set up event listeners.
+   */
+  window.addEventListener("mousemove", () => {
+    sendBack({
+      type: "activity"
+    });
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    sendBack({
+      type: "activity"
+    });
+  });
+
+  return () => {
+    /**
+     * Clear event listeners.
+     */
+  };
+});
+```
+
+The `domEventListener` logic is invoked at the root state of the machine and renamed to `Listen to DOM events`:
+
+```ts
+export const userActivityMachine = setup({
+  // ...
+  actors: {
+    "Listen to DOM events": domEventListener,
+  },
+  // ...
+}).createMachine({
+  // ...
+  invoke: {
+    src: "Listen to DOM events",
+    input: ({ context }) => ({
+      events: context.events,
+      listenForVisibilityChange: context.listenForVisibilityChange,
+    }),
+  },
+  // ...
+});
+```
+
+As we'll see below, the state machine handles the `"activity"` events differently based on its current state.
+
+### Use timers to detect the user's inactivity
+
+The user is, by default, considered active. The initial state is `Active.Idle`,
+and a timer is instantly started with the value of the dynamic delay `"Inactivity timeout"`.
+
+When the timer ends, it targets the `Active.Done` *final* state, which triggers a transition to the `Inactive` state.
+
+```ts
+createMachine({
+  // ...
+  initial: "Active",
+  states: {
+    Active: {
+      initial: "Idle",
+      states: {
+        Idle: {
+          after: {
+            "Inactivity timeout": {
+              target: "Done",
+            },
+          },
+        },
+        Deduplicating: { /** */ },
+        Done: {
+          type: "final",
+        },
+      },
+      onDone: {
+        target: "Inactive",
+      },
+    },
+    Inactive: { /** */ },
+  },
+});
+```
+
+I like to rely on final states to emphasize where a flow ends.
+I dislike using global state IDs as targets and prefer using final states.
+
+When the state machine receives the `"activity"` event in the `Active.Idle` state, it targets the `Active.Deduplicating` state:
+
+```ts {14-19}
+createMachine({
+  // ...
+  initial: "Active",
+  states: {
+    Active: {
+      initial: "Idle",
+      states: {
+        Idle: {
+          after: {
+            "Inactivity timeout": {
+              target: "Done",
+            },
+          },
+          on: {
+            activity: {
+              target: "Deduplicating",
+              actions: "Assign last active timestamp to context",
+            },
+          },
+        },
+        Deduplicating: { /** */ },
+        Done: {
+          type: "final",
+        },
+      },
+      onDone: {
+        target: "Inactive",
+      },
+    },
+    Inactive: { /** */ },
+  },
+});
+```
+
+The `Active.Deduplicating` state [*throttles*](/throttling/) the `"activity"` event.
+Following the throttling pattern, the state machine stops listening to the event for some time.
+It starts a timer of 50ms and then transitions back to the `Active.Idle` state.
+
+```ts {22-26}
+createMachine({
+  // ...
+  initial: "Active",
+  states: {
+    Active: {
+      initial: "Idle",
+      states: {
+        Idle: {
+          after: {
+            "Inactivity timeout": {
+              target: "Done",
+            },
+          },
+          on: {
+            activity: {
+              target: "Deduplicating",
+              actions: "Assign last active timestamp to context",
+            },
+          },
+        },
+        Deduplicating: {
+          after: {
+            50: {
+              target: "Idle",
+            },
+          },
+        },
+        Done: {
+          type: "final",
+        },
+      },
+      onDone: {
+        target: "Inactive",
+      },
+    },
+    Inactive: { /** */ },
+  },
+});
+```
+
+[The `useIdle` composable throttles events by 50ms](https://github.com/vueuse/vueuse/blob/cea5078cd148b68a04b7c2b342eec31f6f017619/packages/core/useIdle/index.ts#L69-L75).
+I assume the reason is that it's cheaper to create a 50ms timer than creating many more timers that would be created if it wasn't throttling and the state machine was receiving a lot of `"activity"` events.
+
+Finally, the `Inactive` state also listens to the `"activity"` event and transitions to the `Active` state:
+
+```ts {13-18}
+createMachine({
+  // ...
+  initial: "Active",
+  states: {
+    Active: {
+      initial: "Idle",
+      states: { /** */ },
+      onDone: {
+        target: "Inactive",
+      },
+    },
+    Inactive: {
+      on: {
+        activity: {
+          target: "Active",
+          actions: "Assign last active timestamp to context",
+        },
+      },
+    },
+  },
+});
+```
+
+The code for this example is short, but the logic represented is not simple.
+XState makes managing timers so easy that it hides the underlying complexity
+and instead makes the intrinsic logic stand out.
