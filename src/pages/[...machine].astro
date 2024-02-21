@@ -21,7 +21,7 @@ export async function getStaticPaths() {
 }
 
 const { entry, title } = Astro.props;
-const { Content } = await entry.render();
+const { Content, headings } = await entry.render();
 
 const MachineCode = await import(
   `../examples/${Astro.params.machine}/machine.md`
@@ -29,10 +29,17 @@ const MachineCode = await import(
 const ReactCode = await import(`../examples/${Astro.params.machine}/Demo.md`);
 ---
 
-<MachineLayout title={title}>
+<MachineLayout
+  {title}
+  headings={[
+    { depth: 2, slug: "video", text: "Video" },
+    ...headings,
+    { depth: 2, slug: "code", text: "Code" },
+  ]}
+>
   {
     typeof entry.data.youtubeVideoId === "string" ? (
-      <div class={css({ py: "6", w: "full" })}>
+      <div id="video" class={css({ py: "6", w: "full" })}>
         <YouTube
           id={entry.data.youtubeVideoId}
           poster={`https://i.ytimg.com/vi/${entry.data.youtubeVideoId}/maxresdefault.jpg`}

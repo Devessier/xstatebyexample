@@ -1,6 +1,6 @@
 ---
 import { getCollection } from "astro:content";
-import MachineLayout from "../../layouts/MachineLayout.astro";
+import TipLayout from "../../layouts/TipLayout.astro";
 
 export async function getStaticPaths() {
   const tipsEntries = await getCollection("tips");
@@ -20,6 +20,6 @@ const { entry, title } = Astro.props;
 const { Content } = await entry.render();
 ---
 
-<MachineLayout title={title}>
+<TipLayout title={title}>
   <Content />
-</MachineLayout>
+</TipLayout>

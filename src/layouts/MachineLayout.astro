@@ -1,37 +1,41 @@
 ---
 import Layout from "./Layout.astro";
 import { css, cx } from "../../styled-system/css";
-import { grid } from "../../styled-system/patterns";
+import { flex, grid } from "../../styled-system/patterns";
 import { prose } from "../../styled-system/recipes";
+import type { MarkdownHeading } from "astro";
 
 interface Props {
   title: string;
+  headings: MarkdownHeading[];
 }
 
-const { title } = Astro.props;
+const { title, headings } = Astro.props;
+
+console.log({ headings })
 ---
 
 <Layout title={title + " | XState by Example"}>
   <div
-    class={css({
-      ml: "auto",
-      mr: "auto",
-      maxW: "5xl",
+    class={flex({
+      pos: "relative",
+      mx: "auto",
+      justifyContent: "center",
+      alignItems: "start",
+      w: "fit-content",
       bg: "white",
       rounded: { lg: "lg" },
       shadow: "md",
+      px: { base: "4", sm: "6", lg: "12" },
+      py: { base: "8", sm: "10", lg: "12" },
     })}
   >
     <div
       class={grid({
         columns: 1,
         gap: 0,
-        maxW: "4xl",
+        maxW: "3xl",
         mx: "auto",
-        px: "4",
-        py: "8",
-        sm: { px: "6", py: "10" },
-        lg: { px: "8", py: "12" },
       })}
     >
       <header>
@@ -43,7 +47,6 @@ const { title } = Astro.props;
               fontWeight: "bold",
               letterSpacing: "tight",
               color: "gray.900",
-              textAlign: "center",
             })}
           >
             {title}
@@ -59,5 +62,22 @@ const { title } = Astro.props;
         <slot />
       </div>
     </div>
+
+    <!-- This is heavily inspired by the Table of Content on Josh Comeau's website, visible here: https://www.joshwcomeau.com/css/center-a-div/ -->
+    <aside
+      class={css({ pos: "sticky", top: 172, maxH: "calc(-172px + 100vh)", zIndex: "10", ml: "12", w: "56", overflow: "auto", display: { base: "none", xl: "block" } })}
+    >
+      <p class={css({ fontSize: "lg", fontWeight: "semibold", mb: "4" })}>On this page</p>
+
+      {headings.map(heading => (
+        <a href={`#${heading.slug}`} class={css({
+          display: "block",
+          mt: heading.depth === 2 ? "2" : "1",
+          ml: heading.depth === 3 ? "2" : undefined,
+          fontSize: heading.depth === 3 ? "sm" : undefined,
+          fontWeight: "medium"
+        })}>{heading.text}</a>
+      ))}
+    </aside>
   </div>
 </Layout>
