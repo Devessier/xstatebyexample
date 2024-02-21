@@ -1,0 +1,63 @@
+---
+import Layout from "./Layout.astro";
+import { css, cx } from "../../styled-system/css";
+import { grid } from "../../styled-system/patterns";
+import { prose } from "../../styled-system/recipes";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<Layout title={title + " | XState by Example"}>
+  <div
+    class={css({
+      ml: "auto",
+      mr: "auto",
+      maxW: "5xl",
+      bg: "white",
+      rounded: { lg: "lg" },
+      shadow: "md",
+    })}
+  >
+    <div
+      class={grid({
+        columns: 1,
+        gap: 0,
+        maxW: "4xl",
+        mx: "auto",
+        px: "4",
+        py: "8",
+        sm: { px: "6", py: "10" },
+        lg: { px: "8", py: "12" },
+      })}
+    >
+      <header>
+        <div>
+          <h1
+            class={css({
+              fontSize: "4xl",
+              lineHeight: "tight",
+              fontWeight: "bold",
+              letterSpacing: "tight",
+              color: "gray.900",
+              textAlign: "center",
+            })}
+          >
+            {title}
+          </h1>
+        </div>
+      </header>
+      <div
+        class={cx(
+          prose({ size: "lg" }),
+          css({ mt: "8", maxWidth: "full", "& em": { fontStyle: "italic" } })
+        )}
+      >
+        <slot />
+      </div>
+    </div>
+  </div>
+</Layout>
