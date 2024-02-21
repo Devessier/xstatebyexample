@@ -5,7 +5,6 @@
 
 import { css } from "../../../styled-system/css";
 import { useActor } from "@xstate/react";
-import { userActivityMachine } from "./machine";
 import type { ActorOptions, AnyActorLogic } from "xstate";
 import { differenceInSeconds } from "date-fns";
 import { useEffect, useState } from "react";
@@ -16,14 +15,6 @@ interface Props {
 }
 
 export function Demo({ actorOptions }: Props) {
-  const [snapshot] = useActor(userActivityMachine, {
-    ...actorOptions,
-    input: {
-      timeout: 5_000, // 5 seconds; for demo purpose
-    },
-  });
-
-  const isUserIdle = snapshot.matches("Inactive") === true;
   const now = useTimestamp();
 
   return (
@@ -44,11 +35,11 @@ export function Demo({ actorOptions }: Props) {
         Idle:{" "}
         <span
           className={css({
-            color: isUserIdle === true ? "green.600" : "red.600",
+            color: false ? "green.600" : "red.600",
             fontWeight: "medium",
           })}
         >
-          {String(isUserIdle)}
+          {/* {String(false)} */}
         </span>
       </p>
 
@@ -61,7 +52,7 @@ export function Demo({ actorOptions }: Props) {
             fontVariantNumeric: "tabular-nums",
           })}
         >
-          {differenceInSeconds(now, snapshot.context.lastActive)}s
+          {/* {differenceInSeconds(now, ...)}s */}
         </span>
       </p>
     </div>
