@@ -52,6 +52,12 @@ const domEventListener = fromCallback(({ input, sendBack }) => {
     });
   });
 
+  document.addEventListener("visibilitychange", () => {
+    sendBack({
+      type: "activity"
+    });
+  });
+
   return () => {
     /**
      * Clear event listeners.
@@ -123,7 +129,7 @@ createMachine({
 I like to rely on final states to emphasize where a flow ends.
 I dislike using global state IDs as targets and prefer using final states.
 
-When the state machine receives the `"activity"` in the `Active.Idle` state, it targets the `Active.Deduplicating` state:
+When the state machine receives the `"activity"` event in the `Active.Idle` state, it targets the `Active.Deduplicating` state:
 
 ```ts {14-19}
 createMachine({
@@ -162,6 +168,7 @@ createMachine({
 
 The `Active.Deduplicating` state [*throttles*](/throttling/) the `"activity"` event.
 Following the throttling pattern, the state machine stops listening to the event for some time.
+It starts a timer of 50ms and then transitions back to the `Active.Idle` state.
 
 ```ts {22-26}
 createMachine({
