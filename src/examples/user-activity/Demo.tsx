@@ -16,7 +16,11 @@ interface Props {
 }
 
 export function Demo({ actorOptions }: Props) {
-  const [snapshot] = useActor(userActivityMachine)
+  const [snapshot] = useActor(userActivityMachine, {
+    input: {
+      timeout: 10_000
+    }
+  })
 
   const now = useTimestamp();
 
