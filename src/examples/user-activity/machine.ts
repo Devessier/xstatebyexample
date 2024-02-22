@@ -20,14 +20,14 @@ function timestamp() {
   return Date.now();
 }
 
-const domListenerLogic = fromCallback(({ sendBack }) => {
+const domListenerLogic = fromCallback<any, { events: WindowEventName[]; listenForVisibilityChange: boolean }>(({ sendBack, input }) => {
   function handleWindowEvent() {
     sendBack({
       type: "activity"
     })
   }
   
-  for (const event of defaultEvents) {
+  for (const event of input.events) {
     window.addEventListener(event, handleWindowEvent, { passive: true })
   }
 
@@ -36,15 +36,19 @@ const domListenerLogic = fromCallback(({ sendBack }) => {
       handleWindowEvent()
     }
   }
-  
-  document.addEventListener('visibilitychange', handleDocumentVisibilityChange, { passive: true })
+
+  if (input.listenForVisibilityChange === true) {
+    document.addEventListener('visibilitychange', handleDocumentVisibilityChange, { passive: true })
+  }
 
   return () => {
-    for (const event of defaultEvents) {
+    for (const event of input.events) {
       window.removeEventListener(event, handleWindowEvent)
     }
 
-    document.removeEventListener('visibilitychange', handleDocumentVisibilityChange)
+    if (input.listenForVisibilityChange === true) {
+      document.removeEventListener('visibilitychange', handleDocumentVisibilityChange)
+    }
   }
 })
 
@@ -85,6 +89,10 @@ export const userActivityMachine = setup({
   }),
   invoke: {
     src: "Listen DOM events",
+    input: ({ context }) => ({
+      events: context.events,
+      listenForVisibilityChange: context.listenForVisibilityChange,
+    })
   },
   initial: "Active",
   states: {
