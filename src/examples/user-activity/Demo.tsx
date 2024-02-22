@@ -17,8 +17,9 @@ interface Props {
 
 export function Demo({ actorOptions }: Props) {
   const [snapshot] = useActor(userActivityMachine, {
+    ...actorOptions,
     input: {
-      timeout: 10_000
+      timeout: 5_000
     }
   })
 
