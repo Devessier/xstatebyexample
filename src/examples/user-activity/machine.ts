@@ -48,7 +48,7 @@ const domListenerLogic = fromCallback(({ sendBack }) => {
   }
 })
 
-const userActivityMachine = setup({
+export const userActivityMachine = setup({
   types: {
     events: {} as {
       type: "activity"

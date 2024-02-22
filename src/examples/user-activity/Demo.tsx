@@ -9,12 +9,15 @@ import type { ActorOptions, AnyActorLogic } from "xstate";
 import { differenceInSeconds } from "date-fns";
 import { useEffect, useState } from "react";
 import { vstack } from "../../../styled-system/patterns";
+import { userActivityMachine } from "./machine";
 
 interface Props {
   actorOptions: ActorOptions<AnyActorLogic> | undefined;
 }
 
 export function Demo({ actorOptions }: Props) {
+  const [snapshot] = useActor(userActivityMachine)
+
   const now = useTimestamp();
 
   return (
@@ -35,11 +38,11 @@ export function Demo({ actorOptions }: Props) {
         Idle:{" "}
         <span
           className={css({
-            color: false ? "green.600" : "red.600",
+            color: snapshot.matches("Inactive") === true ? "green.600" : "red.600",
             fontWeight: "medium",
           })}
         >
-          {/* {String(false)} */}
+          {String(snapshot.matches("Inactive") === true)}
         </span>
       </p>
 
@@ -52,7 +55,7 @@ export function Demo({ actorOptions }: Props) {
             fontVariantNumeric: "tabular-nums",
           })}
         >
-          {/* {differenceInSeconds(now, ...)}s */}
+          {differenceInSeconds(now, snapshot.context.lastActive)}s
         </span>
       </p>
     </div>
