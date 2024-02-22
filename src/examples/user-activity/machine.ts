@@ -55,6 +55,14 @@ export const userActivityMachine = setup({
     },
     context: {} as {
       lastActive: number
+      timeout: number
+      events: WindowEventName[];
+      listenForVisibilityChange: boolean
+    },
+    input: {} as {
+      timeout?: number
+      events?: WindowEventName[];
+      listenForVisibilityChange?: boolean
     }
   },
   actions: {
@@ -66,8 +74,11 @@ export const userActivityMachine = setup({
     "Listen DOM events": domListenerLogic,
   }
 }).createMachine({
-  context: () => ({
-    lastActive: timestamp()
+  context: ({ input }) => ({
+    lastActive: timestamp(),
+    timeout: input.timeout ?? 60_000,
+    events: input.events ?? defaultEvents,
+    listenForVisibilityChange: input.listenForVisibilityChange ?? true,
   }),
   invoke: {
     src: "Listen DOM events",
