@@ -72,6 +72,9 @@ export const userActivityMachine = setup({
   },
   actors: {
     "Listen DOM events": domListenerLogic,
+  },
+  delays: {
+    "Activity timeout": ({ context }) => context.timeout,
   }
 }).createMachine({
   context: ({ input }) => ({
@@ -90,7 +93,7 @@ export const userActivityMachine = setup({
       states: {
         Idle: {
           after: {
-            5_000: {
+            "Activity timeout": {
               target: "Done"
             }
           },
