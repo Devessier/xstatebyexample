@@ -1,0 +1,196 @@
+---
+title: "Use a final state instead of a global id target"
+id: 1
+---
+
+Say you have the following state machine:
+
+```ts
+createMachine({
+  initial: "Active",
+  states: {
+    A: {
+      on: {
+        click: {
+          target: "B",
+        },
+      },
+    },
+    B: {},
+  },
+});
+```
+
+When receiving a `click` event, the state machine goes from the `A` state to the `B` state.
+
+Now, say you need to make `A` a compound state with child states and move the listener for the `click` to a sub-state. How do you target the `B` state now?
+
+```ts
+createMachine({
+  initial: "Active",
+  states: {
+    A: {
+      initial: "firstStep",
+      states: {
+        firstStep: {},
+        secondStep: {
+          on: {
+            click: {
+              target: "...", // ← ?
+            },
+          },
+        },
+      },
+    },
+    B: {},
+  },
+});
+```
+
+We can't use `target: "B"` because it only works for sibling states. The `A` and `B` states can target the other one that way, and `firstStep` and `secondStep` too. But `secondStep` and `B` are not at the same depth in the state machine and can't use this target.
+
+This **doesn't work**:
+
+```ts {11}
+createMachine({
+  initial: "Active",
+  states: {
+    A: {
+      initial: "firstStep",
+      states: {
+        firstStep: {},
+        secondStep: {
+          on: {
+            click: {
+              target: "B", // ❌ Doesn't work
+            },
+          },
+        },
+      },
+    },
+    B: {},
+  },
+});
+```
+
+The first option is to use a global id to target the `B` state:
+
+```ts {11,18}
+createMachine({
+  initial: "Active",
+  states: {
+    A: {
+      initial: "firstStep",
+      states: {
+        firstStep: {},
+        secondStep: {
+          on: {
+            click: {
+              target: "#B", // ⚠️ Works but...
+            },
+          },
+        },
+      },
+    },
+    B: {
+      id: "B",
+    },
+  },
+});
+```
+
+Using a global id *works*—continue reading for my recommended solution. For your information, it's also possible to use the implicit id XState attributes to each state, formed with the id of the state machine and the path to the state:
+
+```ts {2,12,18}
+createMachine({
+  id: "Test",
+  initial: "Active",
+  states: {
+    A: {
+      initial: "firstStep",
+      states: {
+        firstStep: {},
+        secondStep: {
+          on: {
+            click: {
+              target: "#Test.B", // ⚠️ Can use the implicit id of each state
+            },
+          },
+        },
+      },
+    },
+    B: {},
+  },
+});
+```
+
+Global ids share the advantages and disadvantages of global variables: they seem straightforward to solve a problem but make the code harder to follow.
+
+Though it might be *okay* to use a global id as a target sparingly, I often prefer to rely on **final states**.
+
+With [final states](https://stately.ai/docs/final-states), we can mark a compound state as *done*. We can then leverage the `onDone` special event listener to transition to another state:
+
+```ts {11,15-17,19-21}
+createMachine({
+  initial: "Active",
+  states: {
+    A: {
+      initial: "firstStep",
+      states: {
+        firstStep: {},
+        secondStep: {
+          on: {
+            click: {
+              target: "lastStep", // ✅ Way better!
+            },
+          },
+        },
+        lastStep: {
+          type: "final",
+        },
+      },
+      onDone: {
+        target: "B",
+      },
+    },
+    B: {},
+  },
+});
+```
+
+To me, the benefits of using final states are:
+
+- It clarifies that the state represents some process and has an end-state.
+- Compound states act as a layer of abstraction; their child states don't have to know what happens outside.
+- Many transitions can target the final state and make it possible to centralize some end-logic.
+
+The [User Activity example](http://localhost:4321/user-activity/) uses a final state for these reasons:
+
+```ts {8-12,16-18,20-22}
+createMachine({
+  initial: "Active",
+  states: {
+    Active: {
+      initial: "Idle",
+      states: {
+        Idle: {
+          after: {
+            "Inactivity timeout": {
+              target: "Done",
+            },
+          },
+          on: { /** */ },
+        },
+        Deduplicating: { /** */ },
+        Done: {
+          type: "final",
+        },
+      },
+      onDone: {
+        target: "Inactive",
+      },
+    },
+    Inactive: { /** */ },
+  },
+});
+```
