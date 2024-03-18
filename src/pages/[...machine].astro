@@ -1,6 +1,7 @@
 ---
 import { YouTube } from "@astro-community/astro-embed-youtube";
 import { getCollection } from "astro:content";
+import { Code } from "astro-expressive-code/components";
 import MachineLayout from "../layouts/MachineLayout.astro";
 import Tabs from "../components/Tabs.tsx";
 import StatelyVisualizer from "../components/StatelyVisualizer.astro";
@@ -23,10 +24,12 @@ export async function getStaticPaths() {
 const { entry, title } = Astro.props;
 const { Content } = await entry.render();
 
-const MachineCode = await import(
-  `../examples/${Astro.params.machine}/machine.md`
+const { default: machineCode } = await import(
+  `../examples/${Astro.params.machine}/machine.ts?raw`
 );
-const ReactCode = await import(`../examples/${Astro.params.machine}/Demo.md`);
+const { default: reactCode } = await import(
+  `../examples/${Astro.params.machine}/Demo.tsx?raw`
+);
 ---
 
 <MachineLayout title={title}>
@@ -58,7 +61,7 @@ const ReactCode = await import(`../examples/${Astro.params.machine}/Demo.md`);
         View in GitHub
       </a>
 
-      <MachineCode.Content />
+      <Code code={machineCode} lang="ts" title="machine.ts" />
     </Fragment>
 
     <Fragment slot="2">
@@ -70,7 +73,7 @@ const ReactCode = await import(`../examples/${Astro.params.machine}/Demo.md`);
         View in GitHub
       </a>
 
-      <ReactCode.Content />
+      <Code code={reactCode} lang="tsx" title="Demo.tsx" />
     </Fragment>
 
     <Fragment slot="3">
