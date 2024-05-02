@@ -1,4 +1,4 @@
-import { assign, setup } from "xstate";
+import { assign, enqueueActions, setup } from "xstate";
 
 export const videoPlayerMachine = setup({
   types: {
@@ -6,6 +6,9 @@ export const videoPlayerMachine = setup({
       | { type: "hover.start" }
       | { type: "hover.hovering" }
       | { type: "hover.end" }
+      | { type: "metadata.loaded"; videoDuration: number }
+      | { type: "time.update"; currentTime: number }
+      | { type: "time.seek"; seekToPercentage: number }
       | { type: "play" }
       | { type: "pause" }
       | { type: "toggle" }
@@ -16,19 +19,27 @@ export const videoPlayerMachine = setup({
       videoSrc: string;
       videoPoster: string;
       currentVideoSrc: string | undefined;
+      videoDuration: number | undefined;
+      videoCurrentTime: number;
     },
     input: {} as {
       videoSrc: string;
       videoPoster: string;
     },
   },
-  actions: {},
+  actions: {
+    "Play the video": () => {},
+    "Pause the video": () => {},
+    "Set video current time": (_, params: { seekTo: number }) => {},
+  },
 }).createMachine({
   id: "Video Player",
   context: ({ input }) => ({
     videoSrc: input.videoSrc,
     videoPoster: input.videoPoster,
     currentVideoSrc: undefined,
+    videoDuration: undefined,
+    videoCurrentTime: 0,
   }),
   initial: "Stopped",
   states: {
@@ -44,6 +55,11 @@ export const videoPlayerMachine = setup({
     },
     Loading: {
       on: {
+        "metadata.loaded": {
+          actions: assign({
+            videoDuration: ({ event }) => event.videoDuration,
+          }),
+        },
         canplay: {
           target: "Ready",
         },
@@ -93,6 +109,11 @@ export const videoPlayerMachine = setup({
             toggle: {
               target: "Paused",
             },
+            "time.update": {
+              actions: assign({
+                videoCurrentTime: ({ event }) => event.currentTime,
+              }),
+            },
           },
         },
         Paused: {
@@ -110,6 +131,23 @@ export const videoPlayerMachine = setup({
       on: {
         waiting: {
           target: "Loading",
+        },
+        "time.seek": {
+          actions: enqueueActions(({ context, event, enqueue }) => {
+            const updatedVideoCurrentTime =
+              (context.videoDuration! * event.seekToPercentage) / 100;
+
+            enqueue({
+              type: "Set video current time",
+              params: {
+                seekTo: updatedVideoCurrentTime,
+              },
+            });
+
+            enqueue.assign({
+              videoCurrentTime: updatedVideoCurrentTime,
+            });
+          }),
         },
       },
     },

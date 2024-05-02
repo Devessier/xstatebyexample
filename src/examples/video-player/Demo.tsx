@@ -7,6 +7,7 @@ import { useRef } from "react";
 import { PauseCircleIcon, PlayCircleIcon } from "@heroicons/react/24/solid";
 import { Transition } from "@headlessui/react";
 import { Slider } from "@ark-ui/react";
+import { intervalToDuration } from "date-fns";
 
 interface Props {
   actorOptions: ActorOptions<AnyActorLogic> | undefined;
@@ -22,6 +23,9 @@ export function Demo({ actorOptions }: Props) {
         },
         "Pause the video": () => {
           videoRef.current?.pause();
+        },
+        "Set video current time": (_, { seekTo }) => {
+          videoRef.current!.currentTime = seekTo;
         },
       },
     }),
@@ -60,7 +64,17 @@ export function Demo({ actorOptions }: Props) {
           ref={videoRef}
           poster={state.context.videoPoster}
           src={state.context.currentVideoSrc}
+          onLoadedMetadata={() => {
+            console.log("onLoadedMetadata");
+
+            send({
+              type: "metadata.loaded",
+              videoDuration: videoRef.current!.duration,
+            });
+          }}
           onCanPlay={() => {
+            console.log("onCanPlay");
+
             send({
               type: "canplay",
             });
@@ -73,11 +87,15 @@ export function Demo({ actorOptions }: Props) {
             });
           }}
           onWaiting={() => {
+            console.log("onWaiting");
+
             send({
               type: "waiting",
             });
           }}
           onPlay={() => {
+            console.log("onPlay");
+
             // To sync when the video state was changed not from the UI (device controls, pip)
 
             send({
@@ -85,10 +103,20 @@ export function Demo({ actorOptions }: Props) {
             });
           }}
           onPause={() => {
+            console.log("onPause");
+
             // To sync when the video state was changed not from the UI (device controls, pip)
 
             send({
               type: "pause",
+            });
+          }}
+          onTimeUpdate={() => {
+            console.log("onTimeUpdate");
+
+            send({
+              type: "time.update",
+              currentTime: videoRef.current!.currentTime,
             });
           }}
           className={css({
@@ -188,9 +216,48 @@ export function Demo({ actorOptions }: Props) {
                 insetX: "0",
                 px: "4",
                 py: "2",
+                alignItems: "center",
+                columnGap: "2",
               })}
             >
-              <VideoSlider />
+              <p
+                className={css({
+                  color: "gray.50",
+                  fontWeight: "medium",
+                  fontSize: "md",
+                  fontVariantNumeric: "tabular-nums",
+                })}
+              >
+                {formatTime(state.context.videoCurrentTime ?? 0)}
+              </p>
+
+              <div className={css({ flexGrow: 1 })}>
+                <VideoSlider
+                  valuePercentage={
+                    state.context.videoDuration === undefined
+                      ? 0
+                      : (100 * state.context.videoCurrentTime) /
+                        state.context.videoDuration
+                  }
+                  onValueChange={(valuePercentage) => {
+                    send({
+                      type: "time.seek",
+                      seekToPercentage: valuePercentage,
+                    });
+                  }}
+                />
+              </div>
+
+              <p
+                className={css({
+                  color: "gray.50",
+                  fontWeight: "medium",
+                  fontSize: "md",
+                  fontVariantNumeric: "tabular-nums",
+                })}
+              >
+                {formatTime(state.context.videoDuration ?? 0)}
+              </p>
             </div>
           </Transition>
         ) : null}
@@ -200,7 +267,7 @@ export function Demo({ actorOptions }: Props) {
             className={css({
               pos: "absolute",
               inset: "0",
-              bg: "gray.900/10",
+              bg: "gray.900/60",
             })}
           >
             Loading
@@ -209,6 +276,14 @@ export function Demo({ actorOptions }: Props) {
       </div>
     </div>
   );
+}
+
+function formatTime(seconds: number) {
+  const duration = intervalToDuration({ start: 0, end: seconds * 1000 });
+
+  return `${String(duration.hours ?? 0).padStart(2, "0")}:${String(
+    duration.minutes ?? 0
+  ).padStart(2, "0")}:${String(duration.seconds ?? 0).padStart(2, "0")}`;
 }
 
 /**
@@ -255,11 +330,25 @@ const sliderStyle = sva({
   },
 });
 
-function VideoSlider() {
+function VideoSlider({
+  valuePercentage,
+  onValueChange,
+}: {
+  valuePercentage: number;
+  onValueChange: (valuePercentage: number) => void;
+}) {
   const styles = sliderStyle({});
 
   return (
-    <Slider.Root className={styles.root}>
+    <Slider.Root
+      className={styles.root}
+      min={0}
+      max={100}
+      value={[valuePercentage]}
+      onValueChange={({ value }) => {
+        onValueChange(value[0]);
+      }}
+    >
       <Slider.Control className={styles.control}>
         <Slider.Track className={styles.track}>
           <Slider.Range className={styles.range} />
