@@ -1,0 +1,18 @@
+---
+id: 5
+title: "Video Player"
+image:
+  url: "https://stately.ai/registry/machines/46d48d1d-ce1e-4286-8cd9-226f852a37f0.light.png"
+  width: 1187
+  height: 600
+visualizerSrc: "https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=46d48d1d-ce1e-4286-8cd9-226f852a37f0"
+complexity: "intermediate"
+---
+
+import { Image } from "astro:assets";
+import { css } from '../../../styled-system/css';
+import DemoEntrypoint from '../../examples/video-player/index.tsx';
+
+---
+
+<DemoEntrypoint client:load />
