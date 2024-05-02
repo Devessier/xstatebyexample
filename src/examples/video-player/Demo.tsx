@@ -211,6 +211,10 @@ export function Demo({ actorOptions }: Props) {
   );
 }
 
+/**
+ * Inspired by the Slider component of Park-UI.
+ * See https://park-ui.com/docs/panda/components/slider.
+ */
 const sliderStyle = sva({
   slots: ["root", "control", "range", "thumb", "track"],
   base: {
