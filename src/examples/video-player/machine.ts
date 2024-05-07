@@ -54,6 +54,17 @@ export const videoPlayerMachine = setup({
       },
     },
     Loading: {
+      initial: "Blank loader",
+      states: {
+        "Blank loader": {
+          after: {
+            500: {
+              target: "Loader",
+            },
+          },
+        },
+        Loader: {},
+      },
       on: {
         "metadata.loaded": {
           actions: assign({
@@ -73,6 +84,7 @@ export const videoPlayerMachine = setup({
       states: {
         Playing: {
           entry: "Play the video",
+          exit: "Pause the video",
           initial: "Hovering",
           states: {
             Idle: {
@@ -117,7 +129,6 @@ export const videoPlayerMachine = setup({
           },
         },
         Paused: {
-          entry: "Pause the video",
           on: {
             play: {
               target: "Playing",
@@ -130,7 +141,7 @@ export const videoPlayerMachine = setup({
       },
       on: {
         waiting: {
-          target: "Loading",
+          target: "Loading.Loader",
         },
         "time.seek": {
           actions: enqueueActions(({ context, event, enqueue }) => {

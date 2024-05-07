@@ -1,10 +1,14 @@
 import { css, sva } from "../../../styled-system/css";
 import { useActor } from "@xstate/react";
 import { videoPlayerMachine } from "./machine";
-import { flex } from "../../../styled-system/patterns";
+import { center, flex } from "../../../styled-system/patterns";
 import type { ActorOptions, AnyActorLogic } from "xstate";
-import { useRef } from "react";
-import { PauseCircleIcon, PlayCircleIcon } from "@heroicons/react/24/solid";
+import { useEffect, useRef } from "react";
+import {
+  ArrowPathIcon,
+  PauseCircleIcon,
+  PlayCircleIcon,
+} from "@heroicons/react/24/solid";
 import { Transition } from "@headlessui/react";
 import { Slider } from "@ark-ui/react";
 import { intervalToDuration } from "date-fns";
@@ -39,6 +43,10 @@ export function Demo({ actorOptions }: Props) {
       },
     }
   );
+
+  useEffect(() => {
+    console.log("state", state.value);
+  }, [state]);
 
   return (
     <div
@@ -264,13 +272,22 @@ export function Demo({ actorOptions }: Props) {
 
         {state.matches("Loading") === true ? (
           <div
-            className={css({
+            className={center({
               pos: "absolute",
               inset: "0",
               bg: "gray.900/60",
             })}
           >
-            Loading
+            {state.matches({ Loading: "Loader" }) === true ? (
+              <ArrowPathIcon
+                className={css({
+                  color: "white",
+                  w: "16",
+                  h: "16",
+                  animation: "spin",
+                })}
+              />
+            ) : null}
           </div>
         ) : null}
       </div>
