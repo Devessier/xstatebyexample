@@ -42,8 +42,6 @@ export function Demo({ actorOptions }: Props) {
           videoRef.current!.currentTime = seekTo;
         },
         "Set video muted": (_, { muted }) => {
-          console.log("set video muted", muted);
-
           videoRef.current!.muted = muted;
         },
         "Set video volume": (_, { volume }) => {
@@ -98,7 +96,7 @@ export function Demo({ actorOptions }: Props) {
             case " ":
             case "k": {
               send({
-                type: "toggle",
+                type: "toggle.keyboard",
               });
 
               break;
@@ -361,7 +359,7 @@ export function Demo({ actorOptions }: Props) {
                 />
               </button>
 
-              <div className={spacer({  })} />
+              <div className={spacer()} />
 
               <div data-ui-control className={center()}>
                 <Tooltip.Root

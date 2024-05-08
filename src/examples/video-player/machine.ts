@@ -14,6 +14,7 @@ export const videoPlayerMachine = setup({
       | { type: "pause" }
       | { type: "toggle" }
       | { type: "toggle.click" }
+      | { type: "toggle.keyboard" }
       | { type: "canplay" }
       | { type: "canplaythrough" }
       | { type: "waiting" }
@@ -183,7 +184,7 @@ export const videoPlayerMachine = setup({
             toggle: {
               target: "Paused",
             },
-            "toggle.click": {
+            "toggle.*": {
               target: "Paused.Animating",
             },
             "time.update": {
@@ -223,7 +224,7 @@ export const videoPlayerMachine = setup({
             toggle: {
               target: "Playing",
             },
-            "toggle.click": {
+            "toggle.*": {
               target: "Playing.Animation.Animating",
             },
           },
