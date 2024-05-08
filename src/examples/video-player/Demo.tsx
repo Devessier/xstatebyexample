@@ -71,7 +71,7 @@ export function Demo({ actorOptions }: Props) {
           }
 
           send({
-            type: "toggle",
+            type: "toggle.click",
           });
         }}
         className={css({ pos: "relative" })}

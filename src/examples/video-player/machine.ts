@@ -13,6 +13,7 @@ export const videoPlayerMachine = setup({
       | { type: "play" }
       | { type: "pause" }
       | { type: "toggle" }
+      | { type: "toggle.click" }
       | { type: "canplay" }
       | { type: "canplaythrough" }
       | { type: "waiting" },
@@ -53,6 +54,14 @@ export const videoPlayerMachine = setup({
           actions: assign({
             currentVideoSrc: ({ context }) => context.videoSrc,
           }),
+        },
+        "toggle.*": {
+          target: "Initial loading",
+          actions: assign({
+            currentVideoSrc: ({ context }) => context.videoSrc,
+          }),
+          description:
+            "Both `toggle` and `toggle.click` events will trigger this transition.",
         },
       },
     },
