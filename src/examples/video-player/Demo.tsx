@@ -48,25 +48,34 @@ export function Demo({ actorOptions }: Props) {
   const videoTitle = "Big Buck Bunny";
 
   return (
-    <div
-      onMouseMove={(e) => {
-        // Don't take *empty* movements into account.
-        if (Math.abs(e.movementX) === 0 || Math.abs(e.movementY) === 0) {
-          return;
-        }
+    <div className={css({ px: "4", py: "2" })}>
+      <div
+        onMouseMove={() => {
+          send({
+            type: "hover.hovering",
+          });
+        }}
+        onMouseLeave={() => {
+          send({
+            type: "hover.end",
+          });
+        }}
+        onClick={(e) => {
+          const uiControlAncestor = (e.target as HTMLElement).closest(
+            "[data-ui-control]"
+          );
+          const hasUiControlAncestor = uiControlAncestor !== null;
 
-        send({
-          type: "hover.hovering",
-        });
-      }}
-      onMouseLeave={() => {
-        send({
-          type: "hover.end",
-        });
-      }}
-      className={css({ px: "4", py: "2" })}
-    >
-      <div className={css({ pos: "relative" })}>
+          if (hasUiControlAncestor === true) {
+            return;
+          }
+
+          send({
+            type: "toggle",
+          });
+        }}
+        className={css({ pos: "relative" })}
+      >
         <video
           ref={videoRef}
           poster={snapshot.context.videoPoster}
@@ -169,6 +178,7 @@ export function Demo({ actorOptions }: Props) {
 
             {snapshot.matches("Stopped") === true ? (
               <button
+                data-ui-control
                 onClick={() => {
                   send({
                     type: "play",
@@ -206,6 +216,7 @@ export function Demo({ actorOptions }: Props) {
             >
               <div className={hstack({ gap: "1" })}>
                 <button
+                  data-ui-control
                   onClick={() => {
                     send({
                       type: "time.backward",
@@ -222,6 +233,7 @@ export function Demo({ actorOptions }: Props) {
                 </button>
 
                 <button
+                  data-ui-control
                   onClick={() => {
                     send({
                       type: "toggle",
@@ -244,6 +256,7 @@ export function Demo({ actorOptions }: Props) {
                 </button>
 
                 <button
+                  data-ui-control
                   onClick={() => {
                     send({
                       type: "time.forward",
@@ -278,7 +291,7 @@ export function Demo({ actorOptions }: Props) {
                 {formatTime(snapshot.context.videoCurrentTime ?? 0)}
               </p>
 
-              <div className={css({ flexGrow: 1 })}>
+              <div data-ui-control className={css({ flexGrow: 1 })}>
                 <VideoSlider
                   valuePercentage={
                     snapshot.context.videoDuration === undefined
