@@ -3,7 +3,6 @@ import { assign, enqueueActions, setup } from "xstate";
 export const videoPlayerMachine = setup({
   types: {
     events: {} as
-      | { type: "hover.start" }
       | { type: "hover.hovering" }
       | { type: "hover.end" }
       | { type: "metadata.loaded"; videoDuration: number }
@@ -26,6 +25,7 @@ export const videoPlayerMachine = setup({
       videoSrc: string;
       videoPoster: string;
     },
+    tags: {} as "Show loading overlay" | "Show loader" | "Show controls",
   },
   actions: {
     "Play the video": () => {},
@@ -44,38 +44,56 @@ export const videoPlayerMachine = setup({
   initial: "Stopped",
   states: {
     Stopped: {
+      tags: "Show loading overlay",
       on: {
-        play: {
-          target: "Loading",
+        toggle: {
+          target: "Initial loading",
           actions: assign({
             currentVideoSrc: ({ context }) => context.videoSrc,
           }),
         },
       },
     },
-    Loading: {
-      initial: "Blank loader",
+    "Initial loading": {
+      type: "parallel",
       states: {
-        "Blank loader": {
-          after: {
-            500: {
-              target: "Loader",
+        Loader: {
+          initial: "Hide",
+          states: {
+            Hide: {
+              tags: "Show loading overlay",
+              after: {
+                500: {
+                  target: "Show",
+                },
+              },
+            },
+            Show: {
+              tags: "Show loader",
             },
           },
         },
-        Loader: {},
-      },
-      on: {
-        "metadata.loaded": {
-          actions: assign({
-            videoDuration: ({ event }) => event.videoDuration,
-          }),
-        },
-        canplay: {
-          target: "Ready",
-        },
-        canplaythrough: {
-          target: "Ready",
+        Metadata: {
+          initial: "Waiting for metadata",
+          states: {
+            "Waiting for metadata": {
+              on: {
+                "metadata.loaded": {
+                  target: "Waiting for playing authorization",
+                  actions: assign({
+                    videoDuration: ({ event }) => event.videoDuration,
+                  }),
+                },
+              },
+            },
+            "Waiting for playing authorization": {
+              on: {
+                canplay: {
+                  target: "#Video Player.Ready",
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -84,20 +102,17 @@ export const videoPlayerMachine = setup({
       states: {
         Playing: {
           entry: "Play the video",
-          exit: "Pause the video",
           initial: "Hovering",
           states: {
             Idle: {
               on: {
-                "hover.start": {
-                  target: "Hovering",
-                },
                 "hover.hovering": {
                   target: "Hovering",
                 },
               },
             },
             Hovering: {
+              tags: "Show controls",
               after: {
                 2_000: {
                   target: "Idle",
@@ -115,6 +130,9 @@ export const videoPlayerMachine = setup({
             },
           },
           on: {
+            waiting: {
+              target: "Loading",
+            },
             pause: {
               target: "Paused",
             },
@@ -128,7 +146,17 @@ export const videoPlayerMachine = setup({
             },
           },
         },
+        Loading: {
+          tags: "Show loader",
+          on: {
+            canplay: {
+              target: "Playing",
+            },
+          },
+        },
         Paused: {
+          tags: "Show controls",
+          entry: "Pause the video",
           on: {
             play: {
               target: "Playing",
@@ -140,9 +168,6 @@ export const videoPlayerMachine = setup({
         },
       },
       on: {
-        waiting: {
-          target: "Loading.Loader",
-        },
         "time.seek": {
           actions: enqueueActions(({ context, event, enqueue }) => {
             const updatedVideoCurrentTime =
