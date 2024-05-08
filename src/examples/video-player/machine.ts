@@ -46,7 +46,7 @@ export const videoPlayerMachine = setup({
     Stopped: {
       tags: "Show loading overlay",
       on: {
-        toggle: {
+        play: {
           target: "Initial loading",
           actions: assign({
             currentVideoSrc: ({ context }) => context.videoSrc,

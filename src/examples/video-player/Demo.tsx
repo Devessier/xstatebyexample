@@ -1,11 +1,13 @@
 import { css, sva } from "../../../styled-system/css";
 import { useActor } from "@xstate/react";
 import { videoPlayerMachine } from "./machine";
-import { center, flex } from "../../../styled-system/patterns";
+import { center, flex, hstack, vstack } from "../../../styled-system/patterns";
 import type { ActorOptions, AnyActorLogic } from "xstate";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import {
   ArrowPathIcon,
+  BackwardIcon,
+  ForwardIcon,
   PauseCircleIcon,
   PlayCircleIcon,
 } from "@heroicons/react/24/solid";
@@ -165,12 +167,11 @@ export function Demo({ actorOptions }: Props) {
               />
             ) : null}
 
-            {snapshot.matches("Stopped") === true ||
-            snapshot.hasTag("Show controls") === true ? (
+            {snapshot.matches("Stopped") === true ? (
               <button
                 onClick={() => {
                   send({
-                    type: "toggle",
+                    type: "play",
                   });
                 }}
                 className={css({
@@ -178,21 +179,15 @@ export function Demo({ actorOptions }: Props) {
                   overflow: "clip",
                 })}
               >
-                {snapshot.matches({ Ready: "Playing" }) === true ? (
-                  <PauseCircleIcon
-                    className={css({ h: "16", w: "16", color: "white" })}
-                  />
-                ) : (
-                  <PlayCircleIcon
-                    className={css({ h: "16", w: "16", color: "white" })}
-                  />
-                )}
+                <PlayCircleIcon
+                  className={css({ h: "16", w: "16", color: "white" })}
+                />
               </button>
             ) : null}
           </div>
 
           <div
-            className={flex({
+            className={vstack({
               display:
                 snapshot.hasTag("Show controls") === true ? "flex" : "none",
               pos: "absolute",
@@ -200,50 +195,119 @@ export function Demo({ actorOptions }: Props) {
               insetX: "0",
               px: "4",
               py: "2",
-              alignItems: "center",
-              columnGap: "2",
+              gap: "0.5",
+              alignItems: "stretch",
             })}
           >
-            <p
-              className={css({
-                color: "gray.50",
-                fontWeight: "medium",
-                fontSize: "md",
-                fontVariantNumeric: "tabular-nums",
+            <div
+              className={flex({
+                justifyContent: "space-between",
               })}
             >
-              {formatTime(snapshot.context.videoCurrentTime ?? 0)}
-            </p>
+              <div className={hstack({ gap: "1" })}>
+                <button
+                  onClick={() => {
+                    send({
+                      type: "toggle",
+                    });
+                  }}
+                  className={css({
+                    rounded: "full",
+                    overflow: "clip",
+                  })}
+                >
+                  <BackwardIcon
+                    className={css({ h: "6", w: "6", color: "white" })}
+                  />
+                </button>
 
-            <div className={css({ flexGrow: 1 })}>
-              <VideoSlider
-                valuePercentage={
-                  snapshot.context.videoDuration === undefined
-                    ? 0
-                    : (100 * snapshot.context.videoCurrentTime) /
-                      snapshot.context.videoDuration
-                }
-                onValueChange={(valuePercentage) => {
-                  console.log("slider value changed", valuePercentage);
+                <button
+                  onClick={() => {
+                    send({
+                      type: "toggle",
+                    });
+                  }}
+                  className={css({
+                    rounded: "full",
+                    overflow: "clip",
+                  })}
+                >
+                  {snapshot.matches({ Ready: "Playing" }) === true ? (
+                    <PauseCircleIcon
+                      className={css({ h: "10", w: "10", color: "white" })}
+                    />
+                  ) : (
+                    <PlayCircleIcon
+                      className={css({ h: "10", w: "10", color: "white" })}
+                    />
+                  )}
+                </button>
 
-                  send({
-                    type: "time.seek",
-                    seekToPercentage: valuePercentage,
-                  });
-                }}
-              />
+                <button
+                  onClick={() => {
+                    send({
+                      type: "toggle",
+                    });
+                  }}
+                  className={css({
+                    rounded: "full",
+                    overflow: "clip",
+                  })}
+                >
+                  <ForwardIcon
+                    className={css({ h: "6", w: "6", color: "white" })}
+                  />
+                </button>
+              </div>
             </div>
 
-            <p
-              className={css({
-                color: "gray.50",
-                fontWeight: "medium",
-                fontSize: "md",
-                fontVariantNumeric: "tabular-nums",
+            <div
+              className={flex({
+                alignItems: "center",
+                columnGap: "2",
               })}
             >
-              {formatTime(snapshot.context.videoDuration ?? 0)}
-            </p>
+              <p
+                className={css({
+                  color: "gray.50",
+                  fontWeight: "medium",
+                  fontSize: "md",
+                  fontVariantNumeric: "tabular-nums",
+                })}
+              >
+                {formatTime(snapshot.context.videoCurrentTime ?? 0)}
+              </p>
+
+              <div className={css({ flexGrow: 1 })}>
+                <VideoSlider
+                  valuePercentage={
+                    snapshot.context.videoDuration === undefined
+                      ? 0
+                      : (100 * snapshot.context.videoCurrentTime) /
+                        snapshot.context.videoDuration
+                  }
+                  onValueChange={(valuePercentage) => {
+                    console.log("slider value changed", valuePercentage);
+
+                    send({
+                      type: "time.seek",
+                      seekToPercentage: valuePercentage,
+                    });
+                  }}
+                />
+              </div>
+
+              <p
+                className={css({
+                  color: "gray.50",
+                  fontWeight: "medium",
+                  fontSize: "md",
+                  fontVariantNumeric: "tabular-nums",
+                })}
+              >
+                {formatTime(snapshot.context.videoDuration ?? 0)}
+              </p>
+            </div>
           </div>
         </Transition>
       </div>
