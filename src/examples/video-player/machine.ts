@@ -17,13 +17,17 @@ export const videoPlayerMachine = setup({
       | { type: "canplay" }
       | { type: "canplaythrough" }
       | { type: "waiting" }
-      | { type: "play-state-animation.end" },
+      | { type: "play-state-animation.end" }
+      | { type: "volume.mute.toggle" }
+      | { type: "volume.set"; volume: number },
     context: {} as {
       videoSrc: string;
       videoPoster: string;
       currentVideoSrc: string | undefined;
       videoDuration: number | undefined;
       videoCurrentTime: number;
+      volume: number;
+      muted: boolean;
     },
     input: {} as {
       videoSrc: string;
@@ -40,6 +44,8 @@ export const videoPlayerMachine = setup({
     "Play the video": () => {},
     "Pause the video": () => {},
     "Set video current time": (_, params: { seekTo: number }) => {},
+    "Set video muted": (_, params: { muted: boolean }) => {},
+    "Set video volume": (_, params: { volume: number }) => {},
   },
 }).createMachine({
   id: "Video Player",
@@ -49,6 +55,8 @@ export const videoPlayerMachine = setup({
     currentVideoSrc: undefined,
     videoDuration: undefined,
     videoCurrentTime: 0,
+    muted: false,
+    volume: 1,
   }),
   initial: "Stopped",
   states: {
@@ -276,6 +284,32 @@ export const videoPlayerMachine = setup({
               videoCurrentTime: updatedVideoCurrentTime,
             });
           }),
+        },
+        "volume.mute.toggle": {
+          actions: [
+            assign({
+              muted: ({ context }) => !context.muted,
+            }),
+            {
+              type: "Set video muted",
+              params: ({ context }) => ({
+                // Because the assign action is run before this one, the value of the muted property in the context
+                // is updated.
+                muted: context.muted,
+              }),
+            },
+          ],
+        },
+        "volume.set": {
+          actions: [
+            assign({
+              volume: ({ event }) => event.volume,
+            }),
+            {
+              type: "Set video volume",
+              params: ({ event }) => ({ volume: event.volume }),
+            },
+          ],
         },
       },
     },

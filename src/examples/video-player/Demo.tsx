@@ -1,7 +1,13 @@
 import { css, sva } from "../../../styled-system/css";
 import { useActor } from "@xstate/react";
 import { videoPlayerMachine } from "./machine";
-import { center, flex, hstack, vstack } from "../../../styled-system/patterns";
+import {
+  center,
+  flex,
+  hstack,
+  spacer,
+  vstack,
+} from "../../../styled-system/patterns";
 import type { ActorOptions, AnyActorLogic } from "xstate";
 import { useRef } from "react";
 import {
@@ -10,9 +16,11 @@ import {
   ForwardIcon,
   PauseCircleIcon,
   PlayCircleIcon,
+  SpeakerWaveIcon,
+  SpeakerXMarkIcon,
 } from "@heroicons/react/24/solid";
 import { Transition } from "@headlessui/react";
-import { Slider } from "@ark-ui/react";
+import { Slider, Tooltip } from "@ark-ui/react";
 import { intervalToDuration } from "date-fns";
 
 interface Props {
@@ -32,6 +40,14 @@ export function Demo({ actorOptions }: Props) {
         },
         "Set video current time": (_, { seekTo }) => {
           videoRef.current!.currentTime = seekTo;
+        },
+        "Set video muted": (_, { muted }) => {
+          console.log("set video muted", muted);
+
+          videoRef.current!.muted = muted;
+        },
+        "Set video volume": (_, { volume }) => {
+          videoRef.current!.volume = volume;
         },
       },
     }),
@@ -287,68 +303,117 @@ export function Demo({ actorOptions }: Props) {
               alignItems: "stretch",
             })}
           >
-            <div
-              className={flex({
-                justifyContent: "space-between",
-              })}
-            >
-              <div className={hstack({ gap: "1" })}>
-                <button
-                  data-ui-control
-                  onClick={() => {
-                    send({
-                      type: "time.backward",
-                    });
-                  }}
-                  className={css({
-                    rounded: "full",
-                    overflow: "clip",
-                  })}
-                >
-                  <BackwardIcon
-                    className={css({ h: "6", w: "6", color: "white" })}
-                  />
-                </button>
+            <div className={hstack({ gap: "1" })}>
+              <button
+                data-ui-control
+                onClick={() => {
+                  send({
+                    type: "time.backward",
+                  });
+                }}
+                className={css({
+                  rounded: "full",
+                  overflow: "clip",
+                })}
+              >
+                <BackwardIcon
+                  className={css({ h: "6", w: "6", color: "white" })}
+                />
+              </button>
 
-                <button
-                  data-ui-control
-                  onClick={() => {
-                    send({
-                      type: "toggle",
-                    });
-                  }}
-                  className={css({
-                    rounded: "full",
-                    overflow: "clip",
-                  })}
-                >
-                  {snapshot.matches({ Ready: "Playing" }) === true ? (
-                    <PauseCircleIcon
-                      className={css({ h: "10", w: "10", color: "white" })}
-                    />
-                  ) : (
-                    <PlayCircleIcon
-                      className={css({ h: "10", w: "10", color: "white" })}
-                    />
-                  )}
-                </button>
-
-                <button
-                  data-ui-control
-                  onClick={() => {
-                    send({
-                      type: "time.forward",
-                    });
-                  }}
-                  className={css({
-                    rounded: "full",
-                    overflow: "clip",
-                  })}
-                >
-                  <ForwardIcon
-                    className={css({ h: "6", w: "6", color: "white" })}
+              <button
+                data-ui-control
+                onClick={() => {
+                  send({
+                    type: "toggle",
+                  });
+                }}
+                className={css({
+                  rounded: "full",
+                  overflow: "clip",
+                })}
+              >
+                {snapshot.matches({ Ready: "Playing" }) === true ? (
+                  <PauseCircleIcon
+                    className={css({ h: "10", w: "10", color: "white" })}
                   />
-                </button>
+                ) : (
+                  <PlayCircleIcon
+                    className={css({ h: "10", w: "10", color: "white" })}
+                  />
+                )}
+              </button>
+
+              <button
+                data-ui-control
+                onClick={() => {
+                  send({
+                    type: "time.forward",
+                  });
+                }}
+                className={css({
+                  rounded: "full",
+                  overflow: "clip",
+                })}
+              >
+                <ForwardIcon
+                  className={css({ h: "6", w: "6", color: "white" })}
+                />
+              </button>
+
+              <div className={spacer({  })} />
+
+              <div data-ui-control className={center()}>
+                <Tooltip.Root
+                  openDelay={0}
+                  closeDelay={100}
+                  interactive
+                  positioning={{ placement: "top" }}
+                >
+                  <Tooltip.Trigger asChild>
+                    <button
+                      onClick={() => {
+                        send({
+                          type: "volume.mute.toggle",
+                        });
+                      }}
+                      className={css({
+                        rounded: "full",
+                        overflow: "clip",
+                      })}
+                    >
+                      {snapshot.context.muted === true ? (
+                        <SpeakerXMarkIcon
+                          className={css({ h: "6", w: "6", color: "white" })}
+                        />
+                      ) : (
+                        <SpeakerWaveIcon
+                          className={css({ h: "6", w: "6", color: "white" })}
+                        />
+                      )}
+                    </button>
+                  </Tooltip.Trigger>
+                  <Tooltip.Positioner>
+                    <Tooltip.Content
+                      className={css({
+                        h: "32",
+                        bg: "neutral.800",
+                        rounded: "full",
+                        p: "2",
+                      })}
+                    >
+                      <VolumeSlider
+                        volume={snapshot.context.volume}
+                        onVolumeChange={(volume) => {
+                          send({
+                            type: "volume.set",
+                            volume,
+                          });
+                        }}
+                      />
+                    </Tooltip.Content>
+                  </Tooltip.Positioner>
+                </Tooltip.Root>
               </div>
             </div>
 
@@ -423,25 +488,31 @@ const sliderStyle = sva({
   base: {
     root: {
       display: "flex",
-      flexDirection: "column",
       gap: "1",
-      width: "full",
+      _horizontal: {
+        flexDirection: "column",
+        width: "full",
+      },
+      _vertical: {
+        flexDirection: "row",
+        height: "full",
+      },
     },
     control: {
-      height: "5",
       position: "relative",
       display: "flex",
       alignItems: "center",
+      _vertical: {
+        flexDirection: "column",
+      },
     },
     track: {
-      height: "2",
       backgroundColor: "gray.300",
       borderRadius: "full",
       overflow: "hidden",
       flex: "1",
     },
     range: {
-      height: "2",
       background: "white",
     },
     thumb: {
@@ -454,6 +525,73 @@ const sliderStyle = sva({
       boxShadow: "sm",
       outline: "none",
       zIndex: "1",
+    },
+  },
+  defaultVariants: {
+    size: "md",
+  },
+  variants: {
+    size: {
+      sm: {
+        control: {
+          _horizontal: {
+            height: "4",
+          },
+          _vertical: {
+            width: "4",
+          },
+        },
+        range: {
+          _horizontal: {
+            height: "1.5",
+          },
+          _vertical: {
+            width: "1.5",
+          },
+        },
+        track: {
+          _horizontal: {
+            height: "1.5",
+          },
+          _vertical: {
+            width: "1.5",
+          },
+        },
+        thumb: {
+          height: "4",
+          width: "4",
+        },
+      },
+      md: {
+        control: {
+          _horizontal: {
+            height: "5",
+          },
+          _vertical: {
+            width: "5",
+          },
+        },
+        range: {
+          _horizontal: {
+            height: "2",
+          },
+          _vertical: {
+            width: "2",
+          },
+        },
+        track: {
+          _horizontal: {
+            height: "2",
+          },
+          _vertical: {
+            width: "2",
+          },
+        },
+        thumb: {
+          height: "5",
+          width: "5",
+        },
+      },
     },
   },
 });
@@ -475,6 +613,37 @@ function VideoSlider({
       value={[valuePercentage]}
       onValueChange={({ value }) => {
         onValueChange(value[0]);
+      }}
+    >
+      <Slider.Control className={styles.control}>
+        <Slider.Track className={styles.track}>
+          <Slider.Range className={styles.range} />
+        </Slider.Track>
+        <Slider.Thumb index={0} className={styles.thumb} />
+      </Slider.Control>
+    </Slider.Root>
+  );
+}
+
+function VolumeSlider({
+  volume,
+  onVolumeChange,
+}: {
+  volume: number;
+  onVolumeChange: (volume: number) => void;
+}) {
+  const styles = sliderStyle({ size: "sm" });
+
+  return (
+    <Slider.Root
+      className={styles.root}
+      min={0}
+      max={1}
+      step={0.01}
+      orientation="vertical"
+      value={[volume]}
+      onValueChange={({ value }) => {
+        onVolumeChange(value[0]);
       }}
     >
       <Slider.Control className={styles.control}>
