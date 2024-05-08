@@ -50,6 +50,9 @@ export function Demo({ actorOptions }: Props) {
   return (
     <div className={css({ px: "4", py: "2" })}>
       <div
+        // With the tabIndex, allow the video container to receive the focus, that way, we can listen to keyboard events
+        // when the video is focused.
+        tabIndex={-1}
         onMouseMove={() => {
           send({
             type: "hover.hovering",
@@ -73,6 +76,44 @@ export function Demo({ actorOptions }: Props) {
           send({
             type: "toggle.click",
           });
+        }}
+        onKeyDown={(event) => {
+          switch (event.key) {
+            case " ":
+            case "k": {
+              send({
+                type: "toggle",
+              });
+
+              break;
+            }
+            case "ArrowLeft": {
+              send({
+                type: "time.backward",
+              });
+
+              break;
+            }
+            case "ArrowRight": {
+              send({
+                type: "time.forward",
+              });
+
+              break;
+            }
+            case "ArrowUp": {
+              break;
+            }
+            case "ArrowDown": {
+              break;
+            }
+            default: {
+              // Stop processing unknown events.
+              return;
+            }
+          }
+
+          event.preventDefault();
         }}
         className={css({ pos: "relative" })}
       >
