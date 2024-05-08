@@ -208,7 +208,7 @@ export function Demo({ actorOptions }: Props) {
                 <button
                   onClick={() => {
                     send({
-                      type: "toggle",
+                      type: "time.backward",
                     });
                   }}
                   className={css({
@@ -246,7 +246,7 @@ export function Demo({ actorOptions }: Props) {
                 <button
                   onClick={() => {
                     send({
-                      type: "toggle",
+                      type: "time.forward",
                     });
                   }}
                   className={css({

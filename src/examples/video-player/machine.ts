@@ -8,6 +8,8 @@ export const videoPlayerMachine = setup({
       | { type: "metadata.loaded"; videoDuration: number }
       | { type: "time.update"; currentTime: number }
       | { type: "time.seek"; seekToPercentage: number }
+      | { type: "time.backward" }
+      | { type: "time.forward" }
       | { type: "play" }
       | { type: "pause" }
       | { type: "toggle" }
@@ -172,6 +174,44 @@ export const videoPlayerMachine = setup({
           actions: enqueueActions(({ context, event, enqueue }) => {
             const updatedVideoCurrentTime =
               (context.videoDuration! * event.seekToPercentage) / 100;
+
+            enqueue({
+              type: "Set video current time",
+              params: {
+                seekTo: updatedVideoCurrentTime,
+              },
+            });
+
+            enqueue.assign({
+              videoCurrentTime: updatedVideoCurrentTime,
+            });
+          }),
+        },
+        "time.backward": {
+          actions: enqueueActions(({ context, enqueue }) => {
+            const updatedVideoCurrentTime = Math.max(
+              context.videoCurrentTime - 10,
+              0
+            );
+
+            enqueue({
+              type: "Set video current time",
+              params: {
+                seekTo: updatedVideoCurrentTime,
+              },
+            });
+
+            enqueue.assign({
+              videoCurrentTime: updatedVideoCurrentTime,
+            });
+          }),
+        },
+        "time.forward": {
+          actions: enqueueActions(({ context, enqueue }) => {
+            const updatedVideoCurrentTime = Math.min(
+              context.videoCurrentTime + 10,
+              context.videoDuration!
+            );
 
             enqueue({
               type: "Set video current time",
