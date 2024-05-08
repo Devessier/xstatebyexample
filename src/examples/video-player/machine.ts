@@ -16,7 +16,8 @@ export const videoPlayerMachine = setup({
       | { type: "toggle.click" }
       | { type: "canplay" }
       | { type: "canplaythrough" }
-      | { type: "waiting" },
+      | { type: "waiting" }
+      | { type: "play-state-animation.end" },
     context: {} as {
       videoSrc: string;
       videoPoster: string;
@@ -28,7 +29,12 @@ export const videoPlayerMachine = setup({
       videoSrc: string;
       videoPoster: string;
     },
-    tags: {} as "Show loading overlay" | "Show loader" | "Show controls",
+    tags: {} as
+      | "Show loading overlay"
+      | "Show loader"
+      | "Show controls"
+      | "Animate playing state"
+      | "Animate paused state",
   },
   actions: {
     "Play the video": () => {},
@@ -113,29 +119,48 @@ export const videoPlayerMachine = setup({
       states: {
         Playing: {
           entry: "Play the video",
-          initial: "Hovering",
+          type: "parallel",
           states: {
-            Idle: {
-              on: {
-                "hover.hovering": {
-                  target: "Hovering",
+            Controls: {
+              initial: "Hovering",
+              states: {
+                Idle: {
+                  on: {
+                    "hover.hovering": {
+                      target: "Hovering",
+                    },
+                  },
+                },
+                Hovering: {
+                  tags: "Show controls",
+                  after: {
+                    2_000: {
+                      target: "Idle",
+                    },
+                  },
+                  on: {
+                    "hover.end": {
+                      target: "Idle",
+                    },
+                    "hover.hovering": {
+                      target: "Hovering",
+                      reenter: true,
+                    },
+                  },
                 },
               },
             },
-            Hovering: {
-              tags: "Show controls",
-              after: {
-                2_000: {
-                  target: "Idle",
-                },
-              },
-              on: {
-                "hover.end": {
-                  target: "Idle",
-                },
-                "hover.hovering": {
-                  target: "Hovering",
-                  reenter: true,
+            Animation: {
+              initial: "Idle",
+              states: {
+                Idle: {},
+                Animating: {
+                  tags: "Animate playing state",
+                  on: {
+                    "play-state-animation.end": {
+                      target: "Idle",
+                    },
+                  },
                 },
               },
             },
@@ -149,6 +174,9 @@ export const videoPlayerMachine = setup({
             },
             toggle: {
               target: "Paused",
+            },
+            "toggle.click": {
+              target: "Paused.Animating",
             },
             "time.update": {
               actions: assign({
@@ -168,12 +196,27 @@ export const videoPlayerMachine = setup({
         Paused: {
           tags: "Show controls",
           entry: "Pause the video",
+          initial: "Idle",
+          states: {
+            Idle: {},
+            Animating: {
+              tags: "Animate paused state",
+              on: {
+                "play-state-animation.end": {
+                  target: "Idle",
+                },
+              },
+            },
+          },
           on: {
             play: {
               target: "Playing",
             },
             toggle: {
               target: "Playing",
+            },
+            "toggle.click": {
+              target: "Playing.Animation.Animating",
             },
           },
         },

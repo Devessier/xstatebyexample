@@ -122,6 +122,45 @@ export function Demo({ actorOptions }: Props) {
           })}
         />
 
+        {/* Not part of the Transition component as we want the animation to continue even if controls are hidden. */}
+        {snapshot.hasTag("Animate playing state") === true ||
+        snapshot.hasTag("Animate paused state") === true ? (
+          <div
+            className={center({
+              pos: "absolute",
+              inset: "0",
+            })}
+          >
+            <div
+              // Use the key to ensure the animation is restarted when the playing state changes quickly.
+              key={
+                snapshot.hasTag("Animate playing state") === true
+                  ? "playing"
+                  : "paused"
+              }
+              onAnimationEnd={() => {
+                send({
+                  type: "play-state-animation.end",
+                });
+              }}
+              className={css({
+                animation: "ping",
+                animationIterationCount: "1!",
+              })}
+            >
+              {snapshot.hasTag("Animate playing state") === true ? (
+                <PlayCircleIcon
+                  className={css({ h: "16", w: "16", color: "white" })}
+                />
+              ) : (
+                <PauseCircleIcon
+                  className={css({ h: "16", w: "16", color: "white" })}
+                />
+              )}
+            </div>
+          </div>
+        ) : null}
+
         <Transition
           unmount={false}
           show={
@@ -174,9 +213,7 @@ export function Demo({ actorOptions }: Props) {
                   animation: "spin",
                 })}
               />
-            ) : null}
-
-            {snapshot.matches("Stopped") === true ? (
+            ) : snapshot.matches("Stopped") === true ? (
               <button
                 data-ui-control
                 onClick={() => {
