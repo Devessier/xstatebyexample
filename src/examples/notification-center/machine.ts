@@ -147,7 +147,7 @@ export const notificationCenterMachine = setup({
         const newNotificationId = generateId();
 
         return [
-          spawn(notificationMachine, {
+          spawn("notificationMachine", {
             id: newNotificationId,
             input: {
               notificationId: newNotificationId,
@@ -177,13 +177,17 @@ export const notificationCenterMachine = setup({
       },
     }),
   },
+  actors: {
+    windowFocusLogic,
+    notificationMachine,
+  },
 }).createMachine({
   id: "Notification Center",
   context: {
     notificationRefs: [],
   },
   invoke: {
-    src: windowFocusLogic,
+    src: "windowFocusLogic",
   },
   on: {
     "notification.trigger": {
