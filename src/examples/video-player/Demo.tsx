@@ -228,6 +228,12 @@ export function Demo({ actorOptions }: Props) {
               currentTime: videoRef.current!.currentTime,
             });
           }}
+          onSeeking={() => {
+            send({
+              type: "time.seeking",
+              currentTime: videoRef.current!.currentTime,
+            });
+          }}
           className={css({
             aspectRatio: "wide",
             objectFit: "cover",
