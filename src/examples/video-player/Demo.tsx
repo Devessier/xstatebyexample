@@ -9,9 +9,11 @@ import {
   vstack,
 } from "../../../styled-system/patterns";
 import type { ActorOptions, AnyActorLogic } from "xstate";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
   ArrowPathIcon,
+  ArrowsPointingInIcon,
+  ArrowsPointingOutIcon,
   BackwardIcon,
   ForwardIcon,
   PauseCircleIcon,
@@ -28,6 +30,7 @@ interface Props {
 }
 
 export function Demo({ actorOptions }: Props) {
+  const videoContainerRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [snapshot, send] = useActor(
     videoPlayerMachine.provide({
@@ -47,6 +50,13 @@ export function Demo({ actorOptions }: Props) {
         "Set video volume": (_, { volume }) => {
           videoRef.current!.volume = volume;
         },
+        "Set video fullscreen state": (_, { setFullScreen }) => {
+          if (setFullScreen === true) {
+            videoContainerRef.current!.requestFullscreen();
+          } else {
+            document.exitFullscreen();
+          }
+        },
       },
     }),
     {
@@ -61,9 +71,44 @@ export function Demo({ actorOptions }: Props) {
   );
   const videoTitle = "Big Buck Bunny";
 
+  useEffect(() => {
+    function handleFullscreenChange() {
+      console.log("handle fullscreen change", document.fullscreenElement);
+
+      if (document.fullscreenElement === null) {
+        send({
+          type: "fullscreen.exited",
+        });
+
+        return;
+      }
+
+      if (document.fullscreenElement === videoContainerRef.current) {
+        send({
+          type: "fullscreen.expanded",
+        });
+      }
+    }
+
+    function handleFullscreenError() {
+      send({
+        type: "fullscreen.error",
+      });
+    }
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("fullscreenerror", handleFullscreenError);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener("fullscreenerror", handleFullscreenError);
+    };
+  }, []);
+
   return (
     <div className={css({ px: "4", py: "2" })}>
       <div
+        ref={videoContainerRef}
         // With the tabIndex, allow the video container to receive the focus, that way, we can listen to keyboard events
         // when the video is focused.
         tabIndex={-1}
@@ -91,6 +136,11 @@ export function Demo({ actorOptions }: Props) {
             type: "toggle.click",
           });
         }}
+        onDoubleClick={() => {
+          send({
+            type: "fullscreen.toggle",
+          });
+        }}
         onKeyDown={(event) => {
           switch (event.key) {
             case " ":
@@ -115,6 +165,13 @@ export function Demo({ actorOptions }: Props) {
 
               break;
             }
+            case "f": {
+              send({
+                type: "fullscreen.toggle",
+              });
+
+              break;
+            }
             case "ArrowUp": {
               break;
             }
@@ -129,7 +186,7 @@ export function Demo({ actorOptions }: Props) {
 
           event.preventDefault();
         }}
-        className={css({ pos: "relative" })}
+        className={center({ pos: "relative" })}
       >
         <video
           ref={videoRef}
@@ -271,7 +328,7 @@ export function Demo({ actorOptions }: Props) {
                   animation: "spin",
                 })}
               />
-            ) : snapshot.matches("Stopped") === true ? (
+            ) : snapshot.matches({ Video: "Stopped" }) === true ? (
               <button
                 data-ui-control
                 onClick={() => {
@@ -334,8 +391,9 @@ export function Demo({ actorOptions }: Props) {
                   overflow: "clip",
                 })}
               >
-                {snapshot.matches({ Ready: { Controls: "Playing" } }) ===
-                true ? (
+                {snapshot.matches({
+                  Video: { Ready: { Controls: "Playing" } },
+                }) === true ? (
                   <PauseCircleIcon
                     className={css({ h: "10", w: "10", color: "white" })}
                   />
@@ -417,6 +475,29 @@ export function Demo({ actorOptions }: Props) {
                   </Tooltip.Positioner>
                 </Tooltip.Root>
               </div>
+
+              <button
+                data-ui-control
+                onClick={() => {
+                  send({
+                    type: "fullscreen.toggle",
+                  });
+                }}
+                className={css({
+                  rounded: "full",
+                  overflow: "clip",
+                })}
+              >
+                {snapshot.matches({ Fullscreen: "On" }) === true ? (
+                  <ArrowsPointingInIcon
+                    className={css({ h: "6", w: "6", color: "white" })}
+                  />
+                ) : (
+                  <ArrowsPointingOutIcon
+                    className={css({ h: "6", w: "6", color: "white" })}
+                  />
+                )}
+              </button>
             </div>
 
             <div
