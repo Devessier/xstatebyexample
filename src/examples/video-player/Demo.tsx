@@ -103,14 +103,14 @@ export function Demo({ actorOptions }: Props) {
             }
             case "ArrowLeft": {
               send({
-                type: "time.backward",
+                type: "time.backward.keyboard",
               });
 
               break;
             }
             case "ArrowRight": {
               send({
-                type: "time.forward",
+                type: "time.forward.keyboard",
               });
 
               break;
@@ -178,8 +178,7 @@ export function Demo({ actorOptions }: Props) {
         />
 
         {/* Not part of the Transition component as we want the animation to continue even if controls are hidden. */}
-        {snapshot.hasTag("Animate playing state") === true ||
-        snapshot.hasTag("Animate paused state") === true ? (
+        {snapshot.hasTag("Animate action") === true ? (
           <div
             className={center({
               pos: "absolute",
@@ -188,11 +187,7 @@ export function Demo({ actorOptions }: Props) {
           >
             <div
               // Use the key to ensure the animation is restarted when the playing state changes quickly.
-              key={
-                snapshot.hasTag("Animate playing state") === true
-                  ? "playing"
-                  : "paused"
-              }
+              key={snapshot.context.animationActionTimestamp}
               onAnimationEnd={() => {
                 send({
                   type: "play-state-animation.end",
@@ -207,11 +202,19 @@ export function Demo({ actorOptions }: Props) {
                 <PlayCircleIcon
                   className={css({ h: "16", w: "16", color: "white" })}
                 />
-              ) : (
+              ) : snapshot.hasTag("Animate paused state") === true ? (
                 <PauseCircleIcon
                   className={css({ h: "16", w: "16", color: "white" })}
                 />
-              )}
+              ) : snapshot.hasTag("Animate backward") === true ? (
+                <BackwardIcon
+                  className={css({ h: "16", w: "16", color: "white" })}
+                />
+              ) : snapshot.hasTag("Animate forward") === true ? (
+                <ForwardIcon
+                  className={css({ h: "16", w: "16", color: "white" })}
+                />
+              ) : null}
             </div>
           </div>
         ) : null}
@@ -331,7 +334,8 @@ export function Demo({ actorOptions }: Props) {
                   overflow: "clip",
                 })}
               >
-                {snapshot.matches({ Ready: "Playing" }) === true ? (
+                {snapshot.matches({ Ready: { Controls: "Playing" } }) ===
+                true ? (
                   <PauseCircleIcon
                     className={css({ h: "10", w: "10", color: "white" })}
                   />

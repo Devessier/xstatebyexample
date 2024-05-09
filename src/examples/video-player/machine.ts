@@ -1,4 +1,4 @@
-import { assign, enqueueActions, setup } from "xstate";
+import { assign, enqueueActions, raise, setup } from "xstate";
 
 export const videoPlayerMachine = setup({
   types: {
@@ -10,6 +10,8 @@ export const videoPlayerMachine = setup({
       | { type: "time.seek"; seekToPercentage: number }
       | { type: "time.backward" }
       | { type: "time.forward" }
+      | { type: "time.backward.keyboard" }
+      | { type: "time.forward.keyboard" }
       | { type: "play" }
       | { type: "pause" }
       | { type: "toggle" }
@@ -20,7 +22,11 @@ export const videoPlayerMachine = setup({
       | { type: "waiting" }
       | { type: "play-state-animation.end" }
       | { type: "volume.mute.toggle" }
-      | { type: "volume.set"; volume: number },
+      | { type: "volume.set"; volume: number }
+      | {
+          type: "animate";
+          animation: "playing" | "paused" | "backward" | "forward";
+        },
     context: {} as {
       videoSrc: string;
       videoPoster: string;
@@ -29,6 +35,7 @@ export const videoPlayerMachine = setup({
       videoCurrentTime: number;
       volume: number;
       muted: boolean;
+      animationActionTimestamp: string;
     },
     input: {} as {
       videoSrc: string;
@@ -38,8 +45,11 @@ export const videoPlayerMachine = setup({
       | "Show loading overlay"
       | "Show loader"
       | "Show controls"
+      | "Animate action"
       | "Animate playing state"
-      | "Animate paused state",
+      | "Animate paused state"
+      | "Animate backward"
+      | "Animate forward",
   },
   actions: {
     "Play the video": () => {},
@@ -47,6 +57,9 @@ export const videoPlayerMachine = setup({
     "Set video current time": (_, params: { seekTo: number }) => {},
     "Set video muted": (_, params: { muted: boolean }) => {},
     "Set video volume": (_, params: { volume: number }) => {},
+    "Set animation timestamp to now": assign({
+      animationActionTimestamp: () => new Date().toISOString(),
+    }),
   },
 }).createMachine({
   id: "Video Player",
@@ -58,6 +71,7 @@ export const videoPlayerMachine = setup({
     videoCurrentTime: 0,
     muted: false,
     volume: 1,
+    animationActionTimestamp: "",
   }),
   initial: "Stopped",
   states: {
@@ -124,13 +138,13 @@ export const videoPlayerMachine = setup({
       },
     },
     Ready: {
-      initial: "Playing",
+      type: "parallel",
       states: {
-        Playing: {
-          entry: "Play the video",
-          type: "parallel",
+        Controls: {
+          initial: "Playing",
           states: {
-            Controls: {
+            Playing: {
+              entry: "Play the video",
               initial: "Hovering",
               states: {
                 Idle: {
@@ -158,159 +172,200 @@ export const videoPlayerMachine = setup({
                   },
                 },
               },
+              on: {
+                waiting: {
+                  target: "Loading",
+                },
+                pause: {
+                  target: "Paused",
+                },
+                toggle: {
+                  target: "Paused",
+                },
+                "toggle.*": {
+                  target: "Paused",
+                  actions: raise({
+                    type: "animate",
+                    animation: "paused",
+                  }),
+                },
+                "time.update": {
+                  actions: assign({
+                    videoCurrentTime: ({ event }) => event.currentTime,
+                  }),
+                },
+              },
             },
-            Animation: {
-              initial: "Idle",
-              states: {
-                Idle: {},
-                Animating: {
-                  tags: "Animate playing state",
-                  on: {
-                    "play-state-animation.end": {
-                      target: "Idle",
-                    },
-                  },
+            Loading: {
+              tags: "Show loader",
+              on: {
+                canplay: {
+                  target: "Playing",
+                },
+              },
+            },
+            Paused: {
+              tags: "Show controls",
+              entry: "Pause the video",
+              on: {
+                play: {
+                  target: "Playing",
+                },
+                toggle: {
+                  target: "Playing",
+                },
+                "toggle.*": {
+                  target: "Playing",
+                  actions: raise({
+                    type: "animate",
+                    animation: "playing",
+                  }),
                 },
               },
             },
           },
           on: {
-            waiting: {
-              target: "Loading",
-            },
-            pause: {
-              target: "Paused",
-            },
-            toggle: {
-              target: "Paused",
-            },
-            "toggle.*": {
-              target: "Paused.Animating",
-            },
-            "time.update": {
-              actions: assign({
-                videoCurrentTime: ({ event }) => event.currentTime,
+            "time.seek": {
+              actions: enqueueActions(({ context, event, enqueue }) => {
+                const updatedVideoCurrentTime =
+                  (context.videoDuration! * event.seekToPercentage) / 100;
+
+                enqueue({
+                  type: "Set video current time",
+                  params: {
+                    seekTo: updatedVideoCurrentTime,
+                  },
+                });
+
+                enqueue.assign({
+                  videoCurrentTime: updatedVideoCurrentTime,
+                });
               }),
             },
-          },
-        },
-        Loading: {
-          tags: "Show loader",
-          on: {
-            canplay: {
-              target: "Playing",
+            "time.backward.*": {
+              actions: enqueueActions(({ context, enqueue, event }) => {
+                const updatedVideoCurrentTime = Math.max(
+                  context.videoCurrentTime - 10,
+                  0
+                );
+
+                enqueue({
+                  type: "Set video current time",
+                  params: {
+                    seekTo: updatedVideoCurrentTime,
+                  },
+                });
+
+                enqueue.assign({
+                  videoCurrentTime: updatedVideoCurrentTime,
+                });
+
+                if (event.type.endsWith(".keyboard")) {
+                  enqueue.raise({
+                    type: "animate",
+                    animation: "backward",
+                  });
+                }
+              }),
+            },
+            "time.forward.*": {
+              actions: enqueueActions(({ context, enqueue, event }) => {
+                const updatedVideoCurrentTime = Math.min(
+                  context.videoCurrentTime + 10,
+                  context.videoDuration!
+                );
+
+                enqueue({
+                  type: "Set video current time",
+                  params: {
+                    seekTo: updatedVideoCurrentTime,
+                  },
+                });
+
+                enqueue.assign({
+                  videoCurrentTime: updatedVideoCurrentTime,
+                });
+
+                if (event.type.endsWith(".keyboard")) {
+                  enqueue.raise({
+                    type: "animate",
+                    animation: "forward",
+                  });
+                }
+              }),
+            },
+            "volume.mute.toggle": {
+              actions: [
+                assign({
+                  muted: ({ context }) => !context.muted,
+                }),
+                {
+                  type: "Set video muted",
+                  params: ({ context }) => ({
+                    // Because the assign action is run before this one, the value of the muted property in the context
+                    // is updated.
+                    muted: context.muted,
+                  }),
+                },
+              ],
+            },
+            "volume.set": {
+              actions: [
+                assign({
+                  volume: ({ event }) => event.volume,
+                }),
+                {
+                  type: "Set video volume",
+                  params: ({ event }) => ({ volume: event.volume }),
+                },
+              ],
             },
           },
         },
-        Paused: {
-          tags: "Show controls",
-          entry: "Pause the video",
+        Animation: {
           initial: "Idle",
           states: {
             Idle: {},
-            Animating: {
-              tags: "Animate paused state",
-              on: {
-                "play-state-animation.end": {
-                  target: "Idle",
-                },
-              },
+            "Animating playing state": {
+              tags: ["Animate action", "Animate playing state"],
+            },
+            "Animating paused state": {
+              tags: ["Animate action", "Animate paused state"],
+            },
+            "Animating backward": {
+              tags: ["Animate action", "Animate backward"],
+            },
+            "Animating forward": {
+              tags: ["Animate action", "Animate forward"],
             },
           },
           on: {
-            play: {
-              target: "Playing",
+            "play-state-animation.end": {
+              target: ".Idle",
             },
-            toggle: {
-              target: "Playing",
-            },
-            "toggle.*": {
-              target: "Playing.Animation.Animating",
-            },
+            animate: [
+              {
+                guard: ({ event }) => event.animation === "playing",
+                target: ".Animating playing state",
+                actions: "Set animation timestamp to now",
+              },
+              {
+                guard: ({ event }) => event.animation === "paused",
+                target: ".Animating paused state",
+                actions: "Set animation timestamp to now",
+              },
+              {
+                guard: ({ event }) => event.animation === "backward",
+                target: ".Animating backward",
+                actions: "Set animation timestamp to now",
+              },
+              {
+                guard: ({ event }) => event.animation === "forward",
+                target: ".Animating forward",
+                actions: "Set animation timestamp to now",
+              },
+            ],
           },
-        },
-      },
-      on: {
-        "time.seek": {
-          actions: enqueueActions(({ context, event, enqueue }) => {
-            const updatedVideoCurrentTime =
-              (context.videoDuration! * event.seekToPercentage) / 100;
-
-            enqueue({
-              type: "Set video current time",
-              params: {
-                seekTo: updatedVideoCurrentTime,
-              },
-            });
-
-            enqueue.assign({
-              videoCurrentTime: updatedVideoCurrentTime,
-            });
-          }),
-        },
-        "time.backward": {
-          actions: enqueueActions(({ context, enqueue }) => {
-            const updatedVideoCurrentTime = Math.max(
-              context.videoCurrentTime - 10,
-              0
-            );
-
-            enqueue({
-              type: "Set video current time",
-              params: {
-                seekTo: updatedVideoCurrentTime,
-              },
-            });
-
-            enqueue.assign({
-              videoCurrentTime: updatedVideoCurrentTime,
-            });
-          }),
-        },
-        "time.forward": {
-          actions: enqueueActions(({ context, enqueue }) => {
-            const updatedVideoCurrentTime = Math.min(
-              context.videoCurrentTime + 10,
-              context.videoDuration!
-            );
-
-            enqueue({
-              type: "Set video current time",
-              params: {
-                seekTo: updatedVideoCurrentTime,
-              },
-            });
-
-            enqueue.assign({
-              videoCurrentTime: updatedVideoCurrentTime,
-            });
-          }),
-        },
-        "volume.mute.toggle": {
-          actions: [
-            assign({
-              muted: ({ context }) => !context.muted,
-            }),
-            {
-              type: "Set video muted",
-              params: ({ context }) => ({
-                // Because the assign action is run before this one, the value of the muted property in the context
-                // is updated.
-                muted: context.muted,
-              }),
-            },
-          ],
-        },
-        "volume.set": {
-          actions: [
-            assign({
-              volume: ({ event }) => event.volume,
-            }),
-            {
-              type: "Set video volume",
-              params: ({ event }) => ({ volume: event.volume }),
-            },
-          ],
         },
       },
     },
