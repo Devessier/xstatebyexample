@@ -107,45 +107,26 @@ export const videoPlayerMachine = setup({
           },
         },
         "Initial loading": {
-          type: "parallel",
+          initial: "Hide",
           states: {
-            Loader: {
-              initial: "Hide",
-              states: {
-                Hide: {
-                  tags: "Show loading overlay",
-                  after: {
-                    500: {
-                      target: "Show",
-                    },
-                  },
-                },
-                Show: {
-                  tags: "Show loader",
+            Hide: {
+              tags: "Show loading overlay",
+              after: {
+                500: {
+                  target: "Show",
                 },
               },
             },
-            Metadata: {
-              initial: "Waiting for metadata",
-              states: {
-                "Waiting for metadata": {
-                  on: {
-                    "metadata.loaded": {
-                      target: "Waiting for playing authorization",
-                      actions: assign({
-                        videoDuration: ({ event }) => event.videoDuration,
-                      }),
-                    },
-                  },
-                },
-                "Waiting for playing authorization": {
-                  on: {
-                    canplay: {
-                      target: "#Video Player.Video.Ready",
-                    },
-                  },
-                },
-              },
+            Show: {
+              tags: "Show loader",
+            },
+          },
+          on: {
+            "metadata.loaded": {
+              target: "#Video Player.Video.Ready",
+              actions: assign({
+                videoDuration: ({ event }) => event.videoDuration,
+              }),
             },
           },
         },
