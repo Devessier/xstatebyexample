@@ -192,6 +192,8 @@ export function Demo({ actorOptions }: Props) {
           ref={videoRef}
           poster={snapshot.context.videoPoster}
           src={snapshot.context.currentVideoSrc}
+          // playsInline is required by iOS to not put the video in fullscreen automatically when played.
+          playsInline
           onLoadedMetadata={() => {
             send({
               type: "metadata.loaded",
