@@ -36,10 +36,10 @@ export function Demo({ actorOptions }: Props) {
     videoPlayerMachine.provide({
       actions: {
         "Play the video": () => {
-          videoRef.current?.play();
+          videoRef.current!.play();
         },
         "Pause the video": () => {
-          videoRef.current?.pause();
+          videoRef.current!.pause();
         },
         "Set video current time": (_, { seekTo }) => {
           videoRef.current!.currentTime = seekTo;
@@ -51,10 +51,29 @@ export function Demo({ actorOptions }: Props) {
           videoRef.current!.volume = volume;
         },
         "Set video fullscreen state": (_, { setFullScreen }) => {
-          if (setFullScreen === true) {
-            videoContainerRef.current!.requestFullscreen();
+          const containerRef = videoContainerRef.current!;
+          const videoElement = videoRef.current! as HTMLVideoElement & {
+            webkitSetPresentationMode?: (
+              mode: "fullscreen" | "inline" | "picture-in-picture"
+            ) => void;
+          };
+
+          if (typeof containerRef.requestFullscreen !== "undefined") {
+            if (setFullScreen === true) {
+              containerRef.requestFullscreen();
+            } else {
+              document.exitFullscreen();
+            }
+          } else if (
+            typeof videoElement.webkitSetPresentationMode === "function"
+          ) {
+            if (setFullScreen === true) {
+              videoElement.webkitSetPresentationMode("fullscreen");
+            } else {
+              videoElement.webkitSetPresentationMode("inline");
+            }
           } else {
-            document.exitFullscreen();
+            console.error("Can't set fullscreen state");
           }
         },
       },
@@ -70,6 +89,43 @@ export function Demo({ actorOptions }: Props) {
     }
   );
   const videoTitle = "Big Buck Bunny";
+
+  useEffect(() => {
+    const videoElement = videoRef.current!;
+
+    function handlePresentationModeChanged() {
+      const presentationMode = (
+        videoElement as HTMLVideoElement & {
+          webkitPresentationMode:
+            | "inline"
+            | "fullscreen"
+            | "picture-in-picture";
+        }
+      ).webkitPresentationMode;
+
+      if (presentationMode === "inline") {
+        send({
+          type: "fullscreen.exited",
+        });
+      } else if (presentationMode === "fullscreen") {
+        send({
+          type: "fullscreen.expanded",
+        });
+      }
+    }
+
+    videoElement.addEventListener(
+      "webkitpresentationmodechanged",
+      handlePresentationModeChanged
+    );
+
+    return () => {
+      videoElement.removeEventListener(
+        "webkitpresentationmodechanged",
+        handlePresentationModeChanged
+      );
+    };
+  }, []);
 
   useEffect(() => {
     function handleFullscreenChange() {
