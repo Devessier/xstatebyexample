@@ -162,7 +162,7 @@ export function Demo({ actorOptions }: Props) {
   }, []);
 
   return (
-    <div className={css({ px: "4", py: "2" })}>
+    <div className={css({ py: "2", sm: { px: "4" } })}>
       <div
         ref={videoContainerRef}
         // With the tabIndex, allow the video container to receive the focus, that way, we can listen to keyboard events

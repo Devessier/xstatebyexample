@@ -118,12 +118,19 @@ export function AppExampleSandbox({ Example }: { Example: ExampleComponent }) {
     <div
       className={cx(
         css({
-          py: "12",
-          mt: "12",
-          borderWidth: 2,
-          borderColor: "gray.300",
-          rounded: "md",
-          pos: "relative",
+          base: {
+            mx: "-4",
+            py: "12",
+            mt: "12",
+            borderYWidth: 2,
+            borderColor: "gray.300",
+            pos: "relative",
+          },
+          sm: {
+            mx: "0",
+            rounded: "md",
+            borderWidth: 2,
+          },
         }),
         "not-prose"
       )}
