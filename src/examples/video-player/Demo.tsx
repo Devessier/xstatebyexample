@@ -372,6 +372,7 @@ export function Demo({ actorOptions }: Props) {
               top: "2",
               color: "white",
               fontWeight: "medium",
+              fontSize: { base: "sm", sm: "md", md: "lg" },
             })}
           >
             {videoTitle}
@@ -574,7 +575,7 @@ export function Demo({ actorOptions }: Props) {
                 className={css({
                   color: "gray.50",
                   fontWeight: "medium",
-                  fontSize: "md",
+                  fontSize: { base: "sm", sm: "md" },
                   fontVariantNumeric: "tabular-nums",
                 })}
               >
@@ -604,7 +605,7 @@ export function Demo({ actorOptions }: Props) {
                 className={css({
                   color: "gray.50",
                   fontWeight: "medium",
-                  fontSize: "md",
+                  fontSize: { base: "sm", sm: "md" },
                   fontVariantNumeric: "tabular-nums",
                 })}
               >
