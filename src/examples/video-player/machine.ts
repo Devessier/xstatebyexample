@@ -15,8 +15,8 @@ export const videoPlayerMachine = setup({
       | { type: "time.forward.keyboard" }
       | { type: "play" }
       | { type: "pause" }
+      | { type: "video.click" }
       | { type: "toggle" }
-      | { type: "toggle.click" }
       | { type: "toggle.keyboard" }
       | { type: "canplay" }
       | { type: "canplaythrough" }
@@ -41,6 +41,7 @@ export const videoPlayerMachine = setup({
       volume: number;
       muted: boolean;
       animationActionTimestamp: string;
+      isTouchDevice: boolean;
     },
     input: {} as {
       videoSrc: string;
@@ -70,6 +71,10 @@ export const videoPlayerMachine = setup({
       _params: { setFullScreen: boolean }
     ) => {},
   },
+  guards: {
+    "Is not touch device": ({ context }) => !context.isTouchDevice,
+    "Is touch device": ({ context }) => context.isTouchDevice,
+  },
 }).createMachine({
   id: "Video Player",
   context: ({ input }) => ({
@@ -81,6 +86,10 @@ export const videoPlayerMachine = setup({
     muted: false,
     volume: 1,
     animationActionTimestamp: "",
+    isTouchDevice:
+      typeof window !== "undefined"
+        ? window.matchMedia("(hover: none)").matches === true
+        : false,
   }),
   type: "parallel",
   states: {
@@ -96,13 +105,18 @@ export const videoPlayerMachine = setup({
                 currentVideoSrc: ({ context }) => context.videoSrc,
               }),
             },
+            "video.click": {
+              description:
+                "Centralize the side effects to run by raising a toggle event.",
+              actions: raise({
+                type: "toggle",
+              }),
+            },
             "toggle.*": {
               target: "Initial loading",
               actions: assign({
                 currentVideoSrc: ({ context }) => context.videoSrc,
               }),
-              description:
-                "Both `toggle` and `toggle.click` events will trigger this transition.",
             },
           },
         },
@@ -143,6 +157,10 @@ export const videoPlayerMachine = setup({
                     Idle: {
                       on: {
                         "hover.hovering": {
+                          guard: "Is not touch device",
+                          target: "Hovering",
+                        },
+                        "video.click": {
                           target: "Hovering",
                         },
                       },
@@ -155,10 +173,16 @@ export const videoPlayerMachine = setup({
                         },
                       },
                       on: {
+                        "video.click": {
+                          guard: "Is touch device",
+                          target: "Idle",
+                        },
                         "hover.end": {
+                          guard: "Is not touch device",
                           target: "Idle",
                         },
                         "hover.hovering": {
+                          guard: "Is not touch device",
                           target: "Hovering",
                           reenter: true,
                         },
@@ -174,6 +198,14 @@ export const videoPlayerMachine = setup({
                     },
                     toggle: {
                       target: "Paused",
+                    },
+                    "video.click": {
+                      guard: "Is not touch device",
+                      target: "Paused",
+                      actions: raise({
+                        type: "animate",
+                        animation: "paused",
+                      }),
                     },
                     "toggle.*": {
                       target: "Paused",
@@ -198,8 +230,27 @@ export const videoPlayerMachine = setup({
                   },
                 },
                 Paused: {
-                  tags: "Show controls",
                   entry: "Pause the video",
+                  initial: "Showing controls",
+                  states: {
+                    Idle: {
+                      on: {
+                        "video.click": {
+                          guard: "Is touch device",
+                          target: "Showing controls",
+                        },
+                      },
+                    },
+                    "Showing controls": {
+                      tags: "Show controls",
+                      on: {
+                        "video.click": {
+                          guard: "Is touch device",
+                          target: "Idle",
+                        },
+                      },
+                    },
+                  },
                   on: {
                     play: {
                       target: "Playing",
@@ -207,7 +258,15 @@ export const videoPlayerMachine = setup({
                     toggle: {
                       target: "Playing",
                     },
-                    "toggle.*": {
+                    "video.click": {
+                      guard: "Is not touch device",
+                      target: "Playing",
+                      actions: raise({
+                        type: "animate",
+                        animation: "playing",
+                      }),
+                    },
+                    "toggle.keyboard": {
                       target: "Playing",
                       actions: raise({
                         type: "animate",

@@ -19,6 +19,12 @@ export default defineConfig({
     },
   },
 
+  conditions: {
+    extend: {
+      deviceNoHover: "@media (hover: none)",
+    },
+  },
+
   // Useful for theme customization
   theme: {
     extend: {

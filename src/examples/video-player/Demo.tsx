@@ -189,7 +189,7 @@ export function Demo({ actorOptions }: Props) {
           }
 
           send({
-            type: "toggle.click",
+            type: "video.click",
           });
         }}
         onDoubleClick={() => {
@@ -361,15 +361,18 @@ export function Demo({ actorOptions }: Props) {
             className={flex({
               pos: "absolute",
               inset: "0",
-              bg: "linear-gradient(rgba(35, 35, 35, 0.8) 0%, rgba(35, 35, 35, 0) 40%, rgba(35, 35, 35, 0) 60%, rgba(35, 35, 35, 0.8) 100%)",
+              bg: {
+                base: "linear-gradient(rgba(35, 35, 35, 0.8) 0%, rgba(35, 35, 35, 0) 40%, rgba(35, 35, 35, 0) 60%, rgba(35, 35, 35, 0.8) 100%)",
+                _deviceNoHover: "gray.950/60",
+              },
             })}
           />
 
           <p
             className={css({
               pos: "absolute",
-              left: "4",
-              top: "2",
+              left: { base: "2", sm: "4" },
+              top: { base: "1", sm: "2" },
               color: "white",
               fontWeight: "medium",
               fontSize: { base: "sm", sm: "md", md: "lg" },
@@ -414,21 +417,102 @@ export function Demo({ actorOptions }: Props) {
           </div>
 
           <div
+            className={flex({
+              display: {
+                base: "none",
+                _deviceNoHover:
+                  snapshot.hasTag("Show controls") === true ? "flex" : "none",
+              },
+              justifyContent: "space-evenly",
+              alignItems: "center",
+              pos: "absolute",
+              inset: 0,
+            })}
+          >
+            <button
+              data-ui-control
+              onClick={() => {
+                send({
+                  type: "time.backward",
+                });
+              }}
+              className={css({
+                rounded: "full",
+                overflow: "clip",
+              })}
+            >
+              <BackwardIcon
+                className={css({ h: "12", w: "12", color: "white" })}
+              />
+            </button>
+
+            <button
+              data-ui-control
+              onClick={() => {
+                send({
+                  type: "toggle",
+                });
+              }}
+              className={css({
+                rounded: "full",
+                overflow: "clip",
+              })}
+            >
+              {snapshot.matches({
+                Video: { Ready: { Controls: "Playing" } },
+              }) === true ? (
+                <PauseCircleIcon
+                  className={css({ h: "16", w: "16", color: "white" })}
+                />
+              ) : (
+                <PlayCircleIcon
+                  className={css({ h: "16", w: "16", color: "white" })}
+                />
+              )}
+            </button>
+
+            <button
+              data-ui-control
+              onClick={() => {
+                send({
+                  type: "time.forward",
+                });
+              }}
+              className={css({
+                rounded: "full",
+                overflow: "clip",
+              })}
+            >
+              <ForwardIcon
+                className={css({ h: "12", w: "12", color: "white" })}
+              />
+            </button>
+          </div>
+
+          <div
             className={vstack({
               display:
                 snapshot.hasTag("Show controls") === true ? "flex" : "none",
               pos: "absolute",
               bottom: "0",
               insetX: "0",
-              px: "4",
-              py: "2",
+              px: { base: "2", sm: "4" },
+              py: { base: "1", sm: "2" },
               gap: "0.5",
               alignItems: "stretch",
             })}
           >
-            <div className={hstack({ gap: "1" })}>
+            <div
+              className={hstack({
+                gap: "1",
+                _deviceNoHover: {
+                  "& > [data-no-touch-device]": { display: "none" },
+                },
+              })}
+            >
               <button
                 data-ui-control
+                data-no-touch-device
                 onClick={() => {
                   send({
                     type: "time.backward",
@@ -446,6 +530,7 @@ export function Demo({ actorOptions }: Props) {
 
               <button
                 data-ui-control
+                data-no-touch-device
                 onClick={() => {
                   send({
                     type: "toggle",
@@ -471,6 +556,7 @@ export function Demo({ actorOptions }: Props) {
 
               <button
                 data-ui-control
+                data-no-touch-device
                 onClick={() => {
                   send({
                     type: "time.forward",
@@ -488,7 +574,12 @@ export function Demo({ actorOptions }: Props) {
 
               <div className={spacer()} />
 
-              <div data-ui-control className={center()}>
+              <div
+                data-ui-control
+                className={center({
+                  _deviceNoHover: { display: "none" },
+                })}
+              >
                 <Tooltip.Root
                   openDelay={0}
                   closeDelay={100}
@@ -551,16 +642,21 @@ export function Demo({ actorOptions }: Props) {
                 className={css({
                   rounded: "full",
                   overflow: "clip",
+                  "& > *": {
+                    color: "white",
+                    h: "5",
+                    w: "5",
+                    sm: {
+                      h: "6",
+                      w: "6",
+                    },
+                  },
                 })}
               >
                 {snapshot.matches({ Fullscreen: "On" }) === true ? (
-                  <ArrowsPointingInIcon
-                    className={css({ h: "6", w: "6", color: "white" })}
-                  />
+                  <ArrowsPointingInIcon />
                 ) : (
-                  <ArrowsPointingOutIcon
-                    className={css({ h: "6", w: "6", color: "white" })}
-                  />
+                  <ArrowsPointingOutIcon />
                 )}
               </button>
             </div>
