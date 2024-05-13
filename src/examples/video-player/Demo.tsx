@@ -292,6 +292,11 @@ export function Demo({ actorOptions }: Props) {
               currentTime: videoRef.current!.currentTime,
             });
           }}
+          onEnded={() => {
+            send({
+              type: "video.ended",
+            });
+          }}
           className={css({
             aspectRatio: "wide",
             objectFit: "cover",

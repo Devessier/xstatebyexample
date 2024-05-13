@@ -28,6 +28,7 @@ export const videoPlayerMachine = setup({
           type: "animate";
           animation: "playing" | "paused" | "backward" | "forward";
         }
+      | { type: "video.ended" }
       | { type: "fullscreen.toggle" }
       | { type: "fullscreen.expanded" }
       | { type: "fullscreen.exited" }
@@ -305,10 +306,6 @@ export const videoPlayerMachine = setup({
                       },
                     });
 
-                    enqueue.assign({
-                      videoCurrentTime: updatedVideoCurrentTime,
-                    });
-
                     if (event.type.endsWith(".keyboard")) {
                       enqueue.raise({
                         type: "animate",
@@ -331,10 +328,6 @@ export const videoPlayerMachine = setup({
                       },
                     });
 
-                    enqueue.assign({
-                      videoCurrentTime: updatedVideoCurrentTime,
-                    });
-
                     if (event.type.endsWith(".keyboard")) {
                       enqueue.raise({
                         type: "animate",
@@ -342,6 +335,9 @@ export const videoPlayerMachine = setup({
                       });
                     }
                   }),
+                },
+                "video.ended": {
+                  target: ".Paused",
                 },
                 "volume.mute.toggle": {
                   actions: [
