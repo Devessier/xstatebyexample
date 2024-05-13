@@ -301,7 +301,7 @@ export function Demo({ actorOptions }: Props) {
         {/* Not part of the Transition component as we want the animation to continue even if controls are hidden. */}
         {snapshot.hasTag("Animate action") === true ? (
           <div
-            className={center({
+            className={css({
               pos: "absolute",
               inset: "0",
             })}
@@ -314,9 +314,20 @@ export function Demo({ actorOptions }: Props) {
                   type: "play-state-animation.end",
                 });
               }}
-              className={css({
-                animation: "ping",
-                animationIterationCount: "1!",
+              className={flex({
+                h: "full",
+                px: "16",
+                justifyContent:
+                  snapshot.hasTag("Animate backward") === true
+                    ? "start"
+                    : snapshot.hasTag("Animate forward") === true
+                      ? "end"
+                      : "center",
+                alignItems: "center",
+                "& > *": {
+                  animation: "ping",
+                  animationIterationCount: "1!",
+                },
               })}
             >
               {snapshot.hasTag("Animate playing state") === true ? (
