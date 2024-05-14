@@ -61,9 +61,9 @@ export const videoPlayerMachine = setup({
   actions: {
     "Play the video": () => {},
     "Pause the video": () => {},
-    "Set video current time": (_, params: { seekTo: number }) => {},
-    "Set video muted": (_, params: { muted: boolean }) => {},
-    "Set video volume": (_, params: { volume: number }) => {},
+    "Set video current time": (_, _params: { seekTo: number }) => {},
+    "Set video muted": (_, _params: { muted: boolean }) => {},
+    "Set video volume": (_, _params: { volume: number }) => {},
     "Set animation timestamp to now": assign({
       animationActionTimestamp: () => new Date().toISOString(),
     }),
@@ -88,6 +88,11 @@ export const videoPlayerMachine = setup({
     volume: 1,
     animationActionTimestamp: "",
     isTouchDevice:
+      /**
+       * The window is undefined during server-side rendering.
+       * The state machine will be started from zero when the component will be hydrated client-side
+       * so we can just fake the value on the server.
+       */
       typeof window !== "undefined"
         ? window.matchMedia("(hover: none)").matches === true
         : false,

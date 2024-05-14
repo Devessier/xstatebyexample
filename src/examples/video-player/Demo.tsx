@@ -67,6 +67,9 @@ export function Demo({ actorOptions }: Props) {
           } else if (
             typeof videoElement.webkitSetPresentationMode === "function"
           ) {
+            /**
+             * Must use webkit specific functions on iOS to go fullscreen.
+             */
             if (setFullScreen === true) {
               videoElement.webkitSetPresentationMode("fullscreen");
             } else {
@@ -90,6 +93,9 @@ export function Demo({ actorOptions }: Props) {
   );
   const videoTitle = "Big Buck Bunny";
 
+  /**
+   * iOS specific fullscreen event listeners.
+   */
   useEffect(() => {
     const videoElement = videoRef.current!;
 
@@ -127,10 +133,11 @@ export function Demo({ actorOptions }: Props) {
     };
   }, []);
 
+  /**
+   * Fullscreen event listeners
+   */
   useEffect(() => {
     function handleFullscreenChange() {
-      console.log("handle fullscreen change", document.fullscreenElement);
-
       if (document.fullscreenElement === null) {
         send({
           type: "fullscreen.exited",
@@ -179,6 +186,12 @@ export function Demo({ actorOptions }: Props) {
           });
         }}
         onClick={(e) => {
+          /**
+           * The data-ui-contril attribute is an espace hatch to not take click events
+           * coming from ui controls into account.
+           * This would usually be solved by stopping the propagation of the click event listeners
+           * of all ui controls, but I'm not responsible from the one from the Ark UI library.
+           */
           const uiControlAncestor = (e.target as HTMLElement).closest(
             "[data-ui-control]"
           );
@@ -226,12 +239,6 @@ export function Demo({ actorOptions }: Props) {
                 type: "fullscreen.toggle",
               });
 
-              break;
-            }
-            case "ArrowUp": {
-              break;
-            }
-            case "ArrowDown": {
               break;
             }
             default: {
@@ -300,10 +307,15 @@ export function Demo({ actorOptions }: Props) {
           className={css({
             aspectRatio: "wide",
             objectFit: "cover",
+            w: "full",
           })}
         />
 
-        {/* Not part of the Transition component as we want the animation to continue even if controls are hidden. */}
+        {/*
+          The animated playing state icons
+
+          Not part of the Transition component as we want the animation to continue even if controls are hidden.
+        */}
         {snapshot.hasTag("Animate action") === true ? (
           <div
             className={css({
@@ -397,6 +409,7 @@ export function Demo({ actorOptions }: Props) {
             {videoTitle}
           </p>
 
+          {/* Initial loader + Play button for the Stopped state */}
           <div
             className={center({
               pos: "absolute",
@@ -432,6 +445,7 @@ export function Demo({ actorOptions }: Props) {
             ) : null}
           </div>
 
+          {/* Controls for touch devices (play/pause, backward, forward) */}
           <div
             className={flex({
               display: {
@@ -505,6 +519,7 @@ export function Demo({ actorOptions }: Props) {
             </button>
           </div>
 
+          {/* Main controls (play/pause, backward, forward, volume, fullscreen, timeline) */}
           <div
             className={vstack({
               display:
@@ -590,6 +605,11 @@ export function Demo({ actorOptions }: Props) {
 
               <div className={spacer()} />
 
+              {/*
+                The volume controls.
+
+                They will be hidden on touch devices as I assume volume is externally managed on these devices
+              */}
               <div
                 data-ui-control
                 className={center({
