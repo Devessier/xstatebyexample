@@ -1,4 +1,4 @@
-import { assign, enqueueActions, raise, setup } from "xstate";
+import { assign, enqueueActions, not, raise, setup } from "xstate";
 
 export const videoPlayerMachine = setup({
   types: {
@@ -73,7 +73,6 @@ export const videoPlayerMachine = setup({
     ) => {},
   },
   guards: {
-    "Is not touch device": ({ context }) => !context.isTouchDevice,
     "Is touch device": ({ context }) => context.isTouchDevice,
   },
 }).createMachine({
@@ -163,7 +162,7 @@ export const videoPlayerMachine = setup({
                     Idle: {
                       on: {
                         "hover.hovering": {
-                          guard: "Is not touch device",
+                          guard: not("Is touch device"),
                           target: "Hovering",
                         },
                         "video.click": {
@@ -184,11 +183,11 @@ export const videoPlayerMachine = setup({
                           target: "Idle",
                         },
                         "hover.end": {
-                          guard: "Is not touch device",
+                          guard: not("Is touch device"),
                           target: "Idle",
                         },
                         "hover.hovering": {
-                          guard: "Is not touch device",
+                          guard: not("Is touch device"),
                           target: "Hovering",
                           reenter: true,
                         },
@@ -206,7 +205,7 @@ export const videoPlayerMachine = setup({
                       target: "Paused",
                     },
                     "video.click": {
-                      guard: "Is not touch device",
+                      guard: not("Is touch device"),
                       target: "Paused",
                       actions: raise({
                         type: "animate",
@@ -265,7 +264,7 @@ export const videoPlayerMachine = setup({
                       target: "Playing",
                     },
                     "video.click": {
-                      guard: "Is not touch device",
+                      guard: not("Is touch device"),
                       target: "Playing",
                       actions: raise({
                         type: "animate",
