@@ -2,20 +2,19 @@
 id: 4
 title: "User Activity"
 image:
-  url: "https://stately.ai/registry/machines/8889a0fa-4e05-4880-96c2-09aa186aef4b.light.png"
-  width: 1284
-  height: 600
+  source: "fs"
+  url: "../../assets/examples-images/user-activity.png"
 visualizerSrc: "https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=8889a0fa-4e05-4880-96c2-09aa186aef4b&mode=design"
 complexity: "beginner"
 youtubeVideoId: "bc4-z24w4vQ"
 ---
 
 import { Image } from "astro:assets";
-import { css } from '../../../styled-system/css';
-import DemoEntrypoint from '../../examples/user-activity/index.tsx';
-import DemoGif from '../../assets/user-activity/demo.gif';
+import { css } from "../../../styled-system/css";
+import DemoEntrypoint from "../../examples/user-activity/index.tsx";
+import DemoGif from "../../assets/user-activity/demo.gif";
 
-[VueUse](https://vueuse.org/) is a gold mine for Vue.js developers. It's a collection of *composables* (aka hooks in the Vue world).
+[VueUse](https://vueuse.org/) is a gold mine for Vue.js developers. It's a collection of _composables_ (aka hooks in the Vue world).
 
 VueUse brings complex utility functions, like the [`useIdle`](https://vueuse.org/core/useIdle/) composable that tracks the user's activity on the page. The composable listens to every `mousemove`, `mousedown`, `resize`, `keydown`, `touchart`, and `wheel` event and considers the user active for a specific duration after receiving one of these events.
 The `useIdle` composable restarts the timer whenever the user interacts with the page.
@@ -23,7 +22,15 @@ The `useIdle` composable restarts the timer whenever the user interacts with the
 <Image
   src={DemoGif}
   alt="User simulates inactivity to see how the state machine reacts."
-  class={css({ mx: "auto", aspectRatio: "wide", objectFit: "cover", borderStyle: "solid", borderWidth: 1, borderColor: "gray.300", rounded: "2xl" })}
+  class={css({
+    mx: "auto",
+    aspectRatio: "wide",
+    objectFit: "cover",
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderColor: "gray.300",
+    rounded: "2xl",
+  })}
 />
 
 XState excels at orchestrating code with timers, and this example will be fun to reimplement! It combines the [debouncing](/debouncing/) and [throttling](/throttling/) patterns.
@@ -49,13 +56,13 @@ const domEventListener = fromCallback(({ input, sendBack }) => {
    */
   window.addEventListener("mousemove", () => {
     sendBack({
-      type: "activity"
+      type: "activity",
     });
   });
 
   document.addEventListener("visibilitychange", () => {
     sendBack({
-      type: "activity"
+      type: "activity",
     });
   });
 
@@ -96,7 +103,7 @@ As we'll see below, the state machine handles the `"activity"` events differentl
 The user is, by default, considered active. The initial state is `Active.Idle`,
 and a timer is instantly started with the value of the dynamic delay `"Inactivity timeout"`.
 
-When the timer ends, it targets the `Active.Done` *final* state, which triggers a transition to the `Inactive` state.
+When the timer ends, it targets the `Active.Done` _final_ state, which triggers a transition to the `Inactive` state.
 
 ```ts
 createMachine({
@@ -113,7 +120,9 @@ createMachine({
             },
           },
         },
-        Deduplicating: { /** */ },
+        Deduplicating: {
+          /** */
+        },
         Done: {
           type: "final",
         },
@@ -122,7 +131,9 @@ createMachine({
         target: "Inactive",
       },
     },
-    Inactive: { /** */ },
+    Inactive: {
+      /** */
+    },
   },
 });
 ```
@@ -153,7 +164,9 @@ createMachine({
             },
           },
         },
-        Deduplicating: { /** */ },
+        Deduplicating: {
+          /** */
+        },
         Done: {
           type: "final",
         },
@@ -162,12 +175,14 @@ createMachine({
         target: "Inactive",
       },
     },
-    Inactive: { /** */ },
+    Inactive: {
+      /** */
+    },
   },
 });
 ```
 
-The `Active.Deduplicating` state [*throttles*](/throttling/) the `"activity"` event.
+The `Active.Deduplicating` state [_throttles_](/throttling/) the `"activity"` event.
 Following the throttling pattern, the state machine stops listening to the event for some time.
 It starts a timer of 50ms and then transitions back to the `Active.Idle` state.
 
@@ -207,7 +222,9 @@ createMachine({
         target: "Inactive",
       },
     },
-    Inactive: { /** */ },
+    Inactive: {
+      /** */
+    },
   },
 });
 ```
@@ -224,7 +241,9 @@ createMachine({
   states: {
     Active: {
       initial: "Idle",
-      states: { /** */ },
+      states: {
+        /** */
+      },
       onDone: {
         target: "Inactive",
       },

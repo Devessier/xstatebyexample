@@ -2,14 +2,13 @@
 id: 8
 title: "Authentication"
 image:
-  url: "https://stately.ai/registry/machines/85c8201b-62c9-4a35-9544-a313d8cadf49.light.png"
-  width: 692
-  height: 600
+  source: "fs"
+  url: "../../assets/examples-images/authentication.png"
 visualizerSrc: "https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=85c8201b-62c9-4a35-9544-a313d8cadf49&mode=design"
 complexity: "advanced"
 ---
 
-import DemoEntrypoint from '../../examples/authentication/index.tsx';
+import DemoEntrypoint from "../../examples/authentication/index.tsx";
 
 One of my favorite uses of XState is for global state management.
 It excels in an environment fully controlled by JavaScript, like a SPA (Single Page Application) or React Native.
@@ -21,7 +20,7 @@ It will automatically redirect the user to the first authenticated/not-authentic
 ```tsx
 function Navigation() {
   if (isCheckingInitialAuth === true) {
-    return <SplashScreen />
+    return <SplashScreen />;
   }
 
   return (
@@ -39,7 +38,7 @@ function Navigation() {
         </>
       )}
     </Stack.Navigator>
-  )
+  );
 }
 ```
 

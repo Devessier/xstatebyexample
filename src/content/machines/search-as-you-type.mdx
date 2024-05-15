@@ -2,17 +2,16 @@
 id: 5
 title: "Search as you type"
 image:
-  url: "https://stately.ai/registry/machines/46d48d1d-ce1e-4286-8cd9-226f852a37f0.light.png"
-  width: 1187
-  height: 600
+  source: "fs"
+  url: "../../assets/examples-images/search-as-you-type.png"
 visualizerSrc: "https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=46d48d1d-ce1e-4286-8cd9-226f852a37f0"
 complexity: "intermediate"
 ---
 
 import { Image } from "astro:assets";
-import { css } from '../../../styled-system/css';
-import DemoEntrypoint from '../../examples/search-as-you-type/index.tsx';
-import GoogleSearchAsYouTypeDemo from '../../assets/search-as-you-type/google-demo.gif';
+import { css } from "../../../styled-system/css";
+import DemoEntrypoint from "../../examples/search-as-you-type/index.tsx";
+import GoogleSearchAsYouTypeDemo from "../../assets/search-as-you-type/google-demo.gif";
 
 Many websites implement search as you type for their search engine.
 Search as you type is a UX pattern that makes suggestions to the user
@@ -23,7 +22,15 @@ The first example that comes to my mind is Google's search bar:
 <Image
   src={GoogleSearchAsYouTypeDemo}
   alt="Google search bar suggests results while typing 'search as you type' query"
-  class={css({ mx: "auto", aspectRatio: "wide", objectFit: "contain", borderStyle: "solid", borderWidth: 1, borderColor: "gray.300", rounded: "2xl" })}
+  class={css({
+    mx: "auto",
+    aspectRatio: "wide",
+    objectFit: "contain",
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderColor: "gray.300",
+    rounded: "2xl",
+  })}
 />
 
 From Google's examples, there are a few things to note:
