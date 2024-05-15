@@ -2,15 +2,14 @@
 id: 6
 title: "Notification Center"
 image:
-  url: "https://stately.ai/registry/machines/830e93a8-8ee2-4fcc-9868-0bb9b12bc5a9.light.png"
-  width: 1303
-  height: 600
+  source: "fs"
+  url: "../../assets/examples-images/notification-center.png"
 visualizerSrc: "https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=830e93a8-8ee2-4fcc-9868-0bb9b12bc5a9&mode=design"
 complexity: "intermediate"
 ---
 
-import { css } from '../../../styled-system/css';
-import DemoEntrypoint from '../../examples/notification-center/index.tsx';
+import { css } from "../../../styled-system/css";
+import DemoEntrypoint from "../../examples/notification-center/index.tsx";
 
 Many applications use toasts to give feedback to the user about an action.
 I've often used [React Toastify](https://fkhadra.github.io/react-toastify/introduction/)
@@ -33,8 +32,8 @@ This example is a simplified re-implementation of React Toastify with XState. To
 This example is based on [the Notification machine](/notification).
 Two state machines and one callback logic are involved.
 
-The root machine is `notificationCenterMachine`. This state machine doesn't define any *child state*;
-there is only the [*root state*](https://stately.ai/docs/parent-states#root-state).
+The root machine is `notificationCenterMachine`. This state machine doesn't define any _child state_;
+there is only the [_root state_](https://stately.ai/docs/parent-states#root-state).
 
 ### Spawning notification actors
 
@@ -42,22 +41,29 @@ The `notificationCenterMachine` acts as a proxy, knowing what notification actor
 Its context contains a `notificationRefs` array.
 
 When the state machine receives the `notification.trigger` event, it executes the `Assign notification configuration into context` action,
-which [*spawns*](https://stately.ai/docs/spawn) a new notification actor and prepends the reference to the `notificationRefs` array. The `notificationMachine` is spawned
-with its [*input*](https://stately.ai/docs/input), containing the timeout, title, and description properties,
+which [_spawns_](https://stately.ai/docs/spawn) a new notification actor and prepends the reference to the `notificationRefs` array. The `notificationMachine` is spawned
+with its [_input_](https://stately.ai/docs/input), containing the timeout, title, and description properties,
 defining how the notification machine will behave.
 
 The `notificationMachine` sets its initial context as the input received. In this specific case, the types of the context and the input are equal, and we can do as follows:
 
 ```ts
-context: ({ input }) => input
+context: ({ input }) => input,
 ```
 
 ### Controlling the CSS animation
 
 The notifications with a timeout display a progress bar, which is stopped when the user hovers over the notification or unfocuses the page.
 
-<div class={css({ display: "flex", justifyContent: "center", '& img': { maxWidth: "500px", w: "full" } })}>
-  ![A user hovers over the notification and it automatically stops](../../assets/notification-center/animation-stops-on-hover.gif)
+<div
+  class={css({
+    display: "flex",
+    justifyContent: "center",
+    "& img": { maxWidth: "500px", w: "full" },
+  })}
+>
+  ![A user hovers over the notification and it automatically
+  stops](../../assets/notification-center/animation-stops-on-hover.gif)
 </div>
 
 Inspired by React Toastify, the timer of the notification is managed by the browser: the end of the animation is waited for with the [`animationend`](https://developer.mozilla.org/en-US/docs/Web/API/Element/animationend_event) event,
@@ -147,7 +153,7 @@ The [`enqueueActions`](https://stately.ai/docs/actions#enqueue-actions) action p
 Usually, it's better to rely on the basic actions that make it easier to introspect the machine to determine what it does.
 But, sometimes, running a JavaScript function is necessary to determine what actions XState must execute.
 
-Note that `enqueueActions` *enqueues* actions; it doesn't execute them right away. Actions are always declarative and pure with XState.
+Note that `enqueueActions` _enqueues_ actions; it doesn't execute them right away. Actions are always declarative and pure with XState.
 It's crucial for APIs like [`state.can()`](https://stately.ai/docs/states#statecaneventtype) to work.
 
 We must use `enqueueActions` because we don't know the number of notification actors in advance; we must compute some JavaScript to determine it.
@@ -191,7 +197,7 @@ available to the whole hierarchy of actors invoked and spawned by or under the `
 
 ```ts
 const childMachine = createMachine({
-  entry: sendTo(({ system }) => system.get('notification-center'), {
+  entry: sendTo(({ system }) => system.get("notification-center"), {
     type: "notification.trigger",
     title: "Child machine has been loaded",
     description: "Start sending it some events",
@@ -206,13 +212,17 @@ const appMachine = createMachine({
   },
   initial: "Checking if user is initially authenticated",
   states: {
-    "Checking if user is initially authenticated": { /** */ },
+    "Checking if user is initially authenticated": {
+      /** */
+    },
     Authenticated: {
       invoke: {
         src: childMachine,
       },
     },
-    "Not authenticated": { /** */ },
+    "Not authenticated": {
+      /** */
+    },
   },
 });
 ```

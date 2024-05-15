@@ -2,21 +2,20 @@
 id: 1
 title: "Debouncing"
 image:
-  url: "https://stately.ai/registry/machines/a5823380-73ed-475b-ba67-73c09f421074.light.png"
-  width: 709
-  height: 600
+  source: "fs"
+  url: "../../assets/examples-images/debouncing.png"
 visualizerSrc: "https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?mode=Design&machineId=a5823380-73ed-475b-ba67-73c09f421074"
 complexity: "beginner"
 youtubeVideoId: "sgg_K1yaG7o"
 ---
 
-import DemoEntrypoint from '../../examples/debouncing/index.tsx';
+import DemoEntrypoint from "../../examples/debouncing/index.tsx";
 
 The debouncing pattern is crucial to UI development.
 Debouncing – and [throttling](/throttling/) – are used to moderate
 how much a function is called on a time basis.
 
-When we *debounce* a function by 200ms, the function will be *actually* called only 200ms
+When we _debounce_ a function by 200ms, the function will be _actually_ called only 200ms
 after the function has been called for the last time.
 If the function is called again before the timer ends,
 the timer is aborted, and another one is started; the function is not called.

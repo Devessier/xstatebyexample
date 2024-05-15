@@ -1,0 +1,42 @@
+---
+id: 7
+title: "Video Player"
+image:
+  source: "fs"
+  url: "../../assets/examples-images/video-player.png"
+visualizerSrc: "https://stately.ai/registry/editor/embed/ffb84170-4403-4304-889d-3eefadc0465b?machineId=21494a51-3602-4b2c-a5c5-4615ea983321"
+complexity: "advanced"
+---
+
+import { Image } from "astro:assets";
+import { css } from "../../../styled-system/css";
+import DemoEntrypoint from "../../examples/video-player/index.tsx";
+
+Video players are commonly used across the web. The options are to use a library (like [ReactPlayer](https://github.com/cookpete/react-player)), the player of video hosting platforms (YouTube embedded player), or the native HTML [`<video />`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video) tag.
+
+Whatever solution you choose, a video player requires complex logic to handle:
+
+- Video chunks not coming in time
+- Mouse, keyboard, and touch controls, as well as the device's native controls you don't control
+- Differences in UX interactions between device types
+
+As for any complex logic, state machines shine, making the implementation more robust.
+
+The UI and the UX of this example are based on the video players of [france.tv](https://www.france.tv/) and [YouTube](https://www.youtube.com/). The UI inspiration mainly comes from france.tv.
+
+## Things to test 🧑‍🔬
+
+Here are a few ideas of things you can test:
+
+- [Throttle your network in your browser's devtools.](https://www.browserstack.com/guide/how-to-perform-network-throttling-in-chrome)
+- Test on a desktop, tablet, and mobile device. The UX should be different based on whether your device supports hovering elements.
+- You can use the keyboard to interact with the video when it has the focus
+  - `f` for fullscreen
+  - `Space` and `k` for playing state
+  - `Left arrow` and `Right arrow` to go ±10s
+- Controls are shown when hovering over the video with a mouse on a desktop and clicking on the video on a mobile device.
+- If the video is playing, controls are shown on mouse hover. They are never hidden when the video is paused unless you are on a mobile device. You can hide controls on a mobile device whenever you want.
+
+## Example
+
+<DemoEntrypoint client:load />
