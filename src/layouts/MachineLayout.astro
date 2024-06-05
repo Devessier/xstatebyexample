@@ -212,8 +212,8 @@ const { title, headings } = Astro.props;
   </div>
 </Layout>
 
-<script>
-  const details = document.querySelector("#toc-mobile") as HTMLDetailsElement;
+<script type="module" is:inline data-astro-rerun>
+  const details = document.querySelector("#toc-mobile");
 
   document.querySelectorAll("#toc-mobile a").forEach((linkEl) => {
     linkEl.addEventListener("click", () => {
