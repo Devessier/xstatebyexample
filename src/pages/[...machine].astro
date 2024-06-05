@@ -35,7 +35,9 @@ const { default: reactCode } = await import(
 <MachineLayout
   {title}
   headings={[
-    { depth: 2, slug: "video", text: "Video" },
+    ...(typeof entry.data.youtubeVideoId === "string"
+      ? [{ depth: 2, slug: "video", text: "Video" }]
+      : []),
     ...headings,
     { depth: 2, slug: "code", text: "Code" },
   ]}

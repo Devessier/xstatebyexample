@@ -11,73 +11,210 @@ interface Props {
 }
 
 const { title, headings } = Astro.props;
-
-console.log({ headings })
 ---
 
 <Layout title={title + " | XState by Example"}>
+  <nav
+    class={css({
+      display: { base: "block", xl: "none" },
+      pos: "sticky",
+      top: 0,
+      zIndex: 99,
+      mt: { base: "-10", xl: 0 },
+      bg: "gray.50",
+    })}
+  >
+    <details id="toc-mobile" class="group">
+      <summary
+        class={flex({
+          alignItems: "start",
+          py: "2",
+          borderBottomWidth: 1,
+          borderBottomColor: "gray.200",
+          px: { base: "4", sm: "6", lg: "12" },
+        })}
+      >
+        <div
+          class={flex({
+            maxW: "3xl",
+            alignItems: "center",
+            columnGap: "2",
+            listStyle: "none",
+            px: "2",
+            py: "1",
+            rounded: "md",
+            bg: "white",
+            borderWidth: 1,
+            borderColor: "red.700",
+            shadow: "sm",
+            cursor: "pointer",
+          })}
+        >
+          On this page
+
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class={css({
+              color: "gray.700",
+              w: "4",
+              h: "4",
+              _groupOpen: { transform: "rotate(90deg)" },
+            })}
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m8.25 4.5 7.5 7.5-7.5 7.5"></path>
+          </svg>
+        </div>
+      </summary>
+
+      <div
+        class={css({
+          divideY: "1px",
+          divideColor: "gray.200",
+          bg: "white",
+          shadow: "xl",
+        })}
+      >
+        {
+          headings.map((heading) => (
+            <div
+              class={css({
+                px: { base: "4", sm: "6", lg: "12" },
+              })}
+            >
+              <a
+                href={`#${heading.slug}`}
+                class={css({
+                  display: "block",
+                  py: "1",
+                  pl: heading.depth === 3 ? "2" : undefined,
+                  color: "gray.600",
+                  fontSize: heading.depth === 3 ? "sm" : undefined,
+                  fontWeight: "medium",
+                })}
+              >
+                {heading.text}
+              </a>
+            </div>
+          ))
+        }
+      </div>
+    </details>
+  </nav>
+
   <div
-    class={flex({
-      pos: "relative",
-      mx: "auto",
-      justifyContent: "center",
-      alignItems: "start",
-      w: "fit-content",
-      bg: "white",
-      rounded: { lg: "lg" },
-      shadow: "md",
-      px: { base: "4", sm: "6", lg: "12" },
-      py: { base: "8", sm: "10", lg: "12" },
+    class={css({
+      bg: { base: "white", xl: "initial" },
+      shadow: { base: "md", xl: "none" },
     })}
   >
     <div
-      class={grid({
-        columns: 1,
-        gap: 0,
-        maxW: "3xl",
+      class={flex({
+        direction: { base: "column", xl: "row" },
+        pos: "relative",
+        justifyContent: "center",
+        alignItems: "start",
+        w: "fit-content",
+        bg: "white",
+        rounded: { xl: "lg" },
+        shadow: { xl: "md" },
         mx: "auto",
+        px: { base: "4", sm: "6", lg: "12" },
+        pb: { base: "8", sm: "10", lg: "12" },
+        /**
+         * Prevent the mobile toc to hide the heading
+         */
+        "& [id]": {
+          scrollMarginTop: { base: "14", xl: 0 },
+        },
       })}
     >
-      <header>
-        <div>
-          <h1
-            class={css({
-              fontSize: "4xl",
-              lineHeight: "tight",
-              fontWeight: "bold",
-              letterSpacing: "tight",
-              color: "gray.900",
-            })}
-          >
-            {title}
-          </h1>
-        </div>
-      </header>
       <div
-        class={cx(
-          prose({ size: "lg" }),
-          css({ mt: "8", maxWidth: "full", "& em": { fontStyle: "italic" } })
-        )}
+        class={grid({
+          columns: 1,
+          gap: 0,
+          maxW: "3xl",
+          mx: "auto",
+          py: { base: "4", sm: "6", lg: "12" },
+        })}
       >
-        <slot />
+        <header>
+          <div>
+            <h1
+              class={css({
+                fontSize: "4xl",
+                lineHeight: "tight",
+                fontWeight: "bold",
+                letterSpacing: "tight",
+                color: "gray.900",
+              })}
+            >
+              {title}
+            </h1>
+          </div>
+        </header>
+        <div
+          class={cx(
+            prose({ size: "lg" }),
+            css({ mt: "8", maxWidth: "full", "& em": { fontStyle: "italic" } })
+          )}
+        >
+          <slot />
+        </div>
       </div>
+
+      <!-- This is heavily inspired by the Table of Content on Josh Comeau's website, visible here: https://www.joshwcomeau.com/css/center-a-div/ -->
+      <aside
+        class={css({
+          pos: "sticky",
+          top: "12",
+          mt: "12",
+          maxH: "calc(-172px + 100vh)",
+          zIndex: "10",
+          ml: "12",
+          w: "56",
+          overflow: "auto",
+          display: { base: "none", xl: "block" },
+        })}
+      >
+        <p class={css({ fontSize: "lg", fontWeight: "semibold", mb: "4" })}>
+          On this page
+        </p>
+
+        {
+          headings.map((heading) => (
+            <a
+              href={`#${heading.slug}`}
+              class={css({
+                display: "block",
+                mt: heading.depth === 2 ? "2" : "1",
+                ml: heading.depth === 3 ? "2" : undefined,
+                color: "gray.600",
+                fontSize: heading.depth === 3 ? "sm" : undefined,
+                fontWeight: "medium",
+              })}
+            >
+              {heading.text}
+            </a>
+          ))
+        }
+      </aside>
     </div>
-
-    <!-- This is heavily inspired by the Table of Content on Josh Comeau's website, visible here: https://www.joshwcomeau.com/css/center-a-div/ -->
-    <aside
-      class={css({ pos: "sticky", top: 172, maxH: "calc(-172px + 100vh)", zIndex: "10", ml: "12", w: "56", overflow: "auto", display: { base: "none", xl: "block" } })}
-    >
-      <p class={css({ fontSize: "lg", fontWeight: "semibold", mb: "4" })}>On this page</p>
-
-      {headings.map(heading => (
-        <a href={`#${heading.slug}`} class={css({
-          display: "block",
-          mt: heading.depth === 2 ? "2" : "1",
-          ml: heading.depth === 3 ? "2" : undefined,
-          fontSize: heading.depth === 3 ? "sm" : undefined,
-          fontWeight: "medium"
-        })}>{heading.text}</a>
-      ))}
-    </aside>
   </div>
 </Layout>
+
+<script>
+  const details = document.querySelector("#toc-mobile") as HTMLDetailsElement;
+
+  document.querySelectorAll("#toc-mobile a").forEach((linkEl) => {
+    linkEl.addEventListener("click", () => {
+      details.open = false;
+    });
+  });
+</script>
