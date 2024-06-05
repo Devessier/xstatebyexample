@@ -47,6 +47,8 @@ including the HTTP requests made to your authentication API.
 
 ## Example
 
+<DemoEntrypoint client:load />
+
 The state machine first checks if the user is initially authenticated.
 In a real-world application, you would request a `/me` endpoint or authentication third-party service here.
 The machine redirects the user to the screen matching her authentication state.
@@ -64,5 +66,3 @@ the authentication token, and it will clear the user's data. The machine will al
 
 Error handling is crucial in this scenario. In case of an error during signing-in or signing-up, an alert is displayed
 with the error in a human-readable format. Promise actors can throw errors; the machine handles them thanks to the `onError` transitions.
-
-<DemoEntrypoint client:load />

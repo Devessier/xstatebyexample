@@ -22,6 +22,7 @@ export default defineConfig({
   conditions: {
     extend: {
       deviceNoHover: "@media (hover: none)",
+      groupOpen: ".group[open] &",
     },
   },
 
