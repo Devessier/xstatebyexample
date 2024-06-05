@@ -32,6 +32,10 @@ const { title, headings } = Astro.props;
           borderBottomWidth: 1,
           borderBottomColor: "gray.200",
           px: { base: "4", sm: "6", lg: "12" },
+          listStyle: "none",
+          "&::-webkit-details-marker": {
+            display: "none",
+          },
         })}
       >
         <div
@@ -39,7 +43,6 @@ const { title, headings } = Astro.props;
             maxW: "3xl",
             alignItems: "center",
             columnGap: "2",
-            listStyle: "none",
             px: "2",
             py: "1",
             rounded: "md",
