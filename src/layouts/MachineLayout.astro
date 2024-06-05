@@ -24,7 +24,7 @@ const { title, headings } = Astro.props;
       bg: "gray.50",
     })}
   >
-    <details id="toc-mobile" class="group">
+    <details id="toc-mobile" class={cx("group", css({ pos: "relative" }))}>
       <summary
         class={flex({
           alignItems: "start",
@@ -33,6 +33,7 @@ const { title, headings } = Astro.props;
           borderBottomColor: "gray.200",
           px: { base: "4", sm: "6", lg: "12" },
           listStyle: "none",
+          // Hide the details marker on iOS
           "&::-webkit-details-marker": {
             display: "none",
           },
@@ -51,6 +52,7 @@ const { title, headings } = Astro.props;
             borderColor: "red.700",
             shadow: "sm",
             cursor: "pointer",
+            userSelect: "none",
           })}
         >
           On this page
@@ -78,6 +80,11 @@ const { title, headings } = Astro.props;
 
       <div
         class={css({
+          pos: "absolute",
+          bottom: 0,
+          insetX: 0,
+          translate: "auto",
+          translateY: "100%",
           divideY: "1px",
           divideColor: "gray.200",
           bg: "white",
