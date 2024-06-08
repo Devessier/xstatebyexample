@@ -112,7 +112,9 @@ function SignOnForm({
    */
   const [form, setForm] = useState<"sign in" | "sign up">("sign in");
 
-  const isSubmitting = useSelector(actorRef, (state) => state.hasTag('Submitting sign-on form'))
+  const isSubmitting = useSelector(actorRef, (state) =>
+    state.hasTag("Submitting sign-on form")
+  );
 
   const [validationError, setValidationError] = useState<string | undefined>(
     undefined
@@ -292,11 +294,11 @@ function SignOnForm({
             />
           </div>
 
-          {form === "sign up" ? (
-            <p className={css({ mt: "2", fontSize: "sm", color: "gray.500" })}>
-              Any username is valid unless it's "XState".
-            </p>
-          ) : null}
+          <p className={css({ mt: "2", fontSize: "sm", color: "gray.500" })}>
+            {form === "sign up"
+              ? `Any username is valid unless it's "XState".`
+              : "Any username is valid."}
+          </p>
         </div>
 
         <div>
@@ -321,12 +323,11 @@ function SignOnForm({
             />
           </div>
 
-          {form === "sign in" ? (
-            <p className={css({ mt: "2", fontSize: "sm", color: "gray.500" })}>
-              Any password is valid if it contains 2 characters or more, e.g.
-              "Test".
-            </p>
-          ) : null}
+          <p className={css({ mt: "2", fontSize: "sm", color: "gray.500" })}>
+            {form === "sign in"
+              ? 'Any password is valid if it contains 2 characters or more, e.g. "Test".'
+              : "Any password is valid."}
+          </p>
         </div>
 
         <button
@@ -346,7 +347,7 @@ function SignOnForm({
             cursor: "pointer",
             _hover: { bg: "gray.800" },
             animation: isSubmitting === true ? "pulse" : undefined,
-            animationDuration: "500ms"
+            animationDuration: "500ms",
           })}
         >
           Submit
