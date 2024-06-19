@@ -208,7 +208,7 @@ export function TheMastHead({
                 pos: "fixed",
                 insetY: "0",
                 right: "0",
-                zIndex: "10",
+                zIndex: "30",
                 w: "full",
                 overflowY: "auto",
                 bgColor: "white",
