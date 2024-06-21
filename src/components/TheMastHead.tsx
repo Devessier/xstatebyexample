@@ -6,7 +6,9 @@ import AppTwitterIcon from "./icons/AppTwitterIcon";
 import AppGithubIcon from "./icons/AppGithubIcon";
 import { useState } from "react";
 
-const mastHeadLinks: Array<{ href: string; label: string }> = [
+const CHANGELOG_URL = "https://buttondown.email/xstate-by-example/archive/";
+
+const mastHeadLinks: Array<{ href: string; label: string; external?: true }> = [
   {
     label: "Examples",
     href: "/#examples",
@@ -14,6 +16,16 @@ const mastHeadLinks: Array<{ href: string; label: string }> = [
   {
     label: "Tips & Tricks",
     href: "/tips/",
+  },
+  {
+    label: "Videos",
+    href: "https://www.youtube.com/playlist?list=PLM0SYHogd5JOEtstuSvHtYInvxgUAoEkE",
+    external: true,
+  },
+  {
+    label: "Podcast",
+    href: "https://xstate-in-the-wild.transistor.fm",
+    external: true,
   },
 ];
 
@@ -68,7 +80,7 @@ export function TheMastHead({
           alignItems: "center",
           mx: "auto",
           maxW: "7xl",
-          px: { base: "4", sm: "6", lg: "8" }
+          px: { base: "4", sm: "6", lg: "8" },
         })}
       >
         <div
@@ -135,6 +147,7 @@ export function TheMastHead({
             <a
               key={index}
               href={link.href}
+              target={link.external === true ? "_blank" : undefined}
               className={css({
                 fontSize: "md",
                 fontWeight: "semibold",
@@ -150,47 +163,55 @@ export function TheMastHead({
           className={hstack({
             display: { base: "none", md: "flex" },
             gap: "4",
+            "& > a": {
+              p: "1.5",
+              rounded: "md",
+              cursor: "pointer",
+              _hover: { bg: "gray.100" },
+              "& > svg": {
+                w: "6",
+                h: "6",
+                color: "gray.400",
+              },
+            },
           })}
         >
+          <a href={CHANGELOG_URL} target="_blank">
+            <span
+              className={css({
+                srOnly: true,
+              })}
+            >
+              Changelog
+            </span>
+
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="size-6"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4.125 3C3.089 3 2.25 3.84 2.25 4.875V18a3 3 0 0 0 3 3h15a3 3 0 0 1-3-3V4.875C17.25 3.839 16.41 3 15.375 3H4.125ZM12 9.75a.75.75 0 0 0 0 1.5h1.5a.75.75 0 0 0 0-1.5H12Zm-.75-2.25a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5H12a.75.75 0 0 1-.75-.75ZM6 12.75a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5H6Zm-.75 3.75a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75ZM6 6.75a.75.75 0 0 0-.75.75v3c0 .414.336.75.75.75h3a.75.75 0 0 0 .75-.75v-3A.75.75 0 0 0 9 6.75H6Z"
+                clipRule="evenodd"
+              />
+              <path d="M18.75 6.75h1.875c.621 0 1.125.504 1.125 1.125V18a1.5 1.5 0 0 1-3 0V6.75Z" />
+            </svg>
+          </a>
+
           {contacts
             .filter((contact) => contact.hideOnHeader !== true)
             .map((contact, index) => (
-              <a
-                key={index}
-                href={contact.href}
-                className={css({
-                  p: "1.5",
-                  rounded: "md",
-                  cursor: "pointer",
-                  _hover: { bg: "gray.100" },
-                })}
-              >
+              <a key={index} href={contact.href}>
                 <span className={css({ srOnly: true })}>{contact.alt}</span>
 
                 {contact.icon === "email" ? (
-                  <AppMailIcon
-                    className={css({
-                      w: "6",
-                      h: "6",
-                      color: "gray.400",
-                    })}
-                  />
+                  <AppMailIcon />
                 ) : contact.icon === "twitter" ? (
-                  <AppTwitterIcon
-                    className={css({
-                      w: "6",
-                      h: "6",
-                      color: "gray.400",
-                    })}
-                  />
+                  <AppTwitterIcon />
                 ) : contact.icon === "github" ? (
-                  <AppGithubIcon
-                    className={css({
-                      w: "6",
-                      h: "6",
-                      color: "gray.400",
-                    })}
-                  />
+                  <AppGithubIcon />
                 ) : null}
               </a>
             ))}
@@ -259,17 +280,20 @@ export function TheMastHead({
               <div
                 className={vstack({ py: "6", gap: "2", alignItems: "stretch" })}
               >
-                {mastHeadLinks.map((link, index) => (
+                {[
+                  ...mastHeadLinks,
+                  { href: CHANGELOG_URL, external: true, label: "Changelog" },
+                ].map((link, index) => (
                   <a
                     key={index}
                     href={link.href}
+                    target={link.external === true ? "_blank" : undefined}
                     className={css({
                       display: "block",
                       rounded: "lg",
                       mx: "-3",
                       px: "3",
                       py: "2",
-                      // fontSize: "base",
                       fontWeight: "semibold",
                       color: "gray.900",
                       _hover: { bg: "gray.50" },
