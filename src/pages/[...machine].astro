@@ -6,6 +6,7 @@ import MachineLayout from "../layouts/MachineLayout.astro";
 import Tabs from "../components/Tabs.tsx";
 import StatelyVisualizer from "../components/StatelyVisualizer.astro";
 import { css } from "../../styled-system/css";
+import * as cheerio from "cheerio";
 
 export async function getStaticPaths() {
   const machinesEntries = await getCollection("machines");
@@ -30,6 +31,22 @@ const { default: machineCode } = await import(
 const { default: reactCode } = await import(
   `../examples/${Astro.params.machine}/Demo.tsx?raw`
 );
+
+let videoTitle: string | undefined;
+
+if (typeof entry.data.youtubeVideoId === "string") {
+  const youtubeVideoPageRes = await fetch(
+    `https://youtube.com/watch?v=${entry.data.youtubeVideoId}`
+  );
+  const youtubeVideoPageHtml = await youtubeVideoPageRes.text();
+
+  const $ = cheerio.load(youtubeVideoPageHtml);
+
+  videoTitle = $("meta[name=title]").attr("content");
+  if (videoTitle === undefined) {
+    throw new Error("Expected to find the video title on the page");
+  }
+}
 ---
 
 <MachineLayout
@@ -47,7 +64,8 @@ const { default: reactCode } = await import(
       <div id="video" class={css({ py: "6", w: "full" })}>
         <YouTube
           id={entry.data.youtubeVideoId}
-          poster={`https://i.ytimg.com/vi/${entry.data.youtubeVideoId}/maxresdefault.jpg`}
+          posterQuality="max"
+          title={videoTitle}
           class={css({ w: "full", maxW: "none!" })}
         />
       </div>
