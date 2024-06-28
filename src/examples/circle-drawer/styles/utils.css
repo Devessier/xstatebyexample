@@ -1,0 +1,46 @@
+/****************************
+----------  SETUP  ----------
+****************************/
+html,
+body,
+button,
+p {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+  font-size: 100%;
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+:root {
+  font-family: system-ui, sans-serif, "Helvetica Neue", Roboto, Arial;
+  line-height: 1;
+  font-size: 16px;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  input {
+    accent-color: var(--primary-color);
+    cursor: pointer;
+  }
+  & button:disabled {
+    opacity: 0.5;
+  }
+}
+
+/****************************
+----------  UTILS  ----------
+****************************/
+
