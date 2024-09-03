@@ -6,12 +6,13 @@ import { prose } from "../../styled-system/recipes";
 
 interface Props {
   title: string;
+  description: string;
 }
 
-const { title } = Astro.props;
+const { title, description } = Astro.props;
 ---
 
-<Layout title={title + " | XState by Example"}>
+<Layout title={title + " | XState by Example"} description={description}>
   <div
     class={css({
       ml: "auto",
