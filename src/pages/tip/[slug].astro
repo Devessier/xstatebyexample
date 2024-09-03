@@ -12,14 +12,15 @@ export async function getStaticPaths() {
     props: {
       entry,
       title: entry.data.title,
+      description: entry.data.description,
     },
   }));
 }
 
-const { entry, title } = Astro.props;
+const { entry, title, description } = Astro.props;
 const { Content } = await entry.render();
 ---
 
-<TipLayout title={title}>
+<TipLayout {...{ title, description }}>
   <Content />
 </TipLayout>

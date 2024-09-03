@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { css } from "../../styled-system/css";
-import { vstack } from "../../styled-system/patterns";
+import { hstack, vstack } from "../../styled-system/patterns";
 import { getCollection } from "astro:content";
 
 const tipsEntries = await getCollection("tips");
@@ -47,7 +47,7 @@ const orderedTipsEntries = tipsEntries.sort((a, b) => a.data.id - b.data.id);
         </p>
       </div>
     </header>
-    <div class={css({ mt: "10" })}>
+    <div class={css({ mt: "12" })}>
       <div
         class={css({
           ml: "auto",
@@ -59,26 +59,50 @@ const orderedTipsEntries = tipsEntries.sort((a, b) => a.data.id - b.data.id);
           lg: { pl: "8", pr: "8" },
         })}
       >
-        <div class={vstack({ gap: "4", alignItems: "stretch" })}>
+        <div class={vstack({ gap: "12", alignItems: "stretch" })}>
           {
-            orderedTipsEntries.map((tip) => (
-              <article
-                class={css({
-                  display: "block",
-                  rounded: "lg",
-                  fontSize: "lg",
-                  fontWeight: "semibold",
-                  color: "gray.900",
-                })}
-              >
-                <a
-                  href={`/tip/${tip.slug}/`}
-                  class={css({ _hover: { textDecoration: "underline" } })}
+            orderedTipsEntries.map((tip) => {
+              const urlToTip = `/tip/${tip.slug}/`;
+
+              return (
+                <article
+                  class={vstack({
+                    rounded: "lg",
+                    position: "relative",
+                    gap: "2",
+                    alignItems: "start",
+                  })}
                 >
-                  {tip.data.title}
-                </a>
-              </article>
-            ))
+                  <h3
+                    class={css({
+                      fontSize: "lg",
+                      fontWeight: "semibold",
+                      color: "gray.900",
+                      _hover: { textDecoration: "underline" },
+                    })}
+                  >
+                    <a href={urlToTip}>{tip.data.title}</a>
+                  </h3>
+
+                  <p class={css({ color: "gray.700" })}>
+                    {tip.data.description}
+                  </p>
+
+                  <a
+                    href={urlToTip}
+                    class={hstack({
+                      gap: "1",
+                      alignItems: "center",
+                      fontSize: "sm",
+                      fontWeight: "medium",
+                      color: { base: "red.700", _hover: "red.600" },
+                    })}
+                  >
+                    Read more
+                  </a>
+                </article>
+              );
+            })
           }
         </div>
       </div>

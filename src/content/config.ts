@@ -21,6 +21,7 @@ const tipCollection = defineCollection({
   schema: z.object({
     id: z.number().nonnegative(),
     title: z.string(),
+    description: z.string(),
   }),
 });
 

@@ -1,0 +1,151 @@
+---
+title: "Invoke actors in the root state"
+description: "One of my favorite XState tricks is invoking actors at the machine's top level. You should probably be using it instead of spawning unique actors."
+id: 2
+---
+
+One of my favorite features of XState is the possibility to invoke actors at the *root state* of a machine.
+The root state of a machine is the state implicitly created when you call the `createMachine` function, which holds all the other states.
+
+```tsx
+const machine = createMachine(
+  // 👇 This object is the root state.
+  {
+    initial: "",
+    states: { /** ... */ }
+  }
+)
+```
+
+When your state machines grow, there might be a time when you want to separate concerns into different pieces and make them communicate.
+
+I usually end up with a *root* state machine and several small machines that do one thing well. When those small machines must be active for the lifetime of the root machine, I invoke them in the root state.
+
+For instance, I have ever had an `appMachine` that invoked an `authenticationMachine`:
+
+```tsx
+const appMachine = createMachine({
+  invoke: {
+    src: "authenticationMachine"
+  }
+})
+```
+
+The actor invoked from the `authenticationMachine` will be created when the `appMachine` starts and ends with it, too.
+
+If you want to send events to the `authenticationMachine`, you can provide an identifier when invoking the machine:
+
+```tsx {4}
+const appMachine = createMachine({
+  invoke: {
+    src: "authenticationMachine",
+    id: "auth"
+  }
+})
+```
+
+Later you can send events to the actor with the [`sendTo` action](https://stately.ai/docs/actions#send-to-action):
+
+```tsx
+actions: sendTo("auth", { type: "sign-out" }),
+```
+
+## Spawning vs. Invoking
+
+Another way of doing this is to *spawn* a global actor and store it in the context of the machine.
+
+```tsx
+const machine = setup({
+  types: {} as {
+    context: {
+      auth: ActorRefFrom<typeof authenticationMachine>,
+    };
+    events: { type: "disconnect" } | { /** ... */ }
+  },
+  actors: {
+    authenticationMachine,
+  },
+}).createMachine({
+  // 👇 Providing a function as the context's value allows to spawn an actor at the machine's boot.
+  context: ({ spawn }) => ({
+    auth: spawn("authenticationMachine"),
+  }),
+  on: {
+    disconnect: {
+      actions: sendTo(({ context }) => context.auth, { type: "sign-out" }),
+    },
+  },
+});
+```
+
+Spawning has the advantage of providing a better TypeScript experience because you can directly reference the actor as a value when sending an event to it, and you get auto-completion for the available events.
+
+However, this solution is less explicit, making it harder to refactor the machine if it appears that the child actor must no longer be started when the state machine boots but later. That comes for free when you invoke the actor:
+
+```tsx
+const machine = setup({
+  types: {} as {
+    events: { type: "disconnect" } | { /** ... */ }
+  },
+  actors: {
+    authenticationMachine,
+  },
+}).createMachine({
+  states: {
+    Initializing: { /** ... */ },
+    Ready: {
+      invoke: {
+        id: "auth",
+        src: "authenticationMachine",
+      },
+      on: {
+        disconnect: {
+          actions: sendTo("auth", { type: "sign-out" }),
+        },
+      },
+    },
+  },
+});
+```
+
+If type safety matters to you—and it matters to me—you can trick TypeScript to get autocompletion:
+
+```tsx
+sendTo("auth" as unknown as ActorRefFrom<typeof authenticationMachine>, { type: "sign-out" })
+```
+
+## Invoking other kinds of actors
+
+State machines are not the only actor type you can invoke at the root state. I like to invoke callbacks too. You can find two examples on this website.
+
+In the [User Activity example](/user-activity/), the `userActivityMachine` listens to a bunch of events as soon as possible by invoking the `Listen to DOM events` actor in the root state.
+
+```tsx
+export const userActivityMachine = setup({
+  /** ... */
+}).createMachine({
+  /** ... */
+  invoke: {
+    src: "Listen to DOM events",
+    input: ({ context }) => ({
+      events: context.events,
+      listenForVisibilityChange: context.listenForVisibilityChange,
+    }),
+  },
+  /** ... */
+});
+```
+
+The [Notification Center example](/notification-center/) must also listen to browser events immediately. The `notificationCenterMachine` invokes the `windowFocusLogic` actor in the root state.
+
+```tsx
+export const notificationCenterMachine = setup({
+  /** ... */
+}).createMachine({
+  invoke: {
+    src: "windowFocusLogic",
+  },
+});
+```
+
+I hope that you'll want to invoke actors at the root state now!
