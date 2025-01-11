@@ -1,0 +1,138 @@
+---
+title: "Simplify conditional rendering based on states"
+description: "CSS animations play very well with state machines. Let's take a look at the React Toastify library reimplementation with XState and how XState can help control animations."
+id: 3
+---
+
+Have you ever been tired of writing complex conditions to render different components based on the current state of a machine? Most of the time it looks like that:
+
+```tsx
+function App() {
+  const actorRef = useActorRef(authenticationMachine, actorOptions);
+  const state = useSelector(actorRef, (state) => state);
+
+  return (
+    <Layout>
+      {state.matches("Checking if user is initially authenticated") === true ? (
+        <LoadingUserState />
+      ) : state.matches("Not authenticated") === true ? (
+        <SignOnForm actorRef={actorRef} />
+      ) : state.matches("Authenticated") === true ? (
+        <Dashboard actorRef={actorRef} />
+      ) : null}
+    </Layout>
+  );
+}
+```
+
+This code comes from the [Authentication](/authentication/) example. We'll use this example to illustrate this tip.
+
+It often gets more complex than that. Indeed, XState developers like covering every edge case. We use an explicit coding tool for this reason! Covering more cases makes state machines more robust but it also increases the number of branches you have to cover in your rendering process.
+
+**Maybe is there a better way to handle this?** This is what [WebinarGeek](https://www.webinargeek.com/)'s developers think.
+
+[Nick Worrall](https://www.nickworrall.co.uk/), a web developer working at WebinarGeek, released a package to simplify state-based conditional rendering: [`@webinargeek/machine-component`](https://github.com/WebinarGeek/xstate-tools/tree/main/packages/machine-component). Let's see how it works.
+
+The package exports a `createMachineComponent` function. This function takes an object matching the name of the states to a React component.
+
+```tsx
+import { createMachineComponent } from "@webinargeek/machine-component"
+
+const myMachine = createMachine({
+  initial: "a",
+  states: {
+    a: {},
+    b: {},
+    c: {},
+  },
+})
+
+const Component = createMachineComponent<typeof myMachine>({
+  states: {
+    a: () => <div>A</div>,
+    b: () => <div>B</div>,
+    c: () => <div>C</div>,
+  },
+})
+```
+
+We can refactor the first example like so:
+
+```tsx
+import { createMachineComponent } from "@webinargeek/machine-component"
+
+const AuthDispatcher = createMachineComponent<typeof authenticationMachine>({
+  states: {
+    "Checking if user is initially authenticated": () => <LoadingUserState />,
+    'Not authenticated': ({ actorRef }) => <SignOnForm actorRef={actorRef} />,
+    'Authenticated': ({ actorRef }) => <Dashboard actorRef={actorRef} />,
+  },
+});
+
+function App() {
+  const actorRef = useActorRef(authenticationMachine, actorOptions);
+
+  return (
+    <Layout>
+      <AuthDispatcher actorRef={actorRef} />
+    </Layout>
+  );
+}
+```
+
+The `createMachineComponent` function can also take a layout component:
+
+```tsx {4}
+import { createMachineComponent } from "@webinargeek/machine-component"
+
+const AuthDispatcher = createMachineComponent<typeof authenticationMachine>({
+  Component: Layout,
+  states: {
+    "Checking if user is initially authenticated": () => <LoadingUserState />,
+    'Not authenticated': ({ actorRef }) => <SignOnForm actorRef={actorRef} />,
+    'Authenticated': ({ actorRef }) => <Dashboard actorRef={actorRef} />,
+  },
+});
+
+function App() {
+  const actorRef = useActorRef(authenticationMachine, actorOptions);
+
+  return (
+    <AuthDispatcher actorRef={actorRef} />
+  );
+}
+```
+
+This `Component` property makes it possible to declare common layouts across several nested states. It looks like the [*nested routes*](https://router.vuejs.org/guide/essentials/nested-routes) in Vue Router or other routers.
+
+```tsx {9-13}
+import { createMachineComponent } from "@webinargeek/machine-component"
+
+const AuthDispatcher = createMachineComponent<typeof authenticationMachine>({
+  Component: Layout,
+  states: {
+    "Checking if user is initially authenticated": () => <LoadingUserState />,
+    'Not authenticated': ({ actorRef }) => <SignOnForm actorRef={actorRef} />,
+    'Authenticated': {
+      Component: ({ actorRef }) => <DashboardLayout actorRef={actorRef} />,
+      states: {
+        'Dashboard': ({ actorRef }) => <Dashboard actorRef={actorRef} />,
+        'Settings': ({ actorRef }) => <Settings actorRef={actorRef} />,
+      },
+    },
+  },
+});
+
+function App() {
+  const actorRef = useActorRef(authenticationMachine, actorOptions);
+
+  return (
+    <AuthDispatcher actorRef={actorRef} />
+  );
+}
+```
+
+The `<DashboardLayout />` component will be rendered if the machine's current state is `Authenticated.Dashboard` or `Authenticated.Settings`. The `<DashboardLayout />` component takes the `actorRef` property and can use it to send a `sign-out` event to the authentication machine.
+
+
+
