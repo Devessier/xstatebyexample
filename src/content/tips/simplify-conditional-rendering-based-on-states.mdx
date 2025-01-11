@@ -4,6 +4,8 @@ description: "CSS animations play very well with state machines. Let's take a lo
 id: 3
 ---
 
+import { css } from "../../../styled-system/css"
+
 Have you ever been tired of writing complex conditions to render different components based on the current state of a machine? Most of the time it looks like that:
 
 ```tsx
@@ -134,5 +136,6 @@ function App() {
 
 The `<DashboardLayout />` component will be rendered if the machine's current state is `Authenticated.Dashboard` or `Authenticated.Settings`. The `<DashboardLayout />` component takes the `actorRef` property and can use it to send a `sign-out` event to the authentication machine.
 
+<iframe src="https://stackblitz.com/edit/vitejs-vite-yv4acdlw?ctl=1&embed=1&file=src%2FDemo.tsx" class={css({ aspectRatio: "wide", w: "full" })} />
 
-
+[Check out the code on StackBlitz](https://stackblitz.com/edit/vitejs-vite-yv4acdlw?file=src%2FDemo.tsx)
